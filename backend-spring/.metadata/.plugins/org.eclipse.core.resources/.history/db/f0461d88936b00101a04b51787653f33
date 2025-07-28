@@ -1,0 +1,5 @@
+package com.moodyclues.model;
+
+public class Emotion {
+
+}

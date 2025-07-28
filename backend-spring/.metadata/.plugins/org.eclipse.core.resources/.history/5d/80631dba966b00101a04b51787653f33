@@ -1,0 +1,14 @@
+package com.moodyclues.model;
+
+import jakarta.persistence.Entity;
+
+@Entity
+public class Emotion {
+
+	private String id;
+	
+	private String emotionLabel;
+	
+	private String icon;
+	
+}

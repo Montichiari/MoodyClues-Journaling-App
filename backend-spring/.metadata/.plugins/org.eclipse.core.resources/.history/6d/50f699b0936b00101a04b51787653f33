@@ -1,0 +1,13 @@
+package com.moodyclues.model;
+
+import java.util.ArrayList;
+
+public class CounsellorUser extends User {
+	
+	private ArrayList<JournalUser> clients = new ArrayList<JournalUser>();
+	
+	public CounsellorUser() {
+		
+	}
+	
+}

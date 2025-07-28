@@ -1,0 +1,47 @@
+package com.moodyclues.model;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+
+import org.hibernate.annotations.UuidGenerator;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+
+@Entity
+public class JournalEntry {
+
+	@Id
+	@GeneratedValue
+	@UuidGenerator
+	private String id;
+	
+	@ManyToOne
+	private Journal journal;
+	
+	private LocalDateTime createdAt;
+	
+	private LocalDateTime lastSavedAt;
+	
+	private int moodMorning;
+	
+	private int moodAfternoon;
+	
+	private int moodEvening;
+	
+	private double sleep;
+	
+	private double water;
+	
+	private double workHours;
+	
+	private String entryTitle;
+	
+	private String entryText;
+	
+	private ArrayList<Emotion> emotions = new ArrayList<Emotion>();
+	
+	private boolean emotionFeedback;
+}

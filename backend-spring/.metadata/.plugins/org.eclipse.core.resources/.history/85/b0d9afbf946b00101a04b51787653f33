@@ -1,0 +1,23 @@
+package com.moodyclues.model;
+
+import java.util.ArrayList;
+
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToOne;
+
+public class JournalUser extends User {
+
+	@OneToOne
+	private Journal journal;
+	
+	@ManyToMany
+	private ArrayList<CounsellorUser> counsellors = new ArrayList<CounsellorUser>();
+		
+	public JournalUser() {
+		
+	}
+	
+	
+	
+	
+}

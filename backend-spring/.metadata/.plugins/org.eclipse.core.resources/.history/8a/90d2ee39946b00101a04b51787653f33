@@ -1,0 +1,16 @@
+package com.moodyclues.model;
+
+import java.util.ArrayList;
+
+import jakarta.persistence.Entity;
+
+@Entity
+public class CounsellorUser extends User {
+	
+	private ArrayList<JournalUser> clients = new ArrayList<JournalUser>();
+	
+	public CounsellorUser() {
+		
+	}
+	
+}
