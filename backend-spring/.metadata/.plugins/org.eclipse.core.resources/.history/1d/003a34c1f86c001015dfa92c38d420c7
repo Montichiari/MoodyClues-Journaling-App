@@ -1,0 +1,5 @@
+package com.moodyclues.controller;
+
+public class UserController {
+
+}

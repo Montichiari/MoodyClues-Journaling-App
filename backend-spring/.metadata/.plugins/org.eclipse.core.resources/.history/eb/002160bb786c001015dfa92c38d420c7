@@ -1,0 +1,17 @@
+package com.moodyclues.service;
+
+import java.util.Optional;
+
+import com.moodyclues.dto.LoginRequestDto;
+import com.moodyclues.model.User;
+
+public interface UserService {
+
+	public Optional<User> findUserByEmail(String email);
+	
+	public boolean loginAttempt(LoginRequestDto request);
+	
+	public boolean loginAttempt(String email, String password);
+
+	
+}
