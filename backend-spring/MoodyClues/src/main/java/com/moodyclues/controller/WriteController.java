@@ -1,5 +1,34 @@
 package com.moodyclues.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.moodyclues.dto.JournalEntryRequestDto;
+import com.moodyclues.service.JournalEntryService;
+
+@RestController
+@RequestMapping("/api/journal")
 public class WriteController {
 
+	@Autowired
+	JournalEntryService entryService;
+	
+	@PostMapping("/submit")
+	public ResponseEntity<?> submitEntry(JournalEntryRequestDto request) {
+		
+		try {
+			entryService.submitEntry(request);
+			return new ResponseEntity<>(HttpStatus.OK);
+		} catch (Exception e) {
+			
+		}
+		
+		return new ResponseEntity<>(HttpStatus.I_AM_A_TEAPOT);
+		
+	}
+	
 }

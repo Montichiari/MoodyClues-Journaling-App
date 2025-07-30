@@ -1,0 +1,35 @@
+package com.moodyclues.dto;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+public class JournalEntryRequestDto {
+
+	private String journalId;
+	
+	private LocalDateTime createdAt;
+	
+	private LocalDateTime lastSavedAt;
+	
+	private int moodMorning;
+	
+	private int moodAfternoon;
+	
+	private int moodEvening;
+	
+	private double sleep;
+	
+	private double water;
+	
+	private double workHours;
+	
+	private String entryTitle;
+	
+	private String entryText;
+	
+	private List<String> emotions;
+	
+	private boolean emotionFeedback;
+	
+	
+}

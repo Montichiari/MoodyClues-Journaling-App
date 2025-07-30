@@ -25,7 +25,7 @@ public class JournalEntry {
 	private String id;
 	
 	@ManyToOne
-	private Journal journal;
+	private JournalUser user;
 	
 	private LocalDateTime createdAt;
 	
@@ -62,13 +62,13 @@ public class JournalEntry {
 	}
 	
 	// OTHER CONSTRUCTOR/s
-	public JournalEntry(Journal journal) {
-		this.journal = journal;
+	public JournalEntry(JournalUser user) {
+		this.user = user;
 		this.createdAt = LocalDateTime.now();
 	}
 
 	
-	//GETTERS AND SETTERS BELOW
+	// GETTERS AND SETTERS BELOW
 	public String getId() {
 		return id;
 	}
@@ -77,12 +77,12 @@ public class JournalEntry {
 		this.id = id;
 	}
 
-	public Journal getJournal() {
-		return journal;
+	public JournalUser getUser() {
+		return user;
 	}
 
-	public void setJournal(Journal journal) {
-		this.journal = journal;
+	public void setUser(JournalUser user) {
+		this.user = user;
 	}
 
 	public LocalDateTime getCreatedAt() {
@@ -180,6 +180,9 @@ public class JournalEntry {
 	public void setEmotionFeedback(boolean emotionFeedback) {
 		this.emotionFeedback = emotionFeedback;
 	}
+
+	
+
 	
 	
 	

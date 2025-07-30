@@ -7,5 +7,4 @@ import com.moodyclues.model.JournalEntry;
 public interface JournalEntryRepository extends JpaRepository<JournalEntry, String> {
 
 	
-	
 }

@@ -50,6 +50,10 @@ public class JournalUserServiceImpl implements JournalUserService {
 //			return false;
 //		}
 		
+		if (!passwordInput.equals(user.getPassword())) {
+			return false;
+		}
+		
 		
 		return true;
 	}
@@ -62,6 +66,10 @@ public class JournalUserServiceImpl implements JournalUserService {
 //		if (!passwordEncoder.matches(passwordInput, user.getPassword())) {
 //			return false;
 //		}
+		
+		if (!passwordInput.equals(user.getPassword())) {
+			return false;
+		}
 		
 		return true;
 	}

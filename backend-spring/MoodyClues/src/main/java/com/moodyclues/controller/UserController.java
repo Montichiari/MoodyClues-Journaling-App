@@ -16,7 +16,7 @@ import com.moodyclues.service.JournalUserService;
 import jakarta.servlet.http.HttpSession;
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/api/user")
 public class UserController {
 
 	@Autowired

@@ -6,17 +6,17 @@ import java.util.List;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "journal_users")
 public class JournalUser extends User {
 
-	@OneToOne(cascade = CascadeType.ALL)
-	private Journal journal = new Journal();
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)	
+	private List<JournalEntry> entries = new ArrayList<>();
 	
-	@ManyToMany(cascade = CascadeType.ALL)
+	@ManyToMany(mappedBy = "clients", cascade = CascadeType.ALL)
 	private List<CounsellorUser> counsellors = new ArrayList<>();
 	
 	
@@ -27,13 +27,13 @@ public class JournalUser extends User {
 
 	
 	// GETTERS AND SETTERS BELOW
-	public Journal getJournal() {
-		return journal;
+	public List<JournalEntry> getEntries() {
+		return entries;
 	}
 
 
-	public void setJournal(Journal journal) {
-		this.journal = journal;
+	public void setEntries(List<JournalEntry> entries) {
+		this.entries = entries;
 	}
 
 
@@ -45,7 +45,11 @@ public class JournalUser extends User {
 	public void setCounsellors(List<CounsellorUser> counsellors) {
 		this.counsellors = counsellors;
 	}
+
 	
+
+
+
 	
 
 	

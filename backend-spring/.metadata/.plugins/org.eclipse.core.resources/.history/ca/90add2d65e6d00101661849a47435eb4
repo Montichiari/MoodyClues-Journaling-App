@@ -1,0 +1,5 @@
+package com.moodyclues.serviceimpl;
+
+public class JournalEntryServiceImpl {
+
+}
