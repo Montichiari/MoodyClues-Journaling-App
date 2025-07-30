@@ -2,6 +2,7 @@ package com.moodyclues.model;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.hibernate.annotations.UuidGenerator;
 
@@ -50,14 +51,20 @@ public class JournalEntry {
 	@JoinTable(name = "entry_emotions",
 	joinColumns = @JoinColumn(name = "entry_id"),
 	inverseJoinColumns = @JoinColumn(name = "emotion_id"))
-	private ArrayList<Emotion> emotions = new ArrayList<Emotion>();
+	private List<Emotion> emotions = new ArrayList<>();
 	
 	private boolean emotionFeedback;
 	
 	
 	// EMPTY CONSTRUCTOR
 	public JournalEntry() {
-		
+		this.createdAt = LocalDateTime.now();
+	}
+	
+	// OTHER CONSTRUCTOR/s
+	public JournalEntry(Journal journal) {
+		this.journal = journal;
+		this.createdAt = LocalDateTime.now();
 	}
 
 	
@@ -158,11 +165,11 @@ public class JournalEntry {
 		this.entryText = entryText;
 	}
 
-	public ArrayList<Emotion> getEmotions() {
+	public List<Emotion> getEmotions() {
 		return emotions;
 	}
 
-	public void setEmotions(ArrayList<Emotion> emotions) {
+	public void setEmotions(List<Emotion> emotions) {
 		this.emotions = emotions;
 	}
 

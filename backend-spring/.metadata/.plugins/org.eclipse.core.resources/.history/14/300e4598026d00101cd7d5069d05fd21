@@ -1,0 +1,94 @@
+package com.moodyclues;
+
+import java.util.List;
+
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+
+import com.moodyclues.model.Emotion;
+import com.moodyclues.model.Journal;
+import com.moodyclues.model.JournalEntry;
+import com.moodyclues.repository.EmotionRepository;
+import com.moodyclues.repository.JournalEntryRepository;
+import com.moodyclues.repository.JournalRepository;
+import com.moodyclues.repository.JournalUserRepository;
+
+
+@SpringBootApplication
+public class MoodyCluesApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(MoodyCluesApplication.class, args);
+		
+	}
+	
+	@Bean
+	CommandLineRunner ormTest(JournalUserRepository userRepo, EmotionRepository emoRepo, JournalEntryRepository entRepo, JournalRepository journRepo) {
+		return args -> {
+			
+//			String email = "firstTest@email.com";
+//			String password = "password123";
+//			String firstName = "Dave";
+//			String lastName = "Grohl";
+//			
+//			JournalUser testUser = new JournalUser();
+//			
+//			testUser.setEmail(email);
+//			testUser.setPassword(password);
+//			testUser.setFirstName(firstName);
+//			testUser.setLastName(lastName);
+//			
+//			userRepo.save(testUser);
+//			
+//			Emotion happy = new Emotion();
+//			String happyLabel = "happy";
+//			String happyIcon = "123";
+//			happy.setEmotionLabel(happyLabel);
+//			emoRepo.save(happy);
+//			
+//			Emotion sad = new Emotion();
+//			String sadLabel = "sad";
+//			String sadIcon = "123";
+//			sad.setEmotionLabel(sadLabel);
+//			emoRepo.save(sad);
+
+			Journal journal = journRepo.findJournalByUserEmail("firstTest@email.com").orElseThrow();
+			JournalEntry entry = new JournalEntry(journal);
+			
+			int moodMorning = 1;
+			int moodAfternoon = 2;
+			int moodEvening = 5;
+			
+			double sleep = 7.5;
+			double water = 3.5;
+			double workHours = 6.5;
+			
+			String entryTitle = "Best day evaaa";
+			String entryText = "This should be only up to 64 words for our ML";
+			
+			Emotion happy = emoRepo.findEmotionByLabel("happy").orElseThrow();
+			Emotion sad = emoRepo.findEmotionByLabel("sad").orElseThrow();
+
+			boolean emoFeedback = true;
+			
+			entry.setMoodMorning(moodMorning);
+			entry.setMoodAfternoon(moodAfternoon);
+			entry.setMoodEvening(moodEvening);
+			entry.setSleep(sleep);
+			entry.setWater(water);
+			entry.setWorkHours(workHours);
+			entry.setEntryTitle(entryTitle);
+			entry.setEntryText(entryText);
+			List<Emotion> emotions = entry.getEmotions();
+			emotions.add(happy);
+			emotions.add(sad);
+			entry.setEmotions(emotions);
+			
+			
+			
+		};
+	}
+
+}

@@ -1,6 +1,7 @@
 package com.moodyclues.model;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.hibernate.annotations.UuidGenerator;
 
@@ -24,38 +25,47 @@ public class Journal {
 	private JournalUser journalUser;
 	
 	@OneToMany(mappedBy = "journal")
-	private ArrayList<JournalEntry> entries;
+	private List<JournalEntry> entries = new ArrayList<>();
 
 	
 	//EMPTY CONSTRUCTOR
 	public Journal() {
 		
 	}
-	
+
+
 	// GETTERS AND SETTERS BELOW
 	public String getId() {
 		return id;
 	}
 
+
 	public void setId(String id) {
 		this.id = id;
 	}
+
 
 	public JournalUser getJournalUser() {
 		return journalUser;
 	}
 
+
 	public void setJournalUser(JournalUser journalUser) {
 		this.journalUser = journalUser;
 	}
 
-	public ArrayList<JournalEntry> getEntries() {
+
+	public List<JournalEntry> getEntries() {
 		return entries;
 	}
 
-	public void setEntries(ArrayList<JournalEntry> entries) {
+
+	public void setEntries(List<JournalEntry> entries) {
 		this.entries = entries;
 	}
+	
+
+	
 	
 	
 	

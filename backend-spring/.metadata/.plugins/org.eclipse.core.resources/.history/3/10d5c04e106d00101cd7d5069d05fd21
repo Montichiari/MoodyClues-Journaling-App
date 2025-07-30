@@ -1,0 +1,40 @@
+package com.moodyclues.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.moodyclues.dto.LoginRequestDto;
+import com.moodyclues.model.JournalUser;
+import com.moodyclues.service.JournalUserService;
+
+import jakarta.servlet.http.HttpSession;
+
+@RestController
+@RequestMapping("/user")
+public class UserController {
+
+	@Autowired
+	JournalUserService juserService;
+	
+	@PostMapping("/login")
+	public ResponseEntity<?> login(@RequestBody LoginRequestDto request, HttpSession session) {
+		
+		if (juserService.loginAttempt(request)) {
+			String userEmail = request.getEmail();
+			JournalUser user = juserService.findJournalUserByEmail(userEmail);
+			
+			session.setAttribute("id", user.getId());
+			return new ResponseEntity<JournalUser>(user, HttpStatus.OK);
+
+		}
+		
+		APIResponse resp = new APIResponse("Invalid email or password.");
+		return new ResponseEntity<>(resp, HttpStatus.UNAUTHORIZED);
+	}
+	
+}

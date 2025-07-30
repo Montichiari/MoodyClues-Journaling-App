@@ -1,7 +1,9 @@
 package com.moodyclues.model;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToOne;
@@ -11,11 +13,11 @@ import jakarta.persistence.Table;
 @Table(name = "journal_users")
 public class JournalUser extends User {
 
-	@OneToOne
-	private Journal journal;
+	@OneToOne(cascade = CascadeType.ALL)
+	private Journal journal = new Journal();
 	
-	@ManyToMany
-	private ArrayList<CounsellorUser> counsellors = new ArrayList<CounsellorUser>();
+	@ManyToMany(cascade = CascadeType.ALL)
+	private List<CounsellorUser> counsellors = new ArrayList<>();
 	
 	
 	// EMPTY CONSTRUCTOR
@@ -29,17 +31,21 @@ public class JournalUser extends User {
 		return journal;
 	}
 
+
 	public void setJournal(Journal journal) {
 		this.journal = journal;
 	}
 
-	public ArrayList<CounsellorUser> getCounsellors() {
+
+	public List<CounsellorUser> getCounsellors() {
 		return counsellors;
 	}
 
-	public void setCounsellors(ArrayList<CounsellorUser> counsellors) {
+
+	public void setCounsellors(List<CounsellorUser> counsellors) {
 		this.counsellors = counsellors;
 	}
+	
 	
 
 	

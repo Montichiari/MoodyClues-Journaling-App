@@ -1,6 +1,7 @@
 package com.moodyclues.model;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
@@ -16,7 +17,7 @@ public class CounsellorUser extends User {
 	@JoinTable(name = "counsellor_client",
 	joinColumns = @JoinColumn(name = "counsellor_id"),
 	inverseJoinColumns = @JoinColumn(name = "client_id"))
-	private ArrayList<JournalUser> clients = new ArrayList<JournalUser>();
+	private List<JournalUser> clients = new ArrayList<>();
 	
 	// EMPTY CONSTRUCTOR
 	public CounsellorUser() {
@@ -25,13 +26,14 @@ public class CounsellorUser extends User {
 
 	
 	// GETTERS AND SETTERS BELOW
-	public ArrayList<JournalUser> getClients() {
+	public List<JournalUser> getClients() {
 		return clients;
 	}
 
-	public void setClients(ArrayList<JournalUser> clients) {
+	public void setClients(List<JournalUser> clients) {
 		this.clients = clients;
 	}
+	
 	
 	
 	

@@ -1,0 +1,48 @@
+package com.moodyclues.model;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "journal_users")
+public class JournalUser extends User {
+
+	@OneToOne
+	private Journal journal = new Journal();
+	
+	@ManyToMany
+	private List<CounsellorUser> counsellors = new ArrayList<CounsellorUser>();
+	
+	
+	// EMPTY CONSTRUCTOR
+	public JournalUser() {
+		
+	}
+
+	
+	// GETTERS AND SETTERS BELOW
+	public Journal getJournal() {
+		return journal;
+	}
+
+	public void setJournal(Journal journal) {
+		this.journal = journal;
+	}
+
+	public ArrayList<CounsellorUser> getCounsellors() {
+		return counsellors;
+	}
+
+	public void setCounsellors(ArrayList<CounsellorUser> counsellors) {
+		this.counsellors = counsellors;
+	}
+	
+
+	
+	
+}

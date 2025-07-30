@@ -10,8 +10,6 @@ import jakarta.persistence.InheritanceType;
 import jakarta.persistence.MappedSuperclass;
 
 @MappedSuperclass
-@Entity
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class User {
 	
 	@Id

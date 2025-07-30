@@ -1,0 +1,52 @@
+package com.moodyclues;
+
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+
+import com.moodyclues.model.Emotion;
+import com.moodyclues.model.JournalUser;
+import com.moodyclues.model.User;
+import com.moodyclues.repository.JournalUserRepository;
+
+
+@SpringBootApplication
+public class MoodyCluesApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(MoodyCluesApplication.class, args);
+		
+	}
+	
+	@Bean
+	CommandLineRunner ormTest(JournalUserRepository userRepo) {
+		return args -> {
+			
+			String email = "firstTest@email.com";
+			String password = "password123";
+			String firstName = "Dave";
+			String lastName = "Grohl";
+			
+			User testUser = new JournalUser();
+			
+			testUser.setEmail(email);
+			testUser.setPassword(password);
+			testUser.setFirstName(firstName);
+			testUser.setLastName(lastName);
+			
+			Emotion happy = new Emotion();
+			String happyLabel = "happy";
+			String happyIcon = "123";
+			happy.setEmotionLabel(happyLabel);
+			
+			Emotion sad = new Emotion();
+			String sadLabel = "sad";
+			String sadIcon = "123";
+			happy.setEmotionLabel(sadLabel);
+			
+			
+		};
+	}
+
+}

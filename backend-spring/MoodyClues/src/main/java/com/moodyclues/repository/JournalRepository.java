@@ -1,0 +1,20 @@
+package com.moodyclues.repository;
+
+import java.util.Optional;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import com.moodyclues.model.Journal;
+
+public interface JournalRepository extends JpaRepository<Journal, String> {
+
+	@Query("SELECT j FROM Journal j WHERE j.journalUser.id = :id")
+	public Optional<Journal> findJournalByUserId(@Param("id") String userId);
+	
+	@Query("SELECT j FROM Journal j WHERE j.journalUser.email = :email")
+	public Optional<Journal> findJournalByUserEmail(@Param("email")String userEmail);
+
+	
+}
