@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import axios from "axios";
 
-const Login = () => {
+export const Login = () => {
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -29,37 +29,42 @@ const Login = () => {
     }
 
     return (
+        <div className="min-h-screen flex items-center justify-center px-4">
+            <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-4">
+                <h1 className="text-xl text-center">Simple Login</h1>
 
-        <div>
-            <h1>Simple Login</h1>
-            <form onSubmit={handleSubmit}>
                 <div>
-                    <label>Email:</label><br />
+                    <label htmlFor="email" className="block mb-1">Email:</label>
                     <input
+                        id="email"
                         type="text"
                         name="email"
                         placeholder="Email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
+                        className="w-full border px-3 py-2 rounded"
                     />
                 </div>
 
                 <div>
-                    <label>Password:</label><br />
+                    <label htmlFor="password" className="block mb-1">Password:</label>
                     <input
+                        id="password"
                         type="password"
                         name="password"
                         placeholder="Password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
+                        className="w-full border px-3 py-2 rounded"
                     />
                 </div>
 
-                <button type="submit">Login</button>
+                <button type="submit" className="w-full border px-3 py-2 rounded">
+                    Login
+                </button>
             </form>
-
         </div>
-    )
-}
+    );
+};
 
-export default Login
+export default Login;
