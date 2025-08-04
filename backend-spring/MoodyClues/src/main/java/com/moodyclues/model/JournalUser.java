@@ -13,12 +13,16 @@ import jakarta.persistence.Table;
 @Table(name = "journal_users")
 public class JournalUser extends User {
 
+	private boolean showEmotion;
+	
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)	
 	private List<JournalEntry> entries = new ArrayList<>();
 	
 	@ManyToMany(mappedBy = "clients", cascade = CascadeType.ALL)
 	private List<CounsellorUser> counsellors = new ArrayList<>();
 	
+	@OneToMany(mappedBy = "journalUser")
+	private List<LinkRequest> linkRequests = new ArrayList<>();
 	
 	// EMPTY CONSTRUCTOR
 	public JournalUser() {
@@ -29,6 +33,16 @@ public class JournalUser extends User {
 	// GETTERS AND SETTERS BELOW
 	public List<JournalEntry> getEntries() {
 		return entries;
+	}
+
+
+	public boolean isShowEmotion() {
+		return showEmotion;
+	}
+
+
+	public void setShowEmotion(boolean showEmotion) {
+		this.showEmotion = showEmotion;
 	}
 
 

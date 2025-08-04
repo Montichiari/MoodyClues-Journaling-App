@@ -1,0 +1,84 @@
+package com.moodyclues.serviceimpl;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.moodyclues.dto.HabitsEntryRequestDto;
+import com.moodyclues.dto.JournalEntryRequestDto;
+import com.moodyclues.model.Emotion;
+import com.moodyclues.model.HabitsEntry;
+import com.moodyclues.model.JournalEntry;
+import com.moodyclues.model.JournalUser;
+import com.moodyclues.repository.EmotionRepository;
+import com.moodyclues.repository.HabitsEntryRepository;
+import com.moodyclues.repository.JournalEntryRepository;
+import com.moodyclues.service.JournalEntryService;
+import com.moodyclues.service.JournalUserService;
+
+import jakarta.transaction.Transactional;
+
+@Service
+@Transactional
+public class JournalEntryServiceImpl implements JournalEntryService {
+
+	@Autowired
+	JournalEntryRepository jentryRepo;
+	
+	@Autowired
+	HabitsEntryRepository hentryRepo;
+	
+	@Autowired
+	JournalUserService juserService;
+	
+	@Autowired
+	EmotionRepository emoRepo;
+
+	@Override
+	public void submitEntry(JournalEntryRequestDto request) {
+		
+		String userId = request.getUserId();
+		JournalUser user = juserService.findJournalUserById(userId);
+		
+		JournalEntry entry = new JournalEntry(user);
+		entry.setCreatedAt(LocalDateTime.now());
+		
+		entry.setMood(request.getMood());
+		entry.setEntryTitle(request.getEntryTitle());
+		entry.setEntryText(request.getEntryText());
+		
+		List<String> emoStrings = request.getEmotions();
+		
+		Emotion firstEmo = emoRepo.findEmotionByLabel(emoStrings.get(0)).orElseThrow();
+		Emotion secondEmotion = emoRepo.findEmotionByLabel(emoStrings.get(1)).orElseThrow();
+		
+		List<Emotion> emoList = entry.getEmotions();
+		
+		emoList.add(firstEmo);
+		emoList.add(secondEmotion);
+		
+		entry.setEmotions(emoList);
+		
+		jentryRepo.save(entry);
+	}
+
+	@Override
+	public void submitHabits(HabitsEntryRequestDto request) {
+		
+		String userId = request.getUserId();
+		JournalUser user = juserService.findJournalUserById(userId);
+		
+		HabitsEntry entry = new HabitsEntry(user);
+		
+		entry.setSleep(request.getSleep());
+		entry.setWater(request.getWater());
+		entry.setWorkHours(request.getWorkHours());
+		
+		hentryRepo.save(entry);
+		
+	}
+	
+	
+}

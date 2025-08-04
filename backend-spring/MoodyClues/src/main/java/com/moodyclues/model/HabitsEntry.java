@@ -1,0 +1,51 @@
+package com.moodyclues.model;
+
+import java.time.LocalDateTime;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "habits_entries")
+public class HabitsEntry extends Entry {
+
+	private double sleep;
+	
+	private double water;
+	
+	private double workHours;
+	
+	public HabitsEntry() {
+	}
+	
+	public HabitsEntry(JournalUser user) {
+		this.user = user;
+	}
+
+	public double getSleep() {
+		return sleep;
+	}
+
+	public void setSleep(double sleep) {
+		this.sleep = sleep;
+	}
+
+	public double getWater() {
+		return water;
+	}
+
+	public void setWater(double water) {
+		this.water = water;
+	}
+
+	public double getWorkHours() {
+		return workHours;
+	}
+
+	public void setWorkHours(double workHours) {
+		this.workHours = workHours;
+	}
+	
+	
+	
+}

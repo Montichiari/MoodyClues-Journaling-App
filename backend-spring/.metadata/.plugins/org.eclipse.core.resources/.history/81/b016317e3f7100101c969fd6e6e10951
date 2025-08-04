@@ -1,0 +1,23 @@
+package com.moodyclues.service;
+
+import java.util.List;
+
+import com.moodyclues.dto.HabitsEntryRequestDto;
+import com.moodyclues.dto.JournalEntryRequestDto;
+import com.moodyclues.model.HabitsEntry;
+import com.moodyclues.model.JournalEntry;
+
+public interface EntryService {
+
+	public void submitEntry(JournalEntryRequestDto request);
+	
+	public void submitHabits(HabitsEntryRequestDto request);
+	
+	public List<JournalEntry> getAllJournalEntriesByUserId(String userId);
+	
+	public JournalEntry getJournalEntryById();
+	
+	public List<HabitsEntry> getAllHabitsEntries();
+	
+	public HabitsEntry getHabitsEntryById();
+}

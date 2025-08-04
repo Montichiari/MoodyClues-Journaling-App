@@ -15,7 +15,7 @@ public interface JournalUserRepository extends JpaRepository<JournalUser, String
 	@Query("SELECT u FROM JournalUser u WHERE u.email = :email")
 	public Optional<JournalUser> findJournalUserByEmail(@Param("email") String email);
 	
-	@Query("SELECT u FROM JournalUser u WHERE u.id = :id"	)
+	@Query("SELECT u FROM JournalUser u WHERE u.id = :id")
 	public Optional<JournalUser> findJournalUserById(@Param("id") String id);
 	
 }

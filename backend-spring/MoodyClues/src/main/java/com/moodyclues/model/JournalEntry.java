@@ -4,44 +4,17 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.hibernate.annotations.UuidGenerator;
-
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "entries")
-public class JournalEntry {
-
-	@Id
-	@GeneratedValue
-	@UuidGenerator
-	private String id;
+@Table(name = "journal_entries")
+public class JournalEntry extends Entry {
 	
-	@ManyToOne
-	private JournalUser user;
-	
-	private LocalDateTime createdAt;
-	
-	private LocalDateTime lastSavedAt;
-	
-	private int moodMorning;
-	
-	private int moodAfternoon;
-	
-	private int moodEvening;
-	
-	private double sleep;
-	
-	private double water;
-	
-	private double workHours;
+	private int mood;
 	
 	private String entryTitle;
 	
@@ -53,18 +26,15 @@ public class JournalEntry {
 	inverseJoinColumns = @JoinColumn(name = "emotion_id"))
 	private List<Emotion> emotions = new ArrayList<>();
 	
-	private boolean emotionFeedback;
 	
 	
 	// EMPTY CONSTRUCTOR
 	public JournalEntry() {
-		this.createdAt = LocalDateTime.now();
 	}
 	
 	// OTHER CONSTRUCTOR/s
 	public JournalEntry(JournalUser user) {
 		this.user = user;
-		this.createdAt = LocalDateTime.now();
 	}
 
 	
@@ -101,54 +71,6 @@ public class JournalEntry {
 		this.lastSavedAt = lastSavedAt;
 	}
 
-	public int getMoodMorning() {
-		return moodMorning;
-	}
-
-	public void setMoodMorning(int moodMorning) {
-		this.moodMorning = moodMorning;
-	}
-
-	public int getMoodAfternoon() {
-		return moodAfternoon;
-	}
-
-	public void setMoodAfternoon(int moodAfternoon) {
-		this.moodAfternoon = moodAfternoon;
-	}
-
-	public int getMoodEvening() {
-		return moodEvening;
-	}
-
-	public void setMoodEvening(int moodEvening) {
-		this.moodEvening = moodEvening;
-	}
-
-	public double getSleep() {
-		return sleep;
-	}
-
-	public void setSleep(double sleep) {
-		this.sleep = sleep;
-	}
-
-	public double getWater() {
-		return water;
-	}
-
-	public void setWater(double water) {
-		this.water = water;
-	}
-
-	public double getWorkHours() {
-		return workHours;
-	}
-
-	public void setWorkHours(double workHours) {
-		this.workHours = workHours;
-	}
-
 	public String getEntryTitle() {
 		return entryTitle;
 	}
@@ -173,19 +95,13 @@ public class JournalEntry {
 		this.emotions = emotions;
 	}
 
-	public boolean isEmotionFeedback() {
-		return emotionFeedback;
+	public int getMood() {
+		return mood;
 	}
 
-	public void setEmotionFeedback(boolean emotionFeedback) {
-		this.emotionFeedback = emotionFeedback;
+	public void setMood(int mood) {
+		this.mood = mood;
 	}
 
-	
 
-	
-	
-	
-	
-	
 }

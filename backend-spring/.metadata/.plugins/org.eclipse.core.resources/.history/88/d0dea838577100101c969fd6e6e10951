@@ -1,0 +1,17 @@
+package com.moodyclues.serviceimpl;
+
+import org.springframework.stereotype.Service;
+
+import com.moodyclues.service.CounsellorService;
+
+import jakarta.transaction.Transactional;
+
+@Service
+@Transactional
+public class CounsellorServiceImpl implements CounsellorService {
+
+	
+	
+	
+	
+}

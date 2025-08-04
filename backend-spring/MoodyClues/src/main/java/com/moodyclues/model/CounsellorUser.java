@@ -7,6 +7,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -18,6 +19,9 @@ public class CounsellorUser extends User {
 	joinColumns = @JoinColumn(name = "counsellor_id"),
 	inverseJoinColumns = @JoinColumn(name = "client_id"))
 	private List<JournalUser> clients = new ArrayList<>();
+	
+	@OneToMany(mappedBy = "counsellorUser")
+	private List<LinkRequest> linkRequests = new ArrayList<>();
 	
 	// EMPTY CONSTRUCTOR
 	public CounsellorUser() {

@@ -24,6 +24,8 @@ public abstract class User {
 	protected String firstName;
 	
 	protected String lastName;
+	
+    protected boolean archived = false;
 
 	
 	// GETTERS AND SETTERS BELOW
@@ -67,6 +69,16 @@ public abstract class User {
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
 	}
+
+	public boolean isArchived() {
+		return archived;
+	}
+
+	public void setArchived(boolean archived) {
+		this.archived = archived;
+	}
+	
 	
 
+	
 }
