@@ -3,14 +3,20 @@ import torch
 import numpy as np
 from transformers import DebertaV2Tokenizer
 from torch import nn
-from transformers import AutoModelForSequenceClassification
+#from transformers import AutoModelForSequenceClassification
+from transformers import DebertaV2ForSequenceClassification
+
 
 # Define the emotion classes
 emotion_classes = ['angry', 'sad', 'anxious', 'happy', 'curious', 'confused', 'surprised', 'neutral']
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 # Load the trained model
-model = AutoModelForSequenceClassification.from_pretrained('microsoft/deberta-v3-small', num_labels=8, problem_type='multi_label_classification')
-model.load_state_dict(torch.load('deberta_model_best.pt'))
+#model = AutoModelForSequenceClassification.from_pretrained('microsoft/deberta-v3-small', num_labels=8, problem_type='multi_label_classification')
+model = DebertaV2ForSequenceClassification.from_pretrained('microsoft/deberta-v3-small', num_labels=8, problem_type='multi_label_classification')
+model.load_state_dict(torch.load('deberta_model_best.pt', map_location=device))
+model.to(device)
 model.eval()
 
 # Load the tuned thresholds
@@ -24,6 +30,10 @@ app = Flask(__name__)
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
+        # Check if 'text' is in the request
+        if 'text' not in request.json:
+            return jsonify({"error": "Missing 'text' field in the request"}), 400
+
         text = request.json['text']  # Get text from JSON request
         inputs = tokenizer(text, return_tensors='pt', padding=True, truncation=True, max_length=64)
         
