@@ -28,6 +28,7 @@ import com.example.nus.ui.screens.LifestyleScreen
 import com.example.nus.ui.screens.MoodScreen
 import com.example.nus.viewmodel.LifestyleViewModel
 import com.example.nus.viewmodel.MoodViewModel
+import com.example.nus.ui.screens.JournalDetailScreen
 
 sealed class Screen(val route: String, val title: String) {
     object Mood : Screen("mood", "Mood")
@@ -101,6 +102,10 @@ fun AppNavigation() {
             composable(Screen.Lifestyle.route) {
                 LifestyleScreen(viewModel = lifestyleViewModel)
             }
+            composable("journalDetail"){
+                JournalDetailScreen()
+            }
+
         }
     }
 } 

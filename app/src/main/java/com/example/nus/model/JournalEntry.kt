@@ -1,25 +1,6 @@
 package com.example.nus.model
 
-import java.time.LocalDateTime
-
-data class JournalEntryDTO(
-    val id: String,
-    val createdAt: LocalDateTime,
-    val lastSavedAt: LocalDateTime,
-    val sleep: Double,
-    val water: Double,
-    val workHours: Double,
-    val entryTitle: String,
-    val entryText: String,
-    val emotions: List<Emotion>,
-    val journal: Journal,
-    val emotionFeedback: Boolean,
-    val moodMorning: Mood,
-    val moodEvening: Mood
+data class JournalEntry(
+    val date: String,
+    val content: String
 )
-
-
-// enum for moods
-enum class Mood {
-    HAPPY, SAD, EXCITED, TIRED, NEUTRAL
-}
