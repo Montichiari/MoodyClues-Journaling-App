@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.moodyclues.dto.LoginRequestDto;
+import com.moodyclues.dto.LoginResponseDto;
+import com.moodyclues.dto.RegisterRequestDto;
 import com.moodyclues.model.JournalUser;
 import com.moodyclues.service.JournalUserService;
 
@@ -29,8 +31,15 @@ public class UserController {
 			String userEmail = request.getEmail();
 			JournalUser user = juserService.findJournalUserByEmail(userEmail);
 			
+			LoginResponseDto response = new LoginResponseDto();
+			response.setUserId(user.getId());
+			response.setShowEmotion(user.isShowEmotion());
+			
+			
 			session.setAttribute("id", user.getId());
-			return new ResponseEntity<JournalUser>(user, HttpStatus.OK);
+			session.setAttribute("showEmotion", user.isShowEmotion());
+
+			return new ResponseEntity<LoginResponseDto>(response, HttpStatus.OK);
 
 		}
 		
@@ -47,6 +56,16 @@ public class UserController {
 
 		return new ResponseEntity<>("You have logged out successfully", HttpStatus.OK);
 	}
-
+	
+	@PostMapping("/register")
+	public ResponseEntity<?> register(RegisterRequestDto request) {
+		
+		juserService.registerUser(request);
+		
+		return new ResponseEntity<>("You have registered successfully.", HttpStatus.OK);
+		
+		
+	}
+	
 	
 }

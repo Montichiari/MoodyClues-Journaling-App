@@ -13,4 +13,6 @@ public interface CounsellorService {
 	
 	public boolean loginAttempt(String email, String passwordInput);
 	
+	public void linkRequest(String email, String senderId);
+	
 }

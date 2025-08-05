@@ -1,13 +1,23 @@
 package com.moodyclues.serviceimpl;
 
+import java.time.LocalDateTime;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.moodyclues.dto.LoginRequestDto;
 import com.moodyclues.model.CounsellorUser;
 import com.moodyclues.model.JournalUser;
+import com.moodyclues.model.LinkRequest;
+import com.moodyclues.model.LinkRequest.Status;
 import com.moodyclues.repository.CounsellorRepository;
+import com.moodyclues.repository.LinkRepository;
 import com.moodyclues.service.CounsellorService;
+import com.moodyclues.service.JournalUserService;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -18,6 +28,12 @@ public class CounsellorServiceImpl implements CounsellorService {
 
 	@Autowired
 	CounsellorRepository cRepo;
+	
+	@Autowired
+	JournalUserService juserService;
+	
+	@Autowired
+	LinkRepository linkRepo;
 	
 	@Override
 	public CounsellorUser findCounsellorById(String id) {
@@ -69,6 +85,28 @@ public class CounsellorServiceImpl implements CounsellorService {
 		}
 		
 		return true;
+	}
+
+	@Override
+	public void linkRequest(String email, String senderId) {
+
+	    JournalUser target = juserService.findJournalUserByEmail(email);
+	    CounsellorUser sender = this.findCounsellorById(senderId);
+
+		    // check if already exists
+		    Optional<LinkRequest> existing = linkRepo.findByCounsellorAndJournalUser(sender, target);
+		    if (existing.isPresent()) {
+		    	throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request");
+		    }
+
+		    LinkRequest req = new LinkRequest();
+		    req.setCounsellorUser(sender);
+		    req.setJournalUser(target);
+		    req.setStatus(Status.PENDING);
+		    req.setRequestedAt(LocalDateTime.now());
+
+		    linkRepo.save(req);
+	
 	}
 
 	

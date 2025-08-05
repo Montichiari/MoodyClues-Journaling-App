@@ -10,7 +10,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.moodyclues.dto.LoginRequestDto;
+import com.moodyclues.dto.LoginResponseDto;
+import com.moodyclues.model.CounsellorUser;
 import com.moodyclues.model.JournalUser;
+import com.moodyclues.service.CounsellorService;
 import com.moodyclues.service.JournalUserService;
 
 import jakarta.servlet.http.HttpSession;
@@ -22,15 +25,21 @@ public class CounsellorController {
 	@Autowired
 	JournalUserService juserService;
 	
+	@Autowired
+	CounsellorService cService;
+	
 	@PostMapping("/login")
 	public ResponseEntity<?> login(@RequestBody LoginRequestDto request, HttpSession session) {
 		
-		if (juserService.loginAttempt(request)) {
+		if (cService.loginAttempt(request)) {
 			String userEmail = request.getEmail();
-			JournalUser user = juserService.findJournalUserByEmail(userEmail);
+			CounsellorUser user = cService.findCounsellorByEmail(userEmail);
+			
+			LoginResponseDto response = new LoginResponseDto();
+			response.setUserId(user.getId());
 			
 			session.setAttribute("id", user.getId());
-			return new ResponseEntity<JournalUser>(user, HttpStatus.OK);
+			return new ResponseEntity<LoginResponseDto>(response, HttpStatus.OK);
 
 		}
 		
@@ -46,6 +55,14 @@ public class CounsellorController {
 		session.invalidate();
 
 		return new ResponseEntity<>("You have logged out successfully", HttpStatus.OK);
+	}
+	
+	@PostMapping("/link-request")
+	public ResponseEntity<?> linkRequest(@RequestBody String email, String senderId) {
+
+		cService.linkRequest(email, senderId);
+		
+	    return new ResponseEntity<>("Request sent successfully.", HttpStatus.OK);
 	}
 	
 }

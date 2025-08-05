@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.moodyclues.dto.LoginRequestDto;
+import com.moodyclues.dto.RegisterRequestDto;
 import com.moodyclues.model.JournalUser;
 import com.moodyclues.model.User;
 import com.moodyclues.repository.JournalUserRepository;
@@ -95,6 +96,22 @@ public class JournalUserServiceImpl implements JournalUserService {
 		JournalUser user = this.findJournalUserById(id);
 		
 		userRepo.delete(user);
+		
+	}
+
+	
+	@Override
+	public void registerUser(RegisterRequestDto request) {
+
+		JournalUser newUser = new JournalUser();
+		newUser.setEmail(request.getEmail());
+		
+		// THIS NEEDS TO BE CHANGED TO ENCRYPTED AT SOME POINT
+		newUser.setPassword(request.getPassword());
+		newUser.setFirstName(request.getFirstName());
+		newUser.setLastName(request.getLastName());
+		
+		userRepo.save(newUser);
 		
 	}
 
