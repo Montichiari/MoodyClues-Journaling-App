@@ -68,7 +68,7 @@ fun JournalCard(entry: JournalEntry) {
             )
             Spacer(modifier = Modifier.height(4.dp))
 
-            // Show the entry title instead of mood
+            // Show the entry title
             Text(
                 text = entry.entryTitle,
                 style = MaterialTheme.typography.bodyLarge

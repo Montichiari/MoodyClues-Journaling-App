@@ -1,6 +1,5 @@
 package com.example.nus.model
 
-
 import java.time.LocalDateTime
 
 data class LinkRequest(

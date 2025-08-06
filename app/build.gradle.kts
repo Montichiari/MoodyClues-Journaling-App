@@ -41,6 +41,15 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.8"
     }
+
+    // ✅ Explicitly tell Gradle where the manifest is
+    sourceSets {
+        getByName("main") {
+            manifest.srcFile("src/main/AndroidManifest.xml")
+            res.srcDirs("src/main/res")
+            java.srcDirs("src/main/java")
+        }
+    }
 }
 
 dependencies {
