@@ -1,8 +1,10 @@
 package com.example.nus
 
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -11,16 +13,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.nus.model.JournalEntry
+import java.time.LocalDateTime
 
 class JournalActivity : ComponentActivity() {
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         // Hardcoded test data
         val journalList = listOf(
-            JournalEntry("21/7/2025", "Those goddamn ducks..."),
-            JournalEntry("22/7/2025", "Gabagool"),
-            JournalEntry("24/7/2025", "Nostradamus...")
+            JournalEntry(user = "user1", entryTitle = "Those goddamn ducks..."),
+            JournalEntry(user = "user2", entryTitle = "Gabagool"),
+            JournalEntry(user = "user3", entryTitle = "Nostradamus...")
         )
 
         setContent {
@@ -36,6 +40,7 @@ class JournalActivity : ComponentActivity() {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun JournalScreen(journalList: List<JournalEntry>) {
     LazyColumn(
@@ -48,6 +53,7 @@ fun JournalScreen(journalList: List<JournalEntry>) {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun JournalCard(entry: JournalEntry) {
     Card(
@@ -55,9 +61,19 @@ fun JournalCard(entry: JournalEntry) {
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = entry.date, style = MaterialTheme.typography.labelMedium)
+            // Convert LocalDateTime to readable string
+            Text(
+                text = entry.date.toLocalDate().toString(),
+                style = MaterialTheme.typography.labelMedium
+            )
             Spacer(modifier = Modifier.height(4.dp))
-            Text(text = entry.content, style = MaterialTheme.typography.bodyLarge)
+
+            // Show the entry title instead of mood
+            Text(
+                text = entry.entryTitle,
+                style = MaterialTheme.typography.bodyLarge
+            )
         }
     }
 }
+
