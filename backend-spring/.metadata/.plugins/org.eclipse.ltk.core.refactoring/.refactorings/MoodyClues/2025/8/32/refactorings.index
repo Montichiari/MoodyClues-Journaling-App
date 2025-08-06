@@ -3,3 +3,6 @@
 1754318354403	Rename type 'JournalEntryServiceImpl'
 1754326727463	Rename type 'HabitsEntryEditRequestDto'
 1754326800393	Delete element
+1754380843310	Delete element
+1754392739264	Rename type 'CustomerUserDetailsServiceImpl'
+1754393190362	Rename type 'LinkRepository'

@@ -1,7 +1,10 @@
 package com.moodyclues.serviceimpl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.moodyclues.dto.LoginRequestDto;
 import com.moodyclues.dto.RegisterRequestDto;
@@ -19,6 +22,9 @@ public class JournalUserServiceImpl implements JournalUserService {
 
 	@Autowired
 	private JournalUserRepository userRepo;
+	
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 
 	@Override
 	public JournalUser findJournalUserByEmail(String email) {
@@ -47,11 +53,7 @@ public class JournalUserServiceImpl implements JournalUserService {
 		
 		JournalUser user = this.findJournalUserByEmail(email);
 
-//		if (!passwordEncoder.matches(passwordInput, user.getPassword())) {
-//			return false;
-//		}
-		
-		if (!passwordInput.equals(user.getPassword())) {
+		if (!passwordEncoder.matches(passwordInput, user.getPassword())) {
 			return false;
 		}
 		
@@ -64,11 +66,7 @@ public class JournalUserServiceImpl implements JournalUserService {
 		
 		JournalUser user = this.findJournalUserByEmail(email);
 		
-//		if (!passwordEncoder.matches(passwordInput, user.getPassword())) {
-//			return false;
-//		}
-		
-		if (!passwordInput.equals(user.getPassword())) {
+		if (!passwordEncoder.matches(passwordInput, user.getPassword())) {
 			return false;
 		}
 		
@@ -79,13 +77,9 @@ public class JournalUserServiceImpl implements JournalUserService {
 	public void deleteUser(String email, String password) {
 		
 		JournalUser user = this.findJournalUserByEmail(email);
-//		if (!passwordEncoder.matches(passwordInput, user.getPassword())) {
-//		return false;
-//	}
 		
-		userRepo.delete(user);
+		user.setArchived(true);
 
-		
 	}
 
 	
@@ -95,7 +89,7 @@ public class JournalUserServiceImpl implements JournalUserService {
 		
 		JournalUser user = this.findJournalUserById(id);
 		
-		userRepo.delete(user);
+		user.setArchived(true);
 		
 	}
 
@@ -103,11 +97,16 @@ public class JournalUserServiceImpl implements JournalUserService {
 	@Override
 	public void registerUser(RegisterRequestDto request) {
 
+		String email = request.getEmail();
+		if (userRepo.findJournalUserByEmail(email).isPresent()) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request");
+		}
+		
 		JournalUser newUser = new JournalUser();
 		newUser.setEmail(request.getEmail());
 		
-		// THIS NEEDS TO BE CHANGED TO ENCRYPTED AT SOME POINT
-		newUser.setPassword(request.getPassword());
+		// Encrypted password
+		newUser.setPassword(passwordEncoder.encode(request.getPassword()));
 		newUser.setFirstName(request.getFirstName());
 		newUser.setLastName(request.getLastName());
 		

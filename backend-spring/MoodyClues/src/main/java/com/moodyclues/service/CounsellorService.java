@@ -1,6 +1,7 @@
 package com.moodyclues.service;
 
 import com.moodyclues.dto.LoginRequestDto;
+import com.moodyclues.dto.RegisterRequestDto;
 import com.moodyclues.model.CounsellorUser;
 
 public interface CounsellorService {
@@ -15,4 +16,5 @@ public interface CounsellorService {
 	
 	public void linkRequest(String email, String senderId);
 	
+	public void registerCounsellor(RegisterRequestDto request);
 }

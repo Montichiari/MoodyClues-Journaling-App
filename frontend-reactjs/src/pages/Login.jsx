@@ -9,6 +9,8 @@ export const Login = () => {
 
     const navigate = useNavigate();
 
+    const emotions = [Happy, Sad]
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
