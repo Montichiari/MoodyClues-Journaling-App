@@ -5,8 +5,8 @@ import java.time.LocalDateTime
 
 data class LinkRequest(
     val id: String,
-    val counsellorUser: CounsellorUser,      // or CounsellorUser if you have a subclass
-    val journalUser: JournalUser,         // or JournalUser if you have a subclass
+    val counsellorUser: CounsellorUser,
+    val journalUser: JournalUser,
     val requestedAt: LocalDateTime,
     val status: LinkStatus
 )

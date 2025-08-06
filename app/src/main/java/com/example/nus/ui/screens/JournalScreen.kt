@@ -15,17 +15,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.nus.model.JournalEntry
+import java.time.format.DateTimeFormatter
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun JournalScreen(navController: NavController) {
-    // Hardcoded list of journal entries for testing
-    val journalList = listOf(
-        JournalEntry("21/7/2025", "Those goddamn ducks..."),
-        JournalEntry("22/7/2025", "Gabagool"),
-        JournalEntry("24/7/2025", "Nostradamus...")
-    )
-
+fun JournalScreen(navController: NavController, journalList: List<JournalEntry>) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -34,6 +28,7 @@ fun JournalScreen(navController: NavController) {
     ) {
         items(journalList) { entry ->
             JournalItem(entry) {
+                // Navigate to detail screen
                 navController.navigate("journalDetail")
             }
         }
@@ -43,24 +38,20 @@ fun JournalScreen(navController: NavController) {
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun JournalItem(entry: JournalEntry, onClick: () -> Unit) {
+    val formattedDate = entry.date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() },
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .padding(16.dp)
-        ) {
-            // Show formatted date
+        Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = entry.date.toLocalDate().toString(),
+                text = formattedDate,
                 style = MaterialTheme.typography.labelMedium
             )
             Spacer(modifier = Modifier.height(4.dp))
-
-            // Show journal title or text
             Text(
                 text = entry.entryTitle,
                 style = MaterialTheme.typography.bodyLarge
