@@ -1,6 +1,7 @@
 package com.example.nus.model
 
 data class Emotion(
-    val name: String,
-    val intensity: Int
+    val id: String,
+    val emotionLabel: String,
+    val iconAddress: String
 )

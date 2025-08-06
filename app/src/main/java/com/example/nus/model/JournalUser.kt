@@ -1,9 +1,10 @@
 package com.example.nus.model
 
-class JournalUser(
-    id: String,
-    email: String,
-    password: String,
-    firstName: String,
-    lastName: String
-) : User(id, email, password, firstName, lastName)
+
+data class JournalUser(
+    val showEmotion: Boolean,
+    val journalEntries: List<JournalEntry>,
+    val counsellors: List<CounsellorUser>,
+    val linkRequests: List<LinkRequest>,
+    val user : User
+)
