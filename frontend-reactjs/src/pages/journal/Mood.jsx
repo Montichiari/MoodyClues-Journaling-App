@@ -31,7 +31,7 @@ const Mood = () => {
     const handleNext = () => {
         const moodData = { morning, afternoon, evening };
         sessionStorage.setItem('journal_mood', JSON.stringify(moodData));
-        navigate('/journal/habits');
+        navigate('/journal/complete/journal');
     };
 
     const ratingButtons = (selected, setSelected) => (
