@@ -24,7 +24,10 @@ jobs:
           cd backend-spring/MoodyClues
           
           # Run Flyway migrations explicitly
-          ./mvnw flyway:migrate -Dflyway.user=$DB_USER -Dflyway.password=$DB_PASSWORD -Dflyway.url=$DB_URL
+          ./mvnw flyway:migrate \
+            -Dflyway.user=admin \
+            -Dflyway.password=flashthunder \
+            -Dflyway.url=jdbc:mysql://moodyclues-db-1.c52ysku4cuy5.ap-southeast-1.rds.amazonaws.com:3306/moodyclues_db?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=Asia/Singapore
           
           ./mvnw clean install
           docker stop moodyclues-container || true
