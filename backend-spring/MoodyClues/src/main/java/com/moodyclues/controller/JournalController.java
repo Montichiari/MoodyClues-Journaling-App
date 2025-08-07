@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -24,7 +25,7 @@ public class JournalController {
 	EntryService entryService;
 	
 	@PostMapping("/submit")
-	public ResponseEntity<?> submitJournalEntry(JournalEntryRequestDto request) {
+	public ResponseEntity<?> submitJournalEntry(@RequestBody JournalEntryRequestDto request) {
 		
 		try {
 			entryService.submitEntry(request);
@@ -39,7 +40,7 @@ public class JournalController {
 	
 	
 	@GetMapping("/all")
-	public ResponseEntity<?> getAllJournalEntries(String userId) {
+	public ResponseEntity<?> getAllJournalEntries(@RequestBody String userId) {
 		
 		try {
 			List<JournalEntry> jentries = entryService.getAllJournalEntriesByUserId(userId);
