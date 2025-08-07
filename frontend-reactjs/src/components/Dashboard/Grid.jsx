@@ -1,6 +1,7 @@
 import React from 'react'
 import {StatCards} from "./StatCards.jsx";
 import {ActivityGraph} from "./ActivityGraph.jsx";
+import {CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis} from "recharts";
 
 export const Grid = () => {
     return (

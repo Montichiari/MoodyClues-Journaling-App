@@ -26,7 +26,7 @@ public class HabitsController {
 	EntryService entryService;
 
 	@PostMapping("/submit")
-	public ResponseEntity<?> submitHabits(HabitsEntryRequestDto request) {
+	public ResponseEntity<?> submitHabits(@RequestBody HabitsEntryRequestDto request) {
 		
 		try {
 			entryService.submitHabits(request);
@@ -40,7 +40,7 @@ public class HabitsController {
 	}
 	
 	@GetMapping("/all")
-	public ResponseEntity<?> getAllHabitsEntries(String userId) {
+	public ResponseEntity<?> getAllHabitsEntries(@RequestBody String userId) {
 		
 		try {
 			List<HabitsEntry> hentries = entryService.getAllHabitsEntriesByUserId(userId);
