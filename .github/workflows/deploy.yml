@@ -22,6 +22,8 @@ jobs:
           cd ~/MoodyClues-Journaling-App
           git pull origin main
           cd backend-spring/MoodyClues
+
+          chmod +x mvnw
           
           # Run Flyway migrations explicitly
           ./mvnw flyway:migrate \
