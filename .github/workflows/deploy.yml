@@ -1,5 +1,4 @@
 name: Deploy to EC2
-
 on:
   push:
     branches: [ "main" ]
@@ -8,31 +7,31 @@ jobs:
   deploy:
     name: Deploy Backend to EC2
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
+      
       - name: Recreate PEM key
         run: |
           echo "${{ secrets.EC2_SSH_KEY }}" | base64 -d > key.pem
           chmod 600 key.pem
-
+      
       - name: SSH and deploy
         run: |
           ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
-            cd ~/MoodyClues-Journaling-App
-            git pull origin main
-
-            cd backend-spring/MoodyClues
-            ./mvnw clean install
-
-            docker stop moodyclues-container || true
-            docker rm moodyclues-container || true
-            docker build -t moodyclues-backend .
-
-            docker run -d \
-              --name moodyclues-container \
-              -p 8080:8080 \
-              moodyclues-backend
+          cd ~/MoodyClues-Journaling-App
+          git pull origin main
+          cd backend-spring/MoodyClues
+          
+          # Run Flyway migrations explicitly
+          ./mvnw flyway:migrate -Dflyway.user=$DB_USER -Dflyway.password=$DB_PASSWORD -Dflyway.url=$DB_URL
+          
+          ./mvnw clean install
+          docker stop moodyclues-container || true
+          docker rm moodyclues-container || true
+          docker build -t moodyclues-backend .
+          docker run -d \
+            --name moodyclues-container \
+            -p 8080:8080 \
+            moodyclues-backend
           EOF
