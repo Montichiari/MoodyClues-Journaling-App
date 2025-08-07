@@ -7,47 +7,35 @@ jobs:
   deploy:
     name: Deploy Backend to EC2
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
+      
       - name: Recreate PEM key
         run: |
           echo "${{ secrets.EC2_SSH_KEY }}" | base64 -d > key.pem
           chmod 600 key.pem
-
+      
       - name: SSH and deploy
         run: |
           ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
           cd ~/MoodyClues-Journaling-App
           git pull origin main
           cd backend-spring/MoodyClues
-
-          # Ensure mvnw is executable
           chmod +x mvnw
           
-          echo "🔁 Running Flyway migrations..."
+          # Run Flyway migrations explicitly
           ./mvnw flyway:migrate \
             -Dflyway.user=admin \
             -Dflyway.password=flashthunder \
             -Dflyway.url=jdbc:mysql://moodyclues-db-1.c52ysku4cuy5.ap-southeast-1.rds.amazonaws.com:3306/moodyclues_db?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=Asia/Singapore
-
-          echo "✅ Flyway migration done, building app..."
+          
           ./mvnw clean install
-
-          echo "🧼 Stopping and removing existing container..."
           docker stop moodyclues-container || true
           docker rm moodyclues-container || true
-
-          echo "🐳 Building Docker image..."
           docker build -t moodyclues-backend .
-
-          echo "🚀 Starting container in background with nohup..."
-          nohup docker run -d \
+          docker run -d \
             --name moodyclues-container \
             -p 8080:8080 \
-            moodyclues-backend > nohup.out 2>&1 &
-
-          echo "✅ Deployment complete."
+            moodyclues-backend
           EOF
