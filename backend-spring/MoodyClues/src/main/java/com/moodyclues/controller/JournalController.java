@@ -34,7 +34,7 @@ public class JournalController {
 			
 		}
 		
-		return new ResponseEntity<>(HttpStatus.I_AM_A_TEAPOT);
+		return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
 		
 	}
 	
