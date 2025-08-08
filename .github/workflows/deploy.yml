@@ -109,4 +109,4 @@ jobs:
               docker ps --filter "name=moodyclues-container" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
 
               exit 0
-EOF
+              EOF
