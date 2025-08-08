@@ -80,32 +80,33 @@ jobs:
 
       - name: Deploy on EC2 (pull & run)
         run: |
-          ssh -tt \
+          set -euo pipefail
+          ssh \
             -o StrictHostKeyChecking=no \
             -o ServerAliveInterval=30 \
             -o ServerAliveCountMax=10 \
             -o TCPKeepAlive=yes \
             -o ConnectTimeout=45 \
             -o ConnectionAttempts=3 \
-            -i key.pem "$EC2_USER@$EC2_HOST" << EOF
-          set -euo pipefail
+            -i key.pem "$EC2_USER@$EC2_HOST" bash -s << 'EOF'
+              set -euo pipefail
 
-          echo "🧼 Stopping/removing existing container (if any)..."
-          docker stop moodyclues-container || true
-          docker rm moodyclues-container || true
+              echo "🧼 Stopping/removing existing container (if any)..."
+              docker stop moodyclues-container || true
+              docker rm moodyclues-container || true
 
-          echo "🔐 Docker login..."
-          echo "${REGISTRY_TOKEN}" | docker login -u "${REGISTRY_USER}" --password-stdin
+              echo "🔐 Docker login..."
+              echo "${REGISTRY_TOKEN}" | docker login -u "${REGISTRY_USER}" --password-stdin
 
-          echo "🐳 Pulling image..."
-          docker pull "${REGISTRY_USER}/${IMAGE_NAME}:latest"
+              echo "🐳 Pulling image..."
+              docker pull "${REGISTRY_USER}/${IMAGE_NAME}:latest"
 
-          echo "🚀 Starting container..."
-          docker run -d --name moodyclues-container -p 8080:8080 "${REGISTRY_USER}/${IMAGE_NAME}:latest"
+              echo "🚀 Starting container..."
+              docker run -d --name moodyclues-container -p 8080:8080 "${REGISTRY_USER}/${IMAGE_NAME}:latest"
 
-          echo "🔎 Status:"
-          sleep 3
-          docker ps --filter "name=moodyclues-container" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+              echo "🔎 Status:"
+              sleep 3
+              docker ps --filter "name=moodyclues-container" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
 
-          exit 0
-          EOF
+              exit 0
+EOF
