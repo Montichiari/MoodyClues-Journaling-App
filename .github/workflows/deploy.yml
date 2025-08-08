@@ -1,46 +1,97 @@
 name: Deploy to EC2
+
 on:
   push:
     branches: [ "main" ]
+
+concurrency:
+  group: deploy-backend
+  cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
   deploy:
     name: Deploy Backend to EC2
     runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    env:
+      EC2_USER: ubuntu
+      EC2_HOST: ${{ secrets.EC2_PUBLIC_IP }}
+      RDS_USERNAME: ${{ secrets.RDS_USERNAME }}
+      RDS_PASSWORD: ${{ secrets.RDS_PASSWORD }}
+      RDS_JDBC_URL: jdbc:mysql://moodyclues-db-1.c52ysku4cuy5.ap-southeast-1.rds.amazonaws.com:3306/moodyclues_db?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=Asia/Singapore
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Recreate PEM key
+        shell: bash
         run: |
           echo "${{ secrets.EC2_SSH_KEY }}" | base64 -d > key.pem
           chmod 600 key.pem
-      - name: SSH and deploy
+
+      - name: Quick SSH connectivity check
+        shell: bash
         run: |
-          ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no \
+              -o BatchMode=yes \
+              -o ConnectTimeout=30 \
+              -o ServerAliveInterval=15 \
+              -o ServerAliveCountMax=4 \
+              -i key.pem "$EC2_USER@$EC2_HOST" 'echo "EC2 reachable: $(uname -a)"'
+
+      - name: SSH and deploy (keepalive + heartbeat)
+        shell: bash
+        run: |
+          ssh \
+            -o StrictHostKeyChecking=no \
+            -o ServerAliveInterval=30 \
+            -o ServerAliveCountMax=10 \
+            -o TCPKeepAlive=yes \
+            -o ConnectTimeout=30 \
+            -i key.pem "$EC2_USER@$EC2_HOST" << 'EOF'
+          set -euo pipefail
+
+          # Heartbeat so the runner always sees output
+          ( while true; do echo "[deploy][heartbeat] $(date -u +"%Y-%m-%dT%H:%M:%SZ")"; sleep 25; done ) &
+          HB=$!
+          trap 'kill $HB || true' EXIT
+
           cd ~/MoodyClues-Journaling-App
-          git pull origin main
+          echo "🔄 Pulling latest code..."
+          git fetch origin main --depth=1
+          git reset --hard origin/main
+
           cd backend-spring/MoodyClues
-          # Ensure mvnw is executable
           chmod +x mvnw
-          
-          echo "🔁 Running Flyway migrations..."
-          ./mvnw flyway:migrate \
-            -Dflyway.user=admin \
-            -Dflyway.password=flashthunder \
-            -Dflyway.url=jdbc:mysql://moodyclues-db-1.c52ysku4cuy5.ap-southeast-1.rds.amazonaws.com:3306/moodyclues_db?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=Asia/Singapore
-          echo "✅ Flyway migration done, building app..."
-          ./mvnw clean install
-          echo "🧼 Stopping and removing existing container..."
+
+          echo "🔁 Running Flyway migrations (verbose)..."
+          ./mvnw -B -Dorg.slf4j.simpleLogger.log.org.flywaydb=debug \
+            flyway:migrate \
+            -Dflyway.user="${RDS_USERNAME}" \
+            -Dflyway.password="${RDS_PASSWORD}" \
+            -Dflyway.url="${RDS_JDBC_URL}"
+
+          echo "✅ Flyway migration complete. Building app..."
+          ./mvnw -B -DskipTests clean package
+
+          echo "🧼 Stopping/removing existing container (if any)..."
           docker stop moodyclues-container || true
           docker rm moodyclues-container || true
+
           echo "🐳 Building Docker image..."
           docker build -t moodyclues-backend .
-          echo "🚀 Starting container in background with nohup..."
-          nohup docker run -d \
-            --name moodyclues-container \
-            -p 8080:8080 \
-            moodyclues-backend > nohup.out 2>&1 &
+
+          echo "🚀 Starting container (detached)..."
+          docker run -d --name moodyclues-container -p 8080:8080 moodyclues-backend
+
+          echo "🔎 Checking container is healthy..."
+          sleep 3
+          docker ps --filter "name=moodyclues-container" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+
           echo "✅ Deployment complete."
           EOF
