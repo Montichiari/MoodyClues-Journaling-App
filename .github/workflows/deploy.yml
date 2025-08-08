@@ -80,7 +80,7 @@ jobs:
 
       - name: Deploy on EC2 (pull & run)
         run: |
-          ssh -vvv -tt \
+          ssh -tt \
             -o StrictHostKeyChecking=no \
             -o ServerAliveInterval=30 \
             -o ServerAliveCountMax=10 \
@@ -89,9 +89,6 @@ jobs:
             -o ConnectionAttempts=3 \
             -i key.pem "$EC2_USER@$EC2_HOST" << EOF
           set -euo pipefail
-
-          # Heartbeat (escape \$ and \$(...) so they run remotely, not on the runner)
-          ( while true; do echo "[deploy][heartbeat] \$(date -u +\"%Y-%m-%dT%H:%M:%SZ\")"; sleep 25; done ) & HB=\$!; trap 'kill \$HB || true' EXIT
 
           echo "🧼 Stopping/removing existing container (if any)..."
           docker stop moodyclues-container || true
