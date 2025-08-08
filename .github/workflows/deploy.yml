@@ -45,10 +45,12 @@ jobs:
             -Dflyway.user="${RDS_USERNAME}" \
             -Dflyway.password="${RDS_PASSWORD}" \
             -Dflyway.url="${RDS_JDBC_URL}"
+
       - name: Build JAR (skip tests)
         working-directory: ${{ env.APP_DIR }}
         run: |
           ./mvnw -B -DskipTests clean package
+
       - name: Docker login (Docker Hub)
         run: echo "$REGISTRY_TOKEN" | docker login -u "$REGISTRY_USER" --password-stdin
 
@@ -62,58 +64,51 @@ jobs:
           docker build -t "$IMAGE:$SHORT" -t "$IMAGE:latest" .
           echo "IMAGE_TAG_SHORT=$IMAGE:$SHORT" >> $GITHUB_ENV
           echo "IMAGE_TAG_LATEST=$IMAGE:latest" >> $GITHUB_ENV
+
       - name: Push image
         run: |
           docker push "$IMAGE_TAG_SHORT"
           docker push "$IMAGE_TAG_LATEST"
+
       - name: Recreate PEM key
         run: |
           echo "${{ secrets.EC2_SSH_KEY }}" | base64 -d > key.pem
           chmod 600 key.pem
+
       - name: Quick port 22 check
         run: |
           echo "Probing port 22..."
           nc -vz -w 10 "$EC2_HOST" 22 || (echo "Port 22 not reachable"; exit 2)
-      - name: SSH and deploy (with failure trace)
+
+      - name: Deploy on EC2 (pull & run)
         run: |
-          ssh -tt \
+          ssh -vvv -tt \
             -o StrictHostKeyChecking=no \
-            -o ServerAliveInterval=30 -o ServerAliveCountMax=10 \
-            -i key.pem ubuntu@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
-          set -Eeuo pipefail
-          PS4='+ [\D{%H:%M:%S}] ${BASH_SOURCE##*/}:${LINENO}: '
-          trap 'rc=$?; echo ""; echo "❌ FAILED at: ${BASH_SOURCE##*/}:${LINENO} -> \`${BASH_COMMAND}\` (exit $rc)"; exit $rc' ERR
-          set -x
-      
-          # Safer repo sync (avoids interactive merge failures)
-          cd ~/MoodyClues-Journaling-App 2>/dev/null || cd ~/ModyClues-Journaling-App
-          git fetch origin main --depth=1
-          git reset --hard origin/main
-      
-          cd backend-spring/MoodyClues
-          chmod +x mvnw
-      
-          ./mvnw -v
-          echo "🔁 Flyway..."
-          ./mvnw -B -Dorg.slf4j.simpleLogger.log.org.flywaydb=debug flyway:migrate \
-            -Dflyway.user=${{ secrets.RDS_USERNAME }} \
-            -Dflyway.password=${{ secrets.RDS_PASSWORD }} \
-            -Dflyway.url=jdbc:mysql://moodyclues-db-1.c52ysku4cuy5.ap-southeast-1.rds.amazonaws.com:3306/moodyclues_db?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=Asia/Singapore
-      
-          echo "🧱 Build JAR..."
-          ./mvnw -B -DskipTests clean package
-      
-          echo "🛑 Stop old container..."
+            -o ServerAliveInterval=30 \
+            -o ServerAliveCountMax=10 \
+            -o TCPKeepAlive=yes \
+            -o ConnectTimeout=45 \
+            -o ConnectionAttempts=3 \
+            -i key.pem "$EC2_USER@$EC2_HOST" << 'EOF'
+          set -euo pipefail
+          ( while true; do echo "[deploy][heartbeat] $(date -u +"%Y-%m-%dT%H:%M:%SZ")"; sleep 25; done ) & HB=$!; trap 'kill $HB || true' EXIT
+
+          echo "🧼 Stopping/removing existing container (if any)..."
           docker stop moodyclues-container || true
           docker rm moodyclues-container || true
-      
-          echo "🐳 Build image..."
-          docker build -t moodyclues-backend .
-      
-          echo "🚀 Run..."
-          docker run -d --name moodyclues-container -p 8080:8080 moodyclues-backend
-      
-          echo "✅ Done."
+
+          echo "🔐 Docker login..."
+          echo "${REGISTRY_TOKEN}" | docker login -u "${REGISTRY_USER}" --password-stdin
+
+          echo "🐳 Pulling image..."
+          docker pull "${REGISTRY_USER}/${IMAGE_NAME}:latest"
+
+          echo "🚀 Starting container..."
+          docker run -d --name moodyclues-container -p 8080:8080 "${REGISTRY_USER}/${IMAGE_NAME}:latest"
+
+          echo "🔎 Status:"
+          sleep 3
+          docker ps --filter "name=moodyclues-container" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
           EOF
         env:
           REGISTRY_USER: ${{ secrets.DOCKERHUB_USERNAME }}
