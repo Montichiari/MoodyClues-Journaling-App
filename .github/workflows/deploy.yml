@@ -11,6 +11,7 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
 
     env:
       APP_DIR: backend-spring/MoodyClues
@@ -105,4 +106,6 @@ jobs:
           echo "🔎 Status:"
           sleep 3
           docker ps --filter "name=moodyclues-container" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+
+          exit 0
           EOF
