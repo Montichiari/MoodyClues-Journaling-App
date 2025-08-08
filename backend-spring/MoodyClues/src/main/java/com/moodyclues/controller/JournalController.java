@@ -29,7 +29,7 @@ public class JournalController {
 		
 		try {
 			entryService.submitEntry(request);
-			return new ResponseEntity<>(HttpStatus.OK);
+			return new ResponseEntity<>("Journal entry submitted successfully.", HttpStatus.OK);
 		} catch (Exception e) {
 			
 		}
@@ -40,7 +40,7 @@ public class JournalController {
 	
 	
 	@GetMapping("/all")
-	public ResponseEntity<?> getAllJournalEntries(@RequestBody String userId) {
+	public ResponseEntity<?> getAllJournalEntries(@PathVariable String userId) {
 		
 		try {
 			List<JournalEntry> jentries = entryService.getAllJournalEntriesByUserId(userId);

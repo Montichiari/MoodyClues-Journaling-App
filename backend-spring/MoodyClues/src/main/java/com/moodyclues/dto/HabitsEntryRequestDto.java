@@ -1,15 +1,20 @@
 package com.moodyclues.dto;
 
-import java.time.LocalDateTime;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 public class HabitsEntryRequestDto {
 
+	@NotBlank
 	private String userId;
 	
+	@NotNull
 	private double sleep;
 	
+	@NotNull
 	private double water;
 	
+	@NotNull
 	private double workHours;
 
 	

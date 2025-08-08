@@ -30,17 +30,17 @@ public class HabitsController {
 		
 		try {
 			entryService.submitHabits(request);
-			return new ResponseEntity<>(HttpStatus.OK);
+			return new ResponseEntity<>("Habits entry submitted successfully.", HttpStatus.OK);
 		} catch (Exception e) {
 			
 		}
 		
-		return new ResponseEntity<>(HttpStatus.I_AM_A_TEAPOT);
+		return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
 		
 	}
 	
 	@GetMapping("/all")
-	public ResponseEntity<?> getAllHabitsEntries(@RequestBody String userId) {
+	public ResponseEntity<?> getAllHabitsEntries(@PathVariable String userId) {
 		
 		try {
 			List<HabitsEntry> hentries = entryService.getAllHabitsEntriesByUserId(userId);

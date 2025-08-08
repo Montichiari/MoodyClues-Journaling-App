@@ -4,12 +4,16 @@ import java.time.LocalDateTime;
 
 import com.moodyclues.model.LinkRequest.Status;
 
+import jakarta.validation.constraints.NotBlank;
+
 public class JUserLinkRequestDto {
 
+	@NotBlank
 	private String counsellorEmail;
 	
 	private LocalDateTime requestedAt;
 	
+	@NotBlank
 	private Status status;
 	
 	public JUserLinkRequestDto() {
