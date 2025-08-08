@@ -1,5 +1,7 @@
 package com.moodyclues.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +15,9 @@ import com.moodyclues.dto.LoginRequestDto;
 import com.moodyclues.dto.LoginResponseDto;
 import com.moodyclues.dto.RegisterRequestDto;
 import com.moodyclues.model.JournalUser;
+import com.moodyclues.model.LinkRequest;
 import com.moodyclues.service.JournalUserService;
+import com.moodyclues.service.LinkRequestService;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -23,6 +27,9 @@ public class UserController {
 
 	@Autowired
 	JournalUserService juserService;
+	
+	@Autowired
+	LinkRequestService linkService;
 	
 	@PostMapping("/login")
 	public ResponseEntity<?> login(@RequestBody LoginRequestDto request, HttpSession session) {
@@ -58,12 +65,23 @@ public class UserController {
 	}
 	
 	@PostMapping("/register")
-	public ResponseEntity<?> register(RegisterRequestDto request) {
+	public ResponseEntity<?> register(@RequestBody RegisterRequestDto request) {
 		
 		juserService.registerUser(request);
 		
 		return new ResponseEntity<>("You have registered successfully.", HttpStatus.OK);
 		
+		
+	}
+	
+	@GetMapping("/all-link-requests")
+	public ResponseEntity<?> allLinkRequests(HttpSession session) {
+		
+		String id = (String) session.getAttribute("id");
+		
+		List<LinkRequest> linkRequests = linkService.getAllLinkRequestsByCounsellorId(id);
+		
+		return new ResponseEntity<>(linkRequests, HttpStatus.OK);
 		
 	}
 	

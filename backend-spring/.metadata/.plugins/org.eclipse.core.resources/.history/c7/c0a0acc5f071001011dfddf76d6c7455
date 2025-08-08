@@ -1,0 +1,13 @@
+package com.moodyclues.serviceimpl;
+
+import org.springframework.stereotype.Service;
+
+import com.moodyclues.service.LinkRequestService;
+
+import jakarta.transaction.Transactional;
+
+@Service
+@Transactional
+public class LinkRequestServiceImpl implements LinkRequestService {
+
+}

@@ -1,5 +1,0 @@
-package com.moodyclues.repository;
-
-public interface JournalEntryController {
-
-}

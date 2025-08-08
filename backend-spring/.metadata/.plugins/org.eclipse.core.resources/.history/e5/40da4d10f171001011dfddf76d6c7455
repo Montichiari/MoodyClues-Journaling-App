@@ -1,0 +1,37 @@
+package com.moodyclues.serviceimpl;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.moodyclues.model.LinkRequest;
+import com.moodyclues.repository.LinkRequestRepository;
+import com.moodyclues.service.LinkRequestService;
+
+import jakarta.transaction.Transactional;
+
+@Service
+@Transactional
+public class LinkRequestServiceImpl implements LinkRequestService {
+
+	@Autowired
+	LinkRequestRepository linkRepo;
+	
+	@Override
+	public List<LinkRequest> getAllLinkRequestsByCounsellorId(String id) {
+
+		List<LinkRequest> requests = linkRepo.findAllByCounsellorId(id);
+		
+		return requests;
+	}
+
+	@Override
+	public List<LinkRequest> getLinkRequestsByJournalUserId(String id) {
+		
+		List<LinkRequest> requests = linkRepo.findAllByJournalUserId(id);
+		
+		return requests;
+	}
+
+}

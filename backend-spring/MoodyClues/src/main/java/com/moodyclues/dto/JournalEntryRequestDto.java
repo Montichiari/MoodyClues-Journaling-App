@@ -1,18 +1,25 @@
 package com.moodyclues.dto;
 
-import java.time.LocalDateTime;
 import java.util.List;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 public class JournalEntryRequestDto {
 
+	@NotBlank
 	private String userId;
-			
+	
+	@NotNull
 	private int mood;
 	
+	@NotBlank
 	private String entryTitle;
 	
+	@NotBlank
 	private String entryText;
 	
+	@NotBlank
 	private List<String> emotions;
 
 	

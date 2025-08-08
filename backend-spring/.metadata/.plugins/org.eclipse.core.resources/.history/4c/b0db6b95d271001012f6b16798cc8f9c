@@ -1,0 +1,27 @@
+package com.moodyclues.serviceimpl;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+
+import com.moodyclues.service.CounsellorService;
+import com.moodyclues.service.JournalUserService;
+
+@Service
+public class CustomerUserDetailsServiceImpl implements UserDetailsService {
+
+    @Autowired
+    private JournalUserService juserService;
+
+    @Autowired
+    private CounsellorService cService;
+	
+	@Override
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+}

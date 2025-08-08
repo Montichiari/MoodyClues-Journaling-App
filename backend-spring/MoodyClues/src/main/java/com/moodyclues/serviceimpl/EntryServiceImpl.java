@@ -53,15 +53,23 @@ public class EntryServiceImpl implements EntryService {
 		
 		List<String> emoStrings = request.getEmotions();
 		
-		Emotion firstEmo = emoRepo.findEmotionByLabel(emoStrings.get(0)).orElseThrow();
-		Emotion secondEmotion = emoRepo.findEmotionByLabel(emoStrings.get(1)).orElseThrow();
-		
 		List<Emotion> emoList = entry.getEmotions();
 		
-		emoList.add(firstEmo);
-		emoList.add(secondEmotion);
+		if (emoStrings.size() == 2) {
+			Emotion firstEmo = emoRepo.findEmotionByLabel(emoStrings.get(0)).orElseThrow();
+			Emotion secondEmotion = emoRepo.findEmotionByLabel(emoStrings.get(1)).orElseThrow();
+			
+			emoList.add(firstEmo);
+			emoList.add(secondEmotion);
+			entry.setEmotions(emoList);
+		}
 		
-		entry.setEmotions(emoList);
+		if (emoStrings.size() == 1) {
+			Emotion emo = emoRepo.findEmotionByLabel(emoStrings.get(0)).orElseThrow();
+			emoList.add(emo);
+			entry.setEmotions(emoList);
+
+		}
 		
 		jentryRepo.save(entry);
 	}

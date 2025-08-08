@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -24,22 +25,22 @@ public class JournalController {
 	EntryService entryService;
 	
 	@PostMapping("/submit")
-	public ResponseEntity<?> submitJournalEntry(JournalEntryRequestDto request) {
+	public ResponseEntity<?> submitJournalEntry(@RequestBody JournalEntryRequestDto request) {
 		
 		try {
 			entryService.submitEntry(request);
-			return new ResponseEntity<>(HttpStatus.OK);
+			return new ResponseEntity<>("Journal entry submitted successfully.", HttpStatus.OK);
 		} catch (Exception e) {
 			
 		}
 		
-		return new ResponseEntity<>(HttpStatus.I_AM_A_TEAPOT);
+		return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
 		
 	}
 	
 	
 	@GetMapping("/all")
-	public ResponseEntity<?> getAllJournalEntries(String userId) {
+	public ResponseEntity<?> getAllJournalEntries(@PathVariable String userId) {
 		
 		try {
 			List<JournalEntry> jentries = entryService.getAllJournalEntriesByUserId(userId);

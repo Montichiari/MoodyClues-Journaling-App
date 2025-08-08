@@ -1,13 +1,25 @@
 package com.moodyclues.dto;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+
 public class RegisterRequestDto {
 
+	@NotBlank
+	@Email
 	private String email;
 	
+    @Pattern(
+            regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$",
+            message = "Password must be at least 8 characters long, include uppercase and lowercase letters, a number, and a special character"
+        )
 	private String password;
 	
+	@NotBlank
 	private String firstName;
 	
+	@NotBlank
 	private String lastName;
 	
 	
