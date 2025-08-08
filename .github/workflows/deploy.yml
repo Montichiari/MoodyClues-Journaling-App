@@ -1,3 +1,4 @@
+
 name: Deploy to EC2 (build on runner, pull on EC2)
 
 on:
@@ -25,17 +26,17 @@ jobs:
       RDS_JDBC_URL: jdbc:mysql://moodyclues-db-1.c52ysku4cuy5.ap-southeast-1.rds.amazonaws.com:3306/moodyclues_db?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=Asia/Singapore
 
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up JDK
+      - name: Set up Temurin JDK 21
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '21'
           cache: maven
 
-      - name: Flyway migrate
+      - name: Flyway migrate from runner (no SSH)
         working-directory: ${{ env.APP_DIR }}
         run: |
           chmod +x mvnw
@@ -44,15 +45,14 @@ jobs:
             -Dflyway.user="${RDS_USERNAME}" \
             -Dflyway.password="${RDS_PASSWORD}" \
             -Dflyway.url="${RDS_JDBC_URL}"
-
-      - name: Build Spring Boot JAR
+      - name: Build JAR (skip tests)
         working-directory: ${{ env.APP_DIR }}
         run: ./mvnw -B -DskipTests clean package
 
-      - name: Docker login
+      - name: Docker login (Docker Hub)
         run: echo "$REGISTRY_TOKEN" | docker login -u "$REGISTRY_USER" --password-stdin
 
-      - name: Build & tag Docker image
+      - name: Build & tag image
         working-directory: ${{ env.APP_DIR }}
         env:
           SHORT_SHA: ${{ github.sha }}
@@ -62,40 +62,41 @@ jobs:
           docker build -t "$IMAGE:$SHORT" -t "$IMAGE:latest" .
           echo "IMAGE_TAG_SHORT=$IMAGE:$SHORT" >> $GITHUB_ENV
           echo "IMAGE_TAG_LATEST=$IMAGE:latest" >> $GITHUB_ENV
-
-      - name: Push Docker image
+      - name: Push image
         run: |
           docker push "$IMAGE_TAG_SHORT"
           docker push "$IMAGE_TAG_LATEST"
-
-      - name: Recreate SSH PEM key
+      - name: Recreate PEM key
         run: |
           echo "${{ secrets.EC2_SSH_KEY }}" | base64 -d > key.pem
           chmod 600 key.pem
-
-      - name: Check EC2 SSH port
+      - name: Quick port 22 check
         run: |
-          echo "Checking SSH port..."
-          nc -vz -w 10 "$EC2_HOST" 22 || (echo "Port 22 not reachable" && exit 2)
-
-      - name: Deploy to EC2
+          echo "Probing port 22..."
+          nc -vz -w 10 "$EC2_HOST" 22 || (echo "Port 22 not reachable"; exit 2)
+      - name: Deploy on EC2 (pull & run)
         run: |
-          ssh -T -i key.pem -o StrictHostKeyChecking=no "$EC2_USER@$EC2_HOST" << 'EOSSH'
+          ssh -tt \
+            -o StrictHostKeyChecking=no \
+            -o ServerAliveInterval=30 \
+            -o ServerAliveCountMax=10 \
+            -o TCPKeepAlive=yes \
+            -o ConnectTimeout=45 \
+            -o ConnectionAttempts=3 \
+            -i key.pem "$EC2_USER@$EC2_HOST" << EOF
           set -euo pipefail
-
-          echo "🧼 Stopping existing container..."
+          echo "🧼 Stopping/removing existing container (if any)..."
           docker stop moodyclues-container || true
           docker rm moodyclues-container || true
-
           echo "🔐 Docker login..."
           echo "${REGISTRY_TOKEN}" | docker login -u "${REGISTRY_USER}" --password-stdin
-
-          echo "🐳 Pulling latest image..."
+          echo "🐳 Pulling image..."
           docker pull "${REGISTRY_USER}/${IMAGE_NAME}:latest"
-
           echo "🚀 Starting container..."
           docker run -d --name moodyclues-container -p 8080:8080 "${REGISTRY_USER}/${IMAGE_NAME}:latest"
-
-          echo "✅ Container started. Status:"
+          echo "🔎 Status:"
+          sleep 3
           docker ps --filter "name=moodyclues-container" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+          exit 0
           EOSSH
+          EOF
