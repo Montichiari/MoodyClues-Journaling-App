@@ -1,0 +1,23 @@
+package com.moodyclues.repository;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+
+import com.moodyclues.model.CounsellorUser;
+import com.moodyclues.model.JournalUser;
+import com.moodyclues.model.LinkRequest;
+import com.moodyclues.model.LinkRequest.Status;
+
+public interface LinkRepository extends JpaRepository<LinkRequest, String> {
+
+	@Query("SELECT c, j FROM LinkRequest l WHERE l.counsellorUser = c AND l.journalUser = j")
+    Optional<LinkRequest> findByCounsellorAndJournalUser(CounsellorUser c, JournalUser j);
+    
+    List<LinkRequest> findByJournalUserAndStatus(JournalUser j, Status s);
+    
+    List<LinkRequest> findByCounsellorAndStatus(CounsellorUser c, Status s);
+	
+}

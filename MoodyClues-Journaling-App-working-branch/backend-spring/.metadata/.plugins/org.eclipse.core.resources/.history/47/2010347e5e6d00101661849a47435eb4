@@ -1,0 +1,7 @@
+package com.moodyclues.service;
+
+public interface JournalEntryService {
+
+	
+	
+}
