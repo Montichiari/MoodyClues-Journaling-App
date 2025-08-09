@@ -88,7 +88,7 @@ fun HomeScreen(
         
         // Welcome message
         Text(
-            text = "Welcome back, Joe",
+            text = "Welcome back",
             style = MaterialTheme.typography.headlineLarge,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onBackground
@@ -126,7 +126,7 @@ fun HomeScreen(
             ActionCard(
                 title = "Habit",
                 subtitle = "Record your Habits",
-                description = "Have a look at your past",
+                description = "Organize your habits",
                 icon = Icons.Default.DateRange,
                 backgroundColor = listOf(
                     Color(0xFFFF8F00), // Amber

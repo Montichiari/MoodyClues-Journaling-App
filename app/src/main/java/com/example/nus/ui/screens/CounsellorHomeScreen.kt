@@ -85,7 +85,7 @@ fun CounsellorHomeScreen(
                 modifier = Modifier.padding(bottom = 32.dp)
             ) {
                 Text(
-                    text = "Welcome back, Dr Melfi",
+                    text = "Welcome back",
                     fontSize = 28.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black,

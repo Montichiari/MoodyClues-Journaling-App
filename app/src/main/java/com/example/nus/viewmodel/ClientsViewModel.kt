@@ -117,8 +117,5 @@ class ClientsViewModel(application: Application) : AndroidViewModel(application)
         // TODO: Navigate to client's journal
     }
     
-    fun onDashboardClick(client: Client) {
-        println("ClientsViewModel: Dashboard clicked for client: ${client.displayName}")
-        // TODO: Navigate to client's dashboard
-    }
+
 }

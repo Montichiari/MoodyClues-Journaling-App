@@ -1,5 +1,8 @@
 package com.example.nus.ui.navigation
 
+import android.net.Uri
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
@@ -11,23 +14,28 @@ import androidx.compose.material.icons.outlined.Face
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.nus.ui.screens.ClientsScreen
 import com.example.nus.ui.screens.CounsellorHomeScreen
 import com.example.nus.ui.screens.FeelScreen
@@ -37,7 +45,10 @@ import com.example.nus.ui.screens.LifestyleScreen
 import com.example.nus.ui.screens.LoginScreen
 import com.example.nus.ui.screens.MoodScreen
 import com.example.nus.ui.screens.RegisterScreen
+import com.example.nus.ui.screens.JournalScreen
+import com.example.nus.ui.screens.JournalDetailScreen
 import com.example.nus.viewmodel.FeelViewModel
+import com.example.nus.viewmodel.JournalViewModel
 import com.example.nus.viewmodel.LifestyleViewModel
 import com.example.nus.viewmodel.MoodViewModel
 import com.example.nus.viewmodel.UserSessionViewModel
@@ -52,8 +63,18 @@ sealed class Screen(val route: String, val title: String) {
     object Lifestyle : Screen("lifestyle", "Lifestyle")
     object Feel : Screen("feel", "Feel")
     object LifestyleLogged : Screen("lifestyle_logged", "Lifestyle Logged")
+    object Journal:Screen("journal", "Journal")
+    object JournalForClient : Screen("journal/{clientId}", "Journal") {
+        fun createRoute(clientId: String) = "journal/${android.net.Uri.encode(clientId)}"
+    }
+
+    object JournalDetail:Screen("journalDetail/{entryIndex}", "Detail") {
+        fun createRoute(index: Int) = "journalDetail/$index"
+    }
+
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
@@ -68,6 +89,8 @@ fun AppNavigation() {
     val moodViewModel: MoodViewModel = viewModel()
     val lifestyleViewModel: LifestyleViewModel = viewModel()
     val feelViewModel: FeelViewModel = viewModel()
+    val journalViewModel: JournalViewModel = viewModel()
+
 
     // 获取当前导航状态
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -213,22 +236,15 @@ fun AppNavigation() {
             composable(Screen.Clients.route) {
                 ClientsScreen(
                     counsellorId = userSessionViewModel.userId.value,
-                    onBackClick = {
-                        navController.navigate(Screen.CounsellorHome.route)
-                    },
-                    onInviteClick = {
-                        // TODO: Navigate to invite screen
-                    },
+                    onBackClick = { navController.navigate(Screen.CounsellorHome.route) },
+                    onInviteClick = { /* TODO */ },
                     onJournalClick = { client ->
-                        // TODO: Navigate to client's journal
-                        println("Navigate to journal for client: ${client.displayName}")
-                    },
-                    onDashboardClick = { client ->
-                        // TODO: Navigate to client's dashboard
-                        println("Navigate to dashboard for client: ${client.displayName}")
+                        // Navigate with this navController (do NOT create a new one inside ClientsScreen)
+                        navController.navigate(Screen.JournalForClient.createRoute(client.clientId))
                     }
                 )
             }
+
             composable(Screen.Mood.route) {
                 MoodScreen(
                     viewModel = moodViewModel,
@@ -276,7 +292,58 @@ fun AppNavigation() {
                         }
                     }
                 )
+
+
             }
+            // --- Journal list ---
+            composable(Screen.Journal.route) {
+                // If you want to auto-load from API per user, call journalViewModel.load(userSessionViewModel.userId.value ?: "") here
+                // LaunchedEffect(Unit) { journalViewModel.load(userSessionViewModel.userId.value ?: "") }
+
+                com.example.nus.ui.screens.JournalScreen(
+                    journalList = journalViewModel.journalList,
+                    navController = navController
+                )
+            }
+
+// From Clients list to a client's journal
+
+// route for client journal list
+            composable(
+                route = Screen.JournalForClient.route,
+                arguments = listOf(navArgument("clientId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val clientId = backStackEntry.arguments?.getString("clientId") ?: return@composable
+                LaunchedEffect(clientId) { journalViewModel.loadForClient(clientId) }
+                com.example.nus.ui.screens.JournalScreen(
+                    journalList = journalViewModel.journalList,
+                    navController = navController
+                )
+            }
+            composable(
+                route = Screen.JournalDetail.route,
+                arguments = listOf(navArgument("entryIndex") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val index = backStackEntry.arguments?.getInt("entryIndex") ?: -1
+                val list = journalViewModel.journalList
+
+                if (index in list.indices) {
+                    JournalDetailScreen(entry = list[index])
+                } else {
+                    // Defensive: avoid crash if index is bad
+                    Text(
+                        "Entry not found",
+                        modifier = Modifier.padding(16.dp),
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
+            }
+
+
+
+
+
+
         }
     }
 }
