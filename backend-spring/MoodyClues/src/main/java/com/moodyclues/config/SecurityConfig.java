@@ -17,40 +17,57 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @Configuration
 public class SecurityConfig {
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-        	.cors(Customizer.withDefaults())
-            .csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/user/register", "/api/user/login", "/api/counsellor/login", "/api/counsellor/register").permitAll()
-                .requestMatchers("/api/journal/**").hasRole("JOURNAL")
-                .requestMatchers("/api/counsellor/**").hasRole("COUNSELLOR")
-                .requestMatchers("/api/habits/**").hasRole("JOURNAL")
-                .requestMatchers("/api/user/**").hasRole("JOURNAL")
-                .anyRequest().authenticated()
-            )
-            .httpBasic(Customizer.withDefaults());
+	  @Bean
+	  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+	    http
+	      .cors(Customizer.withDefaults())
+	      .csrf(csrf -> csrf.disable())
+	      .authorizeHttpRequests(auth -> auth
+	        .requestMatchers("/api/user/login", "/api/user/register",
+	                         "/api/counsellor/login", "/api/counsellor/register").permitAll()
 
-        return http.build();
-    }
-	
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-    
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(Arrays.asList("http://localhost:5174", "http://localhost:5173"));
-        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(Arrays.asList("*"));
-        config.setAllowCredentials(true);
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
-        return source;
-    }
-    
+//	        .requestMatchers(HttpMethod.POST, "/api/journal/submit").permitAll()
+//	        .requestMatchers(HttpMethod.GET, "/api/journal/all/*").permitAll()
+//	        
+//	        .requestMatchers(HttpMethod.GET, "/api/journal/entries").permitAll() 
+//	        .requestMatchers(HttpMethod.GET, "/api/journal/entries/*").permitAll()
+//
+//	        .requestMatchers(HttpMethod.POST, "/api/journal/entries").permitAll()
+//	        .requestMatchers(HttpMethod.PUT, "/api/journal/entries/*/archive").permitAll()
+//
+//	        .requestMatchers(HttpMethod.GET, "/api/habits/all/*").permitAll()
+//	        .requestMatchers(HttpMethod.GET, "/api/habits/*/*").permitAll()
+//
+//	        .requestMatchers(HttpMethod.POST, "/api/habits/submit").permitAll()
+//	        .requestMatchers(HttpMethod.PUT, "/api/habits/*/*/edit").permitAll()
+//	        .requestMatchers(HttpMethod.PUT, "/api/habits/*/*/archive").permitAll()
+
+	        .requestMatchers("/api/journal/**", "/api/habits/**").permitAll()
+	        .anyRequest().permitAll()
+	      )
+	      .httpBasic(b -> b.disable())
+	      .formLogin(f -> f.disable());
+
+	    return http.build();
+	}
+
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
+
+	@Bean
+	public CorsConfigurationSource corsConfigurationSource() {
+		CorsConfiguration config = new CorsConfiguration();
+		config.setAllowedOrigins(Arrays.asList("http://localhost:5174", "http://localhost:5173"));
+		config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+		config.setAllowedHeaders(Arrays.asList("*"));
+		config.setAllowCredentials(true);
+
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/**", config);
+		return source;
+	}
+
 }
