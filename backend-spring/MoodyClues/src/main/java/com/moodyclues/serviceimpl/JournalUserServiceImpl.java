@@ -42,7 +42,7 @@ public class JournalUserServiceImpl implements JournalUserService {
 		JournalUser user = userRepo.findJournalUserById(id).orElseThrow(
 				() -> new EntityNotFoundException("Customer with id " + id + " not found"));
 		
-		return null;
+		return user;
 	}
 
 	@Override
