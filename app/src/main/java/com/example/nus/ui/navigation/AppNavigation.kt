@@ -68,8 +68,11 @@ sealed class Screen(val route: String, val title: String) {
         fun createRoute(clientId: String) = "journal/${android.net.Uri.encode(clientId)}"
     }
 
-    object JournalDetail:Screen("journalDetail/{entryIndex}", "Detail") {
-        fun createRoute(index: Int) = "journalDetail/$index"
+    // Screen.kt
+    object JournalDetail {
+        private const val base = "journalDetail"
+        fun createRoute(entryId: String) = "$base/$entryId"
+        const val route = "$base/{entryId}"
     }
 
 }
@@ -295,49 +298,37 @@ fun AppNavigation() {
 
 
             }
-            // --- Journal list ---
-            composable(Screen.Journal.route) {
-                // If you want to auto-load from API per user, call journalViewModel.load(userSessionViewModel.userId.value ?: "") here
-                // LaunchedEffect(Unit) { journalViewModel.load(userSessionViewModel.userId.value ?: "") }
+            // List of journals for one client
+            composable(
+                route = Screen.Journal.route
+            ) { backStackEntry ->
+                val clientId = backStackEntry.arguments?.getString("clientId") ?: ""
+                val journalVm: JournalViewModel = viewModel() // or hiltViewModel()
 
-                com.example.nus.ui.screens.JournalScreen(
-                    journalList = journalViewModel.journalList,
+                JournalScreen(
+                    viewModel = journalVm,
+                    clientUserId = clientId,
                     navController = navController
                 )
             }
 
 // From Clients list to a client's journal
-
-// route for client journal list
             composable(
                 route = Screen.JournalForClient.route,
                 arguments = listOf(navArgument("clientId") { type = NavType.StringType })
             ) { backStackEntry ->
                 val clientId = backStackEntry.arguments?.getString("clientId") ?: return@composable
-                LaunchedEffect(clientId) { journalViewModel.loadForClient(clientId) }
+                val journalVm: JournalViewModel = viewModel()
+
                 com.example.nus.ui.screens.JournalScreen(
-                    journalList = journalViewModel.journalList,
+                    viewModel = journalVm,
+                    clientUserId = clientId,
                     navController = navController
                 )
             }
-            composable(
-                route = Screen.JournalDetail.route,
-                arguments = listOf(navArgument("entryIndex") { type = NavType.IntType })
-            ) { backStackEntry ->
-                val index = backStackEntry.arguments?.getInt("entryIndex") ?: -1
-                val list = journalViewModel.journalList
 
-                if (index in list.indices) {
-                    JournalDetailScreen(entry = list[index])
-                } else {
-                    // Defensive: avoid crash if index is bad
-                    Text(
-                        "Entry not found",
-                        modifier = Modifier.padding(16.dp),
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                }
-            }
+
+
 
 
 
