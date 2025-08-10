@@ -21,15 +21,17 @@ public class LinkRequest {
 	private String id;
 	
 	@ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JsonIgnoreProperties({
-        "password", "clients", "linkRequests", "archived"
-    })	
+	@JsonIgnoreProperties({
+		  "password", "clients", "linkRequests", "archived",
+		  "hibernateLazyInitializer", "handler"
+		})
 	private CounsellorUser counsellorUser;
 	
 	@ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JsonIgnoreProperties({
-        "password", "counsellors", "entries", "habitsEntries", "linkRequests", "archived"
-    })	
+	@JsonIgnoreProperties({
+		  "password", "counsellors", "entries", "habitsEntries", "linkRequests", "archived",
+		  "hibernateLazyInitializer", "handler"
+		})
 	private JournalUser journalUser;
 	
 	private LocalDateTime requestedAt;
