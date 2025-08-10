@@ -35,4 +35,15 @@ public interface JournalEntryRepository extends JpaRepository<JournalEntry, Stri
 			    WHERE e.id = :eid AND e.user.id = :jid
 			""")
 	public Optional<JournalEntry> findByIdAndUserId(@Param("eid") String entryId, @Param("jid") String journalUserId);
+
+	@Query("""
+			SELECT e FROM JournalEntry e
+			WHERE e.user.id = :userId
+			  AND e.archived = false
+			  AND LOWER(e.entryTitle) LIKE LOWER(CONCAT('%', :q, '%'))
+			ORDER BY e.createdAt DESC
+			""")
+	public List<JournalEntry> searchByTitle(
+			@Param("userId") String userId,
+			@Param("q") String q);
 }
