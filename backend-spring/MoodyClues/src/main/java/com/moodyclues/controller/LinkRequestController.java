@@ -67,18 +67,18 @@ public class LinkRequestController {
 	
     // This is for JournalUsers to see all requests.
     @GetMapping("/journal/all-link-requests")
-    public ResponseEntity<?> incoming(HttpSession session) {
+    public ResponseEntity<?> allForJournal(HttpSession session) {
         String journalUserId = (String) session.getAttribute("id");
         
-        List<LinkRequest> linkRequests = linkService.listIncoming(journalUserId);
+        List<LinkRequest> linkRequests = linkService.getAllLinkRequestsByJournalUserId(journalUserId);
         
         return new ResponseEntity<>(linkRequests, HttpStatus.OK);
     }
     
     @GetMapping("/journal/all-link-requests/{journalUserId}")
-    public ResponseEntity<?> incomingAndroid(@PathVariable String journalUserId) {
+    public ResponseEntity<?> allForJournalAndroid(@PathVariable String journalUserId) {
         
-        List<LinkRequest> linkRequests = linkService.listIncoming(journalUserId);
+        List<LinkRequest> linkRequests = linkService.getAllLinkRequestsByJournalUserId(journalUserId);
         
         return new ResponseEntity<>(linkRequests, HttpStatus.OK);
     }
