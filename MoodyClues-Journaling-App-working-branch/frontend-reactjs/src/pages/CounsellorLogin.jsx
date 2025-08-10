@@ -14,7 +14,7 @@ export const CounsellorLogin = () => {
         e.preventDefault();
 
         try {
-            const response = await axios.post('http://localhost:8080/api/counsellor/login', {
+            const response = await axios.post('http://122.248.243.60:8080/api/counsellor/login', {
                 email: email,
                 password: password
             });

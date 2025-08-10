@@ -7,6 +7,7 @@ import Dashboard from "./components/Dashboard/Dashboard.jsx";
 import UserDashboard from "./pages/UserDashboard.jsx";
 import CounsellorLogin from "./pages/CounsellorLogin.jsx";
 import Home from "./pages/Home.jsx";
+import ApiSmokeTest from "./pages/AppSmokeTest.jsx";
 
 const AppRoutes = () => {
     return (
@@ -14,7 +15,8 @@ const AppRoutes = () => {
             <Routes>
 
                 {/*Journal user routes*/}
-                <Route path="/" element={<Navigate to="/login" />} />
+                <Route path="/" element={<Navigate to="/ApiSmokeTest" />} />
+                <Route path="/ApiSmokeTest" element={<ApiSmokeTest />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/home" element={<Home />} />
                 <Route path="/journal/mood" element={<Mood />} />

@@ -34,12 +34,12 @@ public class JournalController {
 			
 		}
 		
-		return new ResponseEntity<>(HttpStatus.I_AM_A_TEAPOT);
+		return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
 		
 	}
 	
 	
-	@GetMapping("/all")
+	@GetMapping("/all/{userId}")
 	public ResponseEntity<?> getAllJournalEntries(@PathVariable String userId) {
 		
 		try {
@@ -53,32 +53,34 @@ public class JournalController {
 	}
 	
 	
-	@GetMapping("/{entryId}")
-	public ResponseEntity<?> getJournalEntryById(@PathVariable String entryId) {
-		
-		try {
-			JournalEntry jentry = entryService.getJournalEntryById(entryId);
-			return new ResponseEntity<JournalEntry>(jentry, HttpStatus.OK);
-		} catch (Exception e) {
-			
-		}
-		
-		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+	@GetMapping("/{entryId}/{userId}")
+	public ResponseEntity<?> getJournalEntryById(@PathVariable String entryId,
+	                                             @PathVariable String userId) {
+	    try {
+	        var jentry = entryService.getJournalEntryById(entryId);
+	        if (jentry == null || jentry.getUser() == null || !userId.equals(jentry.getUser().getId())) {
+	            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+	        }
+	        return new ResponseEntity<>(jentry, HttpStatus.OK);
+	    } catch (Exception e) {
+	        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+	    }
 	}
 	
 	
-	// "Delete"
-	@PutMapping("/{entryId}/archive")
-	public ResponseEntity<?> archiveJournalEntry(@PathVariable String entryId) {
-		
-		try {
-			entryService.archiveJournalEntry(entryId);
-			return new ResponseEntity<>("Entry successfully deleted.", HttpStatus.OK);
-		} catch (Exception e) {
-			
-		}
-		
-		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+	@PutMapping("/{entryId}/{userId}/archive")
+	public ResponseEntity<?> archiveJournalEntry(@PathVariable String entryId,
+	                                             @PathVariable String userId) {
+	    try {
+	        JournalEntry j = entryService.getJournalEntryById(entryId);
+	        if (j == null || j.getUser() == null || !userId.equals(j.getUser().getId())) {
+	            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+	        }
+	        entryService.archiveJournalEntry(entryId);
+	        return new ResponseEntity<>("Entry successfully deleted.", HttpStatus.OK);
+	    } catch (Exception e) {
+	        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+	    }
 	}
 	
 	

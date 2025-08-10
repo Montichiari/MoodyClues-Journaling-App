@@ -37,6 +37,17 @@ public class CounsellorUser extends User {
 	public void setClients(List<JournalUser> clients) {
 		this.clients = clients;
 	}
+
+
+	public List<LinkRequest> getLinkRequests() {
+		return linkRequests;
+	}
+
+
+	public void setLinkRequests(List<LinkRequest> linkRequests) {
+		this.linkRequests = linkRequests;
+	}
+	
 	
 	
 	

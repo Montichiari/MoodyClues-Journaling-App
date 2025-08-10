@@ -237,7 +237,10 @@ fun AppNavigation() {
                 ClientsScreen(
                     counsellorId = userSessionViewModel.userId.value,
                     onBackClick = { navController.navigate(Screen.CounsellorHome.route) },
-                    onInviteClick = { /* TODO */ },
+                    onInviteClick = {
+                        println("Invite Client clicked - 功能待实现")
+                        // TODO: 实现邀请客户功能
+                    },
                     onJournalClick = { client ->
                         // Navigate with this navController (do NOT create a new one inside ClientsScreen)
                         navController.navigate(Screen.JournalForClient.createRoute(client.clientId))

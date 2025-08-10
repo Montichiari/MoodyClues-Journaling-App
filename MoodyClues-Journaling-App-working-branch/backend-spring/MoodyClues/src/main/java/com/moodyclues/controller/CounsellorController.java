@@ -5,6 +5,11 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.moodyclues.dto.LoginRequestDto;
 import com.moodyclues.dto.LoginResponseDto;
+import com.moodyclues.dto.RegisterRequestDto;
 import com.moodyclues.model.CounsellorUser;
 import com.moodyclues.model.LinkRequest;
 import com.moodyclues.service.CounsellorService;
@@ -41,6 +47,14 @@ public class CounsellorController {
 			String userEmail = request.getEmail();
 			CounsellorUser user = cService.findCounsellorByEmail(userEmail);
 			
+		    var authorities = List.of(new SimpleGrantedAuthority("ROLE_COUNSELLOR"));
+		    var auth = new UsernamePasswordAuthenticationToken(user.getId().toString(), null, authorities);
+			
+		    SecurityContext context = SecurityContextHolder.createEmptyContext();
+		    context.setAuthentication(auth);
+		    SecurityContextHolder.setContext(context);
+		    session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, context);
+			
 			LoginResponseDto response = new LoginResponseDto();
 			response.setUserId(user.getId());
 			
@@ -63,23 +77,15 @@ public class CounsellorController {
 		return new ResponseEntity<>("You have logged out successfully", HttpStatus.OK);
 	}
 	
-	@PostMapping("/link-request")
-	public ResponseEntity<?> linkRequest(@RequestBody String email, String senderId) {
+	@PostMapping("/register")
+	public ResponseEntity<?> registerCounsellor(@RequestBody RegisterRequestDto request) {
+		
+		cService.registerCounsellor(request);
+		
+		return new ResponseEntity<>("You have registered successfully.", HttpStatus.OK);
+		
+		
+	}
 
-		cService.linkRequest(email, senderId);
-		
-	    return new ResponseEntity<>("Request sent successfully.", HttpStatus.OK);
-	}
-	
-	@GetMapping("/all-link-requests")
-	public ResponseEntity<?> allLinkRequests(HttpSession session) {
-		
-		String id = (String) session.getAttribute("id");
-		
-		List<LinkRequest> linkRequests = linkService.getAllLinkRequestsByCounsellorId(id);
-		
-		return new ResponseEntity<>(linkRequests, HttpStatus.OK);
-		
-	}
 	
 }

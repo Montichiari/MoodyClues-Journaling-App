@@ -72,6 +72,15 @@ fun ClientsScreen(
                     }
                 },
                 actions = {
+                    // 测试API按钮（开发用）
+                    IconButton(onClick = {
+                        println("Test API button clicked")
+                        viewModel.testApiConnection()
+                        // 同时加载测试数据以便立即看到效果
+                        viewModel.loadTestData()
+                    }) {
+                        Icon(Icons.Default.Search, contentDescription = "Test API")
+                    }
                     IconButton(onClick = onInviteClick) {
                         Icon(Icons.Default.Add, contentDescription = "Invite Client")
                     }

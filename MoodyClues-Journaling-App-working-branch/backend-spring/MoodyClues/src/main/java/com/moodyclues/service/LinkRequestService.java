@@ -7,8 +7,16 @@ import com.moodyclues.model.LinkRequest;
 public interface LinkRequestService {
 
 	
+	public LinkRequest createNewRequest(String counsellorId, String userEmail);
+	
+	public void requestDecision(String userId, String requestId, boolean approved);
+	
 	public List<LinkRequest> getAllLinkRequestsByCounsellorId(String id);
 	
 	public List<LinkRequest> getAllLinkRequestsByJournalUserId(String id);
+	
+	public List<LinkRequest> listIncoming(String journalUserId);
+	
+	public List<LinkRequest> listOutgoing(String counsellorId);
 
 }

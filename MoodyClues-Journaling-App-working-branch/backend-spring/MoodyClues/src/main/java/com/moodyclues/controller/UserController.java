@@ -5,6 +5,11 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -38,6 +43,14 @@ public class UserController {
 			String userEmail = request.getEmail();
 			JournalUser user = juserService.findJournalUserByEmail(userEmail);
 			
+		    var authorities = List.of(new SimpleGrantedAuthority("ROLE_JOURNAL"));
+		    var auth = new UsernamePasswordAuthenticationToken(user.getId().toString(), null, authorities);
+			
+		    SecurityContext context = SecurityContextHolder.createEmptyContext();
+		    context.setAuthentication(auth);
+		    SecurityContextHolder.setContext(context);
+		    session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, context);
+		    
 			LoginResponseDto response = new LoginResponseDto();
 			response.setUserId(user.getId());
 			response.setShowEmotion(user.isShowEmotion());
@@ -71,17 +84,6 @@ public class UserController {
 		
 		return new ResponseEntity<>("You have registered successfully.", HttpStatus.OK);
 		
-		
-	}
-	
-	@GetMapping("/all-link-requests")
-	public ResponseEntity<?> allLinkRequests(HttpSession session) {
-		
-		String id = (String) session.getAttribute("id");
-		
-		List<LinkRequest> linkRequests = linkService.getAllLinkRequestsByCounsellorId(id);
-		
-		return new ResponseEntity<>(linkRequests, HttpStatus.OK);
 		
 	}
 	

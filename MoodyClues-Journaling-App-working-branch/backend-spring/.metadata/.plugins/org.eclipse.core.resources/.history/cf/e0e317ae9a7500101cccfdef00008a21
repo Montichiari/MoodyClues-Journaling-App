@@ -1,0 +1,76 @@
+package com.moodyclues.model;
+
+import java.time.LocalDateTime;
+
+import org.hibernate.annotations.UuidGenerator;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MappedSuperclass;
+
+@MappedSuperclass
+public abstract class Entry {
+
+	@Id
+	@GeneratedValue
+	@UuidGenerator
+	protected String id;
+	
+	@ManyToOne
+	@JsonIgnore
+	protected JournalUser user;
+	
+	protected LocalDateTime createdAt;
+	
+	protected LocalDateTime lastSavedAt;
+
+    protected boolean archived = false;
+
+	
+	
+	// GETTERS AND SETTERS
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public JournalUser getUser() {
+		return user;
+	}
+
+	public void setUser(JournalUser user) {
+		this.user = user;
+	}
+
+	public LocalDateTime getCreatedAt() {
+		return createdAt;
+	}
+
+	public void setCreatedAt(LocalDateTime createdAt) {
+		this.createdAt = createdAt;
+	}
+
+	public LocalDateTime getLastSavedAt() {
+		return lastSavedAt;
+	}
+
+	public void setLastSavedAt(LocalDateTime lastSavedAt) {
+		this.lastSavedAt = lastSavedAt;
+	}
+
+	public boolean isArchived() {
+		return archived;
+	}
+
+	public void setArchived(boolean archived) {
+		this.archived = archived;
+	}
+	
+	
+}

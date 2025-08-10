@@ -111,6 +111,7 @@ object ApiClient {
 
     val userApiService: UserApiService = retrofit.create(UserApiService::class.java)
     val counsellorApiService: CounsellorApiService = retrofit.create(CounsellorApiService::class.java)
+    val counsellorClientApiService: CounsellorClientApiService = retrofit.create(CounsellorClientApiService::class.java)
     val journalApiService: JournalApiService = retrofit.create(JournalApiService::class.java)
     val habitsApiService: HabitsApiService = retrofit.create(HabitsApiService::class.java)
     val mlModelApiService: MLModelApiService = mlModelRetrofit.create(MLModelApiService::class.java)

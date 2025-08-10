@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.nus.api.ApiClient
 import com.example.nus.data.PersistentUserManager
 import com.example.nus.model.Client
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,14 +32,21 @@ class ClientsViewModel(application: Application) : AndroidViewModel(application)
     private var counsellorId: String = ""
 
     init {
+        println("ClientsViewModel: 初始化，开始加载用户数据")
         loadUsersData()
     }
     
     fun setCounsellorId(id: String) {
         counsellorId = id
         println("ClientsViewModel: Setting counsellorId = '$id'")
-        // 重新加载用户数据
-        loadUsersData()
+        // 如果有counsellorId，从API加载数据；否则使用本地数据
+        if (id.isNotEmpty()) {
+            println("ClientsViewModel: 尝试从API加载数据...")
+            loadClientsFromApi(id)
+        } else {
+            println("ClientsViewModel: counsellorId为空，使用本地数据...")
+            loadUsersData()
+        }
     }
     
     fun updateSearchQuery(query: String) {
@@ -66,18 +74,62 @@ class ClientsViewModel(application: Application) : AndroidViewModel(application)
                 // 从PersistentUserManager获取用户数据
                 val users = userManager.getAllUsers()
 
-                _clients.value = users
-                _filteredClients.value = users
+                // 如果没有用户数据，添加一些测试数据
+                val finalUsers = if (users.isEmpty()) {
+                    println("ClientsViewModel: 没有本地用户数据，添加测试数据")
+                    createTestClients()
+                } else {
+                    users
+                }
 
-                println("ClientsViewModel: Loaded ${users.size} users from PersistentUserManager")
+                _clients.value = finalUsers
+                _filteredClients.value = finalUsers
+
+                println("ClientsViewModel: Loaded ${finalUsers.size} users (${users.size} from PersistentUserManager)")
             } catch (e: Exception) {
                 println("ClientsViewModel: Error loading users: ${e.message}")
-                _clients.value = emptyList()
-                _filteredClients.value = emptyList()
+                // 如果出错，也提供测试数据
+                val testUsers = createTestClients()
+                _clients.value = testUsers
+                _filteredClients.value = testUsers
             } finally {
                 _isLoading.value = false
             }
         }
+    }
+
+    // 创建测试客户数据
+    private fun createTestClients(): List<Client> {
+        return listOf(
+            Client(
+                clientId = "test-client-1",
+                firstName = "Joe",
+                lastName = "",
+                email = "joe@email.com",
+                linkedDate = LocalDateTime.now().minusDays(4)
+            ),
+            Client(
+                clientId = "test-client-2",
+                firstName = "Rick",
+                lastName = "Deckard",
+                email = "rick.deckard@email.com",
+                linkedDate = LocalDateTime.now().minusDays(3)
+            ),
+            Client(
+                clientId = "test-client-3",
+                firstName = "Tony",
+                lastName = "Soprano",
+                email = "tony.soprano@email.com",
+                linkedDate = LocalDateTime.now().minusDays(2)
+            ),
+            Client(
+                clientId = "test-client-4",
+                firstName = "Alice",
+                lastName = "Johnson",
+                email = "alice.johnson@email.com",
+                linkedDate = LocalDateTime.now().minusDays(1)
+            )
+        )
     }
 
     // 添加新用户的方法
@@ -89,23 +141,49 @@ class ClientsViewModel(application: Application) : AndroidViewModel(application)
 
     // 刷新用户数据的方法
     fun refreshUsers() {
+        println("ClientsViewModel: 手动刷新用户数据")
         loadUsersData()
     }
+
+    // 强制加载测试数据
+    fun loadTestData() {
+        viewModelScope.launch {
+            _isLoading.value = true
+            val testClients = createTestClients()
+            _clients.value = testClients
+            _filteredClients.value = testClients
+            _isLoading.value = false
+            println("ClientsViewModel: 强制加载了 ${testClients.size} 个测试客户")
+        }
+    }
     
-    // 保留API方法以备将来使用
+    // 从API加载客户数据
     private fun loadClientsFromApi(counsellorId: String) {
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                // API call will go here when backend is ready
-                // val response = apiService.getClients(counsellorId)
-                // _clients.value = response.map { it.toClient() }
-                // _filteredClients.value = _clients.value
-                println("ClientsViewModel: API call not implemented yet, using persistent data")
-                loadUsersData()
+                println("ClientsViewModel: Loading clients from API for counsellor: $counsellorId")
+                val response = ApiClient.counsellorClientApiService.listClients()
+
+                if (response.isSuccessful) {
+                    val journalUsers = response.body() ?: emptyList()
+                    val clients = journalUsers.map { it.toClient() }
+
+                    _clients.value = clients
+                    _filteredClients.value = clients
+
+                    println("ClientsViewModel: Successfully loaded ${clients.size} clients from API")
+                } else {
+                    val errorMessage = "API error: ${response.code()} - ${response.message()}"
+                    println("ClientsViewModel: $errorMessage")
+                    // 如果API失败，回退到本地数据
+                    loadUsersData()
+                }
             } catch (e: Exception) {
-                println("ClientsViewModel: Error loading clients: ${e.message}")
-                loadUsersData() // Fallback to persistent data
+                println("ClientsViewModel: Exception loading clients from API: ${e.message}")
+                e.printStackTrace()
+                // 如果API调用失败，回退到本地数据
+                loadUsersData()
             } finally {
                 _isLoading.value = false
             }
@@ -116,6 +194,28 @@ class ClientsViewModel(application: Application) : AndroidViewModel(application)
         println("ClientsViewModel: Journal clicked for client: ${client.displayName}")
         // TODO: Navigate to client's journal
     }
-    
+
+    // 测试API连接的方法
+    fun testApiConnection() {
+        viewModelScope.launch {
+            try {
+                println("ClientsViewModel: Testing API connection...")
+                val response = ApiClient.counsellorClientApiService.listClients()
+
+                if (response.isSuccessful) {
+                    val clients = response.body() ?: emptyList()
+                    println("ClientsViewModel: API test successful. Found ${clients.size} clients")
+                    clients.forEach { client ->
+                        println("  - ${client.firstName} ${client.lastName} (${client.email})")
+                    }
+                } else {
+                    println("ClientsViewModel: API test failed: ${response.code()} - ${response.message()}")
+                }
+            } catch (e: Exception) {
+                println("ClientsViewModel: API test exception: ${e.message}")
+                e.printStackTrace()
+            }
+        }
+    }
 
 }
