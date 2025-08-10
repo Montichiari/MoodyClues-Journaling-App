@@ -30,6 +30,7 @@ public class JournalUser extends User {
 	private List<CounsellorUser> counsellors = new ArrayList<>();
 	
 	@OneToMany(mappedBy = "journalUser")
+	@JsonIgnore
 	private List<LinkRequest> linkRequests = new ArrayList<>();
 	
 	// EMPTY CONSTRUCTOR
