@@ -61,15 +61,14 @@ public interface LinkRequestRepository extends JpaRepository<LinkRequest, String
                               @Param("journalUserId") String journalUserId,
                               @Param("status") LinkRequest.Status status);
 
-    @Query("""
-    	       SELECT lr
-    	       FROM LinkRequest lr
-    	       JOIN FETCH lr.journalUser
-    	       WHERE lr.id = :id
-    	         AND lr.journalUser.id = :journalUserId
-    	       """)
-    	Optional<LinkRequest> findByIdAndJournalUserId(@Param("id") String id,
-    	                                               @Param("journalUserId") String journalUserId);
+        @Query("""
+            SELECT lr
+            FROM LinkRequest lr
+            WHERE lr.id = :id
+              AND lr.journalUser.id = :journalUserId
+        """)
+        Optional<LinkRequest> findByIdAndJournalUserId(@Param("id") String id,
+                                                       @Param("journalUserId") String journalUserId);
 
         @Query("""
         	       SELECT lr
