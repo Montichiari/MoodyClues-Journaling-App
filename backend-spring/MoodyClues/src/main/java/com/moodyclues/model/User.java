@@ -2,11 +2,10 @@ package com.moodyclues.model;
 
 import org.hibernate.annotations.UuidGenerator;
 
-import jakarta.persistence.Entity;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import jakarta.persistence.Inheritance;
-import jakarta.persistence.InheritanceType;
 import jakarta.persistence.MappedSuperclass;
 
 @MappedSuperclass
@@ -19,6 +18,7 @@ public abstract class User {
 	
 	protected String email;
 	
+	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	protected String password;
 	
 	protected String firstName;
