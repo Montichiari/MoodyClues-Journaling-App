@@ -2,6 +2,8 @@ package com.moodyclues.model;
 
 import org.hibernate.annotations.UuidGenerator;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -18,6 +20,7 @@ public class Emotion {
 	
 	private String emotionLabel;
 	
+	@JsonIgnore
 	private String iconAddress;
 	
 	

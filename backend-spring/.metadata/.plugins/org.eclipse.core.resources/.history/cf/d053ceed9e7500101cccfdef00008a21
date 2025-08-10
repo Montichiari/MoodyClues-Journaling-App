@@ -1,0 +1,16 @@
+package com.moodyclues.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.moodyclues.service.LinkRequestService;
+
+@RestController
+@RequestMapping("/api/linkrequest")
+public class LinkRequestController {
+
+	@Autowired
+	LinkRequestService linkService;
+	
+}

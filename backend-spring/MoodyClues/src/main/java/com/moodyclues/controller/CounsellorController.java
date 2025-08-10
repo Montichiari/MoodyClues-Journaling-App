@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.moodyclues.dto.LoginRequestDto;
 import com.moodyclues.dto.LoginResponseDto;
+import com.moodyclues.dto.RegisterRequestDto;
 import com.moodyclues.model.CounsellorUser;
 import com.moodyclues.model.LinkRequest;
 import com.moodyclues.service.CounsellorService;
@@ -76,23 +77,15 @@ public class CounsellorController {
 		return new ResponseEntity<>("You have logged out successfully", HttpStatus.OK);
 	}
 	
-	@PostMapping("/link-request")
-	public ResponseEntity<?> linkRequest(@RequestBody String email, String senderId) {
+	@PostMapping("/register")
+	public ResponseEntity<?> registerCounsellor(@RequestBody RegisterRequestDto request) {
+		
+		cService.registerCounsellor(request);
+		
+		return new ResponseEntity<>("You have registered successfully.", HttpStatus.OK);
+		
+		
+	}
 
-		cService.linkRequest(email, senderId);
-		
-	    return new ResponseEntity<>("Request sent successfully.", HttpStatus.OK);
-	}
-	
-	@GetMapping("/all-link-requests")
-	public ResponseEntity<?> allLinkRequests(HttpSession session) {
-		
-		String id = (String) session.getAttribute("id");
-		
-		List<LinkRequest> linkRequests = linkService.getAllLinkRequestsByCounsellorId(id);
-		
-		return new ResponseEntity<>(linkRequests, HttpStatus.OK);
-		
-	}
 	
 }

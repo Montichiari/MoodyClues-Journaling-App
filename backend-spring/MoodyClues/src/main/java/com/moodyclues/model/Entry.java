@@ -4,6 +4,9 @@ import java.time.LocalDateTime;
 
 import org.hibernate.annotations.UuidGenerator;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
@@ -17,7 +20,8 @@ public abstract class Entry {
 	@UuidGenerator
 	protected String id;
 	
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY, optional = false)
+	@JsonIgnore
 	protected JournalUser user;
 	
 	protected LocalDateTime createdAt;

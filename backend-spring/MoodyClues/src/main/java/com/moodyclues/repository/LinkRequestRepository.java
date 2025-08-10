@@ -23,6 +23,7 @@ public interface LinkRequestRepository extends JpaRepository<LinkRequest, String
     
 	@Query("SELECT l FROM LinkRequest l WHERE l.counsellorUser = :c AND l.status = :s")
 	List<LinkRequest> findByCounsellorAndStatus(@Param("c") CounsellorUser c, @Param("s") Status s);
+
 	
 	@Query("SELECT l FROM LinkRequest l WHERE l.counsellorUser.email = :email")
 	List<LinkRequest> findAllByCounsellorEmail(@Param("email") String email);
@@ -35,5 +36,46 @@ public interface LinkRequestRepository extends JpaRepository<LinkRequest, String
 	
 	@Query("SELECT l FROM LinkRequest l WHERE l.journalUser.id = :id")
 	List<LinkRequest> findAllByJournalUserId(@Param("id") String id);
+	
+	
+    @Query("""
+            SELECT (COUNT(lr) > 0)
+            FROM LinkRequest lr
+            WHERE lr.counsellorUser.id = :counsellorId
+              AND lr.journalUser.id = :journalUserId
+              AND lr.status = :status
+        """)
+        boolean existsPending(@Param("counsellorId") String counsellorId,
+                              @Param("journalUserId") String journalUserId,
+                              @Param("status") LinkRequest.Status status);
+
+        @Query("""
+            SELECT lr
+            FROM LinkRequest lr
+            WHERE lr.id = :id
+              AND lr.journalUser.id = :journalUserId
+        """)
+        Optional<LinkRequest> findByIdAndJournalUserId(@Param("id") String id,
+                                                       @Param("journalUserId") String journalUserId);
+
+        @Query("""
+            SELECT lr
+            FROM LinkRequest lr
+            WHERE lr.journalUser.id = :journalUserId
+              AND lr.status = :status
+            ORDER BY lr.requestedAt DESC
+        """)
+        List<LinkRequest> findIncoming(@Param("journalUserId") String journalUserId,
+                                       @Param("status") LinkRequest.Status status);
+
+        @Query("""
+            SELECT lr
+            FROM LinkRequest lr
+            WHERE lr.counsellorUser.id = :counsellorId
+              AND lr.status = :status
+            ORDER BY lr.requestedAt DESC
+        """)
+        List<LinkRequest> findOutgoing(@Param("counsellorId") String counsellorId,
+                                       @Param("status") LinkRequest.Status status);
 	
 }

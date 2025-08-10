@@ -1,0 +1,38 @@
+package com.moodyclues.controller;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.moodyclues.model.LinkRequest;
+import com.moodyclues.service.LinkRequestService;
+
+import jakarta.servlet.http.HttpSession;
+
+@RestController
+@RequestMapping("/api/linkrequest")
+public class LinkRequestController {
+
+	@Autowired
+	LinkRequestService linkService;
+	
+    @PostMapping
+    public ResponseEntity<?> create(@RequestBody CreateLinkRequestDto dto, HttpSession session) {
+        String counsellorId = (String) session.getAttribute("id");
+        LinkRequest lr = service.create(counsellorId, dto.getJournalUserEmail());
+        return ResponseEntity.ok(lr); // entity response
+    }
+
+    @GetMapping("/outgoing")
+    public List<LinkRequest> outgoing(HttpSession session) {
+        String counsellorId = (String) session.getAttribute("id");
+        return service.listOutgoing(counsellorId); // entity list
+    }
+	
+}

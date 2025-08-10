@@ -87,16 +87,5 @@ public class UserController {
 		
 	}
 	
-	@GetMapping("/all-link-requests")
-	public ResponseEntity<?> allLinkRequests(HttpSession session) {
-		
-		String id = (String) session.getAttribute("id");
-		
-		List<LinkRequest> linkRequests = linkService.getAllLinkRequestsByCounsellorId(id);
-		
-		return new ResponseEntity<>(linkRequests, HttpStatus.OK);
-		
-	}
-	
 	
 }
