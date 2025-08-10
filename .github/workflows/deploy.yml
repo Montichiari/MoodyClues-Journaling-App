@@ -22,7 +22,7 @@ jobs:
       EC2_USER: ubuntu
       RDS_USERNAME: ${{ secrets.RDS_USERNAME }}
       RDS_PASSWORD: ${{ secrets.RDS_PASSWORD }}
-      RDS_JDBC_URL: jdbc:mysql://moodyclues-db-1.c52ysku4cuy5.ap...blicKeyRetrieval=true&useSSL=false&serverTimezone=Asia/Singapore
+      RDS_JDBC_URL: jdbc:mysql://moodyclues-db-1.c52ysku4cuy5.ap-southeast-1.rds.amazonaws.com:3306/moodyclues_db?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=Asia/Singapore
 
     steps:
       - name: Checkout
@@ -44,7 +44,6 @@ jobs:
             -Dflyway.user="${RDS_USERNAME}" \
             -Dflyway.password="${RDS_PASSWORD}" \
             -Dflyway.url="${RDS_JDBC_URL}"
-
       - name: Build JAR (skip tests)
         working-directory: ${{ env.APP_DIR }}
         run: ./mvnw -B -DskipTests clean package
@@ -62,22 +61,18 @@ jobs:
           docker build -t "$IMAGE:$SHORT" -t "$IMAGE:latest" .
           echo "IMAGE_TAG_SHORT=$IMAGE:$SHORT" >> $GITHUB_ENV
           echo "IMAGE_TAG_LATEST=$IMAGE:latest" >> $GITHUB_ENV
-
       - name: Push image
         run: |
           docker push "$IMAGE_TAG_SHORT"
           docker push "$IMAGE_TAG_LATEST"
-
       - name: Recreate PEM key
         run: |
           echo "${{ secrets.EC2_SSH_KEY }}" | base64 -d > key.pem
           chmod 600 key.pem
-
       - name: Quick port 22 check
         run: |
           echo "Probing port 22..."
           nc -vz -w 10 "$EC2_HOST" 22 || (echo "Port 22 not reachable"; exit 2)
-
       - name: Deploy on EC2 (pull & run)
         run: |
           ssh -tt \
@@ -93,12 +88,14 @@ jobs:
           docker stop moodyclues-container || true
           docker rm moodyclues-container || true
           echo "🔐 Docker login..."
-          echo "\${REGISTRY_TOKEN}" | docker login -u "\${REGISTRY_USER}" --password-stdin
+          echo "${REGISTRY_TOKEN}" | docker login -u "${REGISTRY_USER}" --password-stdin
           echo "🐳 Pulling image..."
-          docker pull "\${REGISTRY_USER}/\${IMAGE_NAME}:latest"
+          docker pull "${REGISTRY_USER}/${IMAGE_NAME}:latest"
           echo "🚀 Starting container..."
-          docker run -d --name moodyclues-container -p 8080:8080 "\${REGISTRY_USER}/\${IMAGE_NAME}:latest"
+          docker run -d --name moodyclues-container -p 8080:8080 "${REGISTRY_USER}/${IMAGE_NAME}:latest"
           echo "🔎 Status:"
           sleep 3
           docker ps --filter "name=moodyclues-container" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+          exit 0
+          EOSSH
           EOF
