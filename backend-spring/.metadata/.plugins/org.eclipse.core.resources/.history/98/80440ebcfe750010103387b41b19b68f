@@ -40,14 +40,8 @@ public interface LinkRequestRepository extends JpaRepository<LinkRequest, String
 		       """)
 		List<LinkRequest> findAllByCounsellorId(@Param("id") String id);
 	
-	@Query("""
-		       SELECT l
-		       FROM LinkRequest l
-		       JOIN FETCH l.counsellorUser cu
-		       JOIN FETCH l.journalUser ju
-		       WHERE ju.id = :id
-		       """)
-		List<LinkRequest> findAllByJournalUserId(@Param("id") String id);
+	@Query("SELECT l FROM LinkRequest l WHERE l.journalUser.id = :id")
+	List<LinkRequest> findAllByJournalUserId(@Param("id") String id);
 	
 	
     @Query("""
@@ -61,15 +55,14 @@ public interface LinkRequestRepository extends JpaRepository<LinkRequest, String
                               @Param("journalUserId") String journalUserId,
                               @Param("status") LinkRequest.Status status);
 
-    @Query("""
-    	       SELECT lr
-    	       FROM LinkRequest lr
-    	       JOIN FETCH lr.journalUser
-    	       WHERE lr.id = :id
-    	         AND lr.journalUser.id = :journalUserId
-    	       """)
-    	Optional<LinkRequest> findByIdAndJournalUserId(@Param("id") String id,
-    	                                               @Param("journalUserId") String journalUserId);
+        @Query("""
+            SELECT lr
+            FROM LinkRequest lr
+            WHERE lr.id = :id
+              AND lr.journalUser.id = :journalUserId
+        """)
+        Optional<LinkRequest> findByIdAndJournalUserId(@Param("id") String id,
+                                                       @Param("journalUserId") String journalUserId);
 
         @Query("""
         	       SELECT lr
