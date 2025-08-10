@@ -46,7 +46,7 @@ public class CounsellorClientController {
         return new ResponseEntity<>(entries, HttpStatus.OK);
     }
     
-    @GetMapping("/{journalUserId}/journal-entries-android/{counsellorId}")
+    @GetMapping("/{journalUserId}/journal-entries/{counsellorId}")
     public ResponseEntity<?> listClientJournalEntriesAndroid(@PathVariable String journalUserId,
                                                       @PathVariable String counsellorId) {
         List<JournalEntry> entries = cService.listClientJournalEntries(counsellorId, journalUserId);
@@ -61,7 +61,7 @@ public class CounsellorClientController {
         return new ResponseEntity<>(entries, HttpStatus.OK);
     }
     
-    @GetMapping("/{journalUserId}/habits-entries-android/{counsellorId}")
+    @GetMapping("/{journalUserId}/habits-entries/{counsellorId}")
     public ResponseEntity<?> listClientHabitsEntriesAndroid(@PathVariable String journalUserId,
                                                      @PathVariable String counsellorId) {
         List<HabitsEntry> entries = cService.listClientHabitsEntries(counsellorId, journalUserId);
