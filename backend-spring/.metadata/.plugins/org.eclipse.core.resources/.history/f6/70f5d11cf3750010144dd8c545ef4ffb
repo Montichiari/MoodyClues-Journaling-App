@@ -91,12 +91,4 @@ public class CounsellorClientController {
         HabitsEntry entry = cService.getHabitsEntry(counsellorId, journalUserId, entryId);
         return new ResponseEntity<>(entry, HttpStatus.OK);
     }
-    
-    @GetMapping("/{journalUserId}/habits-entries/{entryId}/{counsellorId}")
-    public ResponseEntity<?> getHabitsEntry(@PathVariable String journalUserId,
-                                            @PathVariable String entryId,
-                                            @PathVariable String counsellorId) {
-        HabitsEntry entry = cService.getHabitsEntry(counsellorId, journalUserId, entryId);
-        return new ResponseEntity<>(entry, HttpStatus.OK);
-    }
 }

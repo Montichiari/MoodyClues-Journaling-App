@@ -60,21 +60,12 @@ public class CounsellorClientController {
     }
     
     @GetMapping("/{journalUserId}/habits-entries/{counsellorId}")
-    public ResponseEntity<?> listClientHabitsEntriesAndroid(@PathVariable String journalUserId,
+    public ResponseEntity<?> listClientHabitsEntries(@PathVariable String journalUserId,
                                                      @PathVariable String counsellorId) {
         List<HabitsEntry> entries = cService.listClientHabitsEntries(counsellorId, journalUserId);
         return new ResponseEntity<>(entries, HttpStatus.OK);
     }
 
-    @GetMapping("/{journalUserId}/journal-entries/{entryId}")
-    public ResponseEntity<?> getJournalEntry(@PathVariable String journalUserId,
-                                             @PathVariable String entryId,
-                                             HttpSession session) {
-        String counsellorId = (String) session.getAttribute("id");
-        JournalEntry entry = cService.getJournalEntry(counsellorId, journalUserId, entryId);
-        return new ResponseEntity<>(entry, HttpStatus.OK);
-    }
-    
     @GetMapping("/{journalUserId}/journal-entries/{entryId}/{counsellorId}")
     public ResponseEntity<?> getJournalEntry(@PathVariable String journalUserId,
                                              @PathVariable String entryId,
@@ -88,14 +79,6 @@ public class CounsellorClientController {
                                             @PathVariable String entryId,
                                             HttpSession session) {
         String counsellorId = (String) session.getAttribute("id");
-        HabitsEntry entry = cService.getHabitsEntry(counsellorId, journalUserId, entryId);
-        return new ResponseEntity<>(entry, HttpStatus.OK);
-    }
-    
-    @GetMapping("/{journalUserId}/habits-entries/{entryId}/{counsellorId}")
-    public ResponseEntity<?> getHabitsEntry(@PathVariable String journalUserId,
-                                            @PathVariable String entryId,
-                                            @PathVariable String counsellorId) {
         HabitsEntry entry = cService.getHabitsEntry(counsellorId, journalUserId, entryId);
         return new ResponseEntity<>(entry, HttpStatus.OK);
     }

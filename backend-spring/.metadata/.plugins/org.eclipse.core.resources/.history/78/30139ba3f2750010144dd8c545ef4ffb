@@ -29,12 +29,6 @@ public class CounsellorClientController {
         List<JournalUser> clients = cService.listClients(counsellorId);
         return new ResponseEntity<>(clients, HttpStatus.OK);
     }
-    
-    @GetMapping("/all/{counsellorId}")
-    public ResponseEntity<?> listClientsAndroid(@PathVariable String counsellorId) {
-        List<JournalUser> clients = cService.listClients(counsellorId);
-        return new ResponseEntity<>(clients, HttpStatus.OK);
-    }
 
     @GetMapping("/{journalUserId}/journal-entries")
     public ResponseEntity<?> listClientJournalEntries(@PathVariable String journalUserId,
@@ -43,25 +37,11 @@ public class CounsellorClientController {
         List<JournalEntry> entries = cService.listClientJournalEntries(counsellorId, journalUserId);
         return new ResponseEntity<>(entries, HttpStatus.OK);
     }
-    
-    @GetMapping("/{journalUserId}/journal-entries/{counsellorId}")
-    public ResponseEntity<?> listClientJournalEntriesAndroid(@PathVariable String journalUserId,
-                                                      @PathVariable String counsellorId) {
-        List<JournalEntry> entries = cService.listClientJournalEntries(counsellorId, journalUserId);
-        return new ResponseEntity<>(entries, HttpStatus.OK);
-    }
 
     @GetMapping("/{journalUserId}/habits-entries")
     public ResponseEntity<?> listClientHabitsEntries(@PathVariable String journalUserId,
                                                      HttpSession session) {
         String counsellorId = (String) session.getAttribute("id");
-        List<HabitsEntry> entries = cService.listClientHabitsEntries(counsellorId, journalUserId);
-        return new ResponseEntity<>(entries, HttpStatus.OK);
-    }
-    
-    @GetMapping("/{journalUserId}/habits-entries/{counsellorId}")
-    public ResponseEntity<?> listClientHabitsEntriesAndroid(@PathVariable String journalUserId,
-                                                     @PathVariable String counsellorId) {
         List<HabitsEntry> entries = cService.listClientHabitsEntries(counsellorId, journalUserId);
         return new ResponseEntity<>(entries, HttpStatus.OK);
     }
@@ -74,28 +54,12 @@ public class CounsellorClientController {
         JournalEntry entry = cService.getJournalEntry(counsellorId, journalUserId, entryId);
         return new ResponseEntity<>(entry, HttpStatus.OK);
     }
-    
-    @GetMapping("/{journalUserId}/journal-entries/{entryId}/{counsellorId}")
-    public ResponseEntity<?> getJournalEntry(@PathVariable String journalUserId,
-                                             @PathVariable String entryId,
-                                             @PathVariable String counsellorId) {
-        JournalEntry entry = cService.getJournalEntry(counsellorId, journalUserId, entryId);
-        return new ResponseEntity<>(entry, HttpStatus.OK);
-    }
 
     @GetMapping("/{journalUserId}/habits-entries/{entryId}")
     public ResponseEntity<?> getHabitsEntry(@PathVariable String journalUserId,
                                             @PathVariable String entryId,
                                             HttpSession session) {
         String counsellorId = (String) session.getAttribute("id");
-        HabitsEntry entry = cService.getHabitsEntry(counsellorId, journalUserId, entryId);
-        return new ResponseEntity<>(entry, HttpStatus.OK);
-    }
-    
-    @GetMapping("/{journalUserId}/habits-entries/{entryId}/{counsellorId}")
-    public ResponseEntity<?> getHabitsEntry(@PathVariable String journalUserId,
-                                            @PathVariable String entryId,
-                                            @PathVariable String counsellorId) {
         HabitsEntry entry = cService.getHabitsEntry(counsellorId, journalUserId, entryId);
         return new ResponseEntity<>(entry, HttpStatus.OK);
     }
