@@ -154,6 +154,14 @@ public class EntryServiceImpl implements EntryService {
 		
 	}
 
+	@Override
+	public List<JournalEntry> searchJournalEntriesByTitle(String userId, String query) {
+
+		List<JournalEntry> jentries = jentryRepo.searchByTitle(userId,query);
+		
+		return jentries;
+	}
+
 
 
 	

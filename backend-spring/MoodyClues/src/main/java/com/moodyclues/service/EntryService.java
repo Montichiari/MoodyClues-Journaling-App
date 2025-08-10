@@ -27,5 +27,7 @@ public interface EntryService {
 	public void archiveJournalEntry(String entryId);
 	
 	public void archiveHabitsEntry(String entryId);
+	
+	public List<JournalEntry> searchJournalEntriesByTitle(String userId, String query);
 
 }

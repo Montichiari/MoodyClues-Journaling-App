@@ -11,11 +11,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.moodyclues.dto.JournalEntryRequestDto;
 import com.moodyclues.model.JournalEntry;
 import com.moodyclues.service.EntryService;
+
+import jakarta.servlet.http.HttpSession;
 
 @RestController
 @RequestMapping("/api/journal")
@@ -52,6 +55,20 @@ public class JournalController {
 		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 	}
 	
+	@GetMapping("/entries")
+	public ResponseEntity<List<JournalEntry>> listEntriesSearch(@RequestParam String query, HttpSession session) {
+
+	    String userId = (String) session.getAttribute("id");
+	    if (userId == null) {
+	    	return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+	    }
+
+	    List<JournalEntry> entries = entryService.searchJournalEntriesByTitle(userId, query);
+	    
+
+	    return new ResponseEntity<>(entries, HttpStatus.OK);
+	}
+	
 	
 	@GetMapping("/{entryId}/{userId}")
 	public ResponseEntity<?> getJournalEntryById(@PathVariable String entryId,
@@ -82,6 +99,8 @@ public class JournalController {
 	        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 	    }
 	}
+	
+	
 	
 	
 }
