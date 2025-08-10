@@ -56,15 +56,6 @@ public class LinkRequestController {
 		
 	}
 	
-	@GetMapping("/counsellor/all-link-requests/{counsellorId}")
-	public ResponseEntity<?> allLinkRequestsAndroid(@PathVariable String counsellorId) {
-		
-		List<LinkRequest> linkRequests = linkService.getAllLinkRequestsByCounsellorId(counsellorId);
-		
-		return new ResponseEntity<>(linkRequests, HttpStatus.OK);
-		
-	}
-	
     // This is for JournalUsers to see all requests.
     @GetMapping("/journal/all-link-requests")
     public ResponseEntity<?> incoming(HttpSession session) {
@@ -74,30 +65,14 @@ public class LinkRequestController {
         
         return new ResponseEntity<>(linkRequests, HttpStatus.OK);
     }
-    
-    @GetMapping("/journal/all-link-requests/{journalUserId}")
-    public ResponseEntity<?> incomingAndroid(@PathVariable String journalUserId) {
-        
-        List<LinkRequest> linkRequests = linkService.listIncoming(journalUserId);
-        
-        return new ResponseEntity<>(linkRequests, HttpStatus.OK);
-    }
 
     // This is for JournalUsers to approve or reject link request.
-    @PostMapping("/{requestId}/decision")
-    public ResponseEntity<?> decide(@PathVariable String requestId,
+    @PostMapping("/{id}/decision")
+    public ResponseEntity<?> decide(@PathVariable String id,
                                        @RequestBody JournalLinkRequestDto decision,
                                        HttpSession session) {
         String journalUserId = (String) session.getAttribute("id");
-        linkService.requestDecision(journalUserId, requestId, decision.isApproved());
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-    
-    @PostMapping("/{requestId}/decision/{journalUserId}")
-    public ResponseEntity<?> decideAndroid(@PathVariable String requestId,
-                                       @RequestBody JournalLinkRequestDto decision,
-                                       @PathVariable String journalUserId) {
-        linkService.requestDecision(journalUserId, requestId, decision.isApproved());
+        linkService.requestDecision(journalUserId, id, decision.isApproved());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 	

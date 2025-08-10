@@ -84,20 +84,12 @@ public class LinkRequestController {
     }
 
     // This is for JournalUsers to approve or reject link request.
-    @PostMapping("/{requestId}/decision")
-    public ResponseEntity<?> decide(@PathVariable String requestId,
+    @PostMapping("/{id}/decision")
+    public ResponseEntity<?> decide(@PathVariable String id,
                                        @RequestBody JournalLinkRequestDto decision,
                                        HttpSession session) {
         String journalUserId = (String) session.getAttribute("id");
-        linkService.requestDecision(journalUserId, requestId, decision.isApproved());
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-    
-    @PostMapping("/{requestId}/decision/{journalUserId}")
-    public ResponseEntity<?> decideAndroid(@PathVariable String requestId,
-                                       @RequestBody JournalLinkRequestDto decision,
-                                       @PathVariable String journalUserId) {
-        linkService.requestDecision(journalUserId, requestId, decision.isApproved());
+        linkService.requestDecision(journalUserId, id, decision.isApproved());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 	
