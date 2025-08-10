@@ -2,13 +2,9 @@ package com.moodyclues.controller;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.moodyclues.model.HabitsEntry;
 import com.moodyclues.model.JournalEntry;
@@ -21,9 +17,11 @@ import jakarta.servlet.http.HttpSession;
 @RequestMapping("/api/counsellor/clients")
 public class CounsellorClientController {
 
-	@Autowired
-    CounsellorService cService;
+    private final CounsellorService cService;
 
+    public CounsellorClientController(CounsellorService cService) {
+        this.cService = cService;
+    }
 
     @GetMapping("/all")
     public ResponseEntity<?> listClients(HttpSession session) {
@@ -46,7 +44,7 @@ public class CounsellorClientController {
         return new ResponseEntity<>(entries, HttpStatus.OK);
     }
     
-    @GetMapping("/{journalUserId}/journal-entries-android/{counsellorId}")
+    @GetMapping("/{journalUserId}/journal-entries/{counsellorId}")
     public ResponseEntity<?> listClientJournalEntriesAndroid(@PathVariable String journalUserId,
                                                       @PathVariable String counsellorId) {
         List<JournalEntry> entries = cService.listClientJournalEntries(counsellorId, journalUserId);
@@ -61,7 +59,7 @@ public class CounsellorClientController {
         return new ResponseEntity<>(entries, HttpStatus.OK);
     }
     
-    @GetMapping("/{journalUserId}/habits-entries-android/{counsellorId}")
+    @GetMapping("/{journalUserId}/habits-entries/{counsellorId}")
     public ResponseEntity<?> listClientHabitsEntriesAndroid(@PathVariable String journalUserId,
                                                      @PathVariable String counsellorId) {
         List<HabitsEntry> entries = cService.listClientHabitsEntries(counsellorId, journalUserId);
