@@ -1,37 +1,27 @@
 package com.example.nus.ui.screens
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
-
-import androidx.compose.material.icons.filled.MenuBook
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nus.model.Client
 import com.example.nus.viewmodel.ClientsViewModel
-import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,7 +29,8 @@ fun ClientsScreen(
     counsellorId: String = "",
     onBackClick: () -> Unit = {},
     onInviteClick: () -> Unit = {},
-    onJournalClick: (Client) -> Unit = {}
+    // CHANGED: pass the client's backend ID directly
+    onJournalClick: (String) -> Unit = {}
 ) {
     val context = LocalContext.current
     val viewModel: ClientsViewModel = viewModel(
@@ -114,10 +105,15 @@ fun ClientsScreen(
                 }
                 else -> {
                     LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        items(clients) { client ->
+                        items(clients) { client: Client ->
+                            // If your Client has "userId" (preferred) use that; otherwise swap to client.clientId
+                            val clientBackendId = client.userId // <-- change to client.clientId if that's your field
+
                             ClientCard(
                                 client = client,
-                                onJournalClick = { onJournalClick(client) }
+                                onJournalClick = {
+                                    onJournalClick(clientBackendId)
+                                }
                             )
                         }
                     }
