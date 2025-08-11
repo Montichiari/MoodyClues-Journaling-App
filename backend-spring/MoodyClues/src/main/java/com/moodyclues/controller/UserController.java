@@ -11,7 +11,9 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,7 +22,6 @@ import com.moodyclues.dto.LoginRequestDto;
 import com.moodyclues.dto.LoginResponseDto;
 import com.moodyclues.dto.RegisterRequestDto;
 import com.moodyclues.model.JournalUser;
-import com.moodyclues.model.LinkRequest;
 import com.moodyclues.service.JournalUserService;
 import com.moodyclues.service.LinkRequestService;
 
@@ -87,5 +88,45 @@ public class UserController {
 		
 	}
 	
+	@PutMapping("/toggle-emotion")
+	public ResponseEntity<?> toggleEmotion(HttpSession session) {
+		String userId = session.getId();
+		JournalUser user = juserService.findJournalUserById(userId);
+		
+		if (user.isShowEmotion()) {
+			user.setShowEmotion(false);
+			return new ResponseEntity<>("Emotions set to hidden", HttpStatus.OK);
+
+		}
+		
+		if (!(user.isShowEmotion())) {
+			user.setShowEmotion(true);
+			return new ResponseEntity<>("Emotions set to shown", HttpStatus.OK);
+
+		}
+		
+		return new ResponseEntity<>("Something went wrong", HttpStatus.BAD_REQUEST);
+		
+	}
+	
+	@PutMapping("/toggle-emotion/{userId}")
+	public ResponseEntity<?> toggleEmotionAndroid(@PathVariable String userId) {
+		
+		JournalUser user = juserService.findJournalUserById(userId);
+		
+		if (user.isShowEmotion()) {
+			user.setShowEmotion(false);
+			return new ResponseEntity<>("Emotions set to hidden", HttpStatus.OK);
+
+		}
+		
+		if (!(user.isShowEmotion())) {
+			user.setShowEmotion(true);
+			return new ResponseEntity<>("Emotions set to shown", HttpStatus.OK);
+
+		}
+		
+		return new ResponseEntity<>("Something went wrong", HttpStatus.BAD_REQUEST);
+	}
 	
 }
