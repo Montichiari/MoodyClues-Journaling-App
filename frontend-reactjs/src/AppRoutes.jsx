@@ -15,7 +15,7 @@ const AppRoutes = () => {
             <Routes>
 
                 {/*Journal user routes*/}
-                <Route path="/" element={<Navigate to="/ApiSmokeTest" />} />
+                <Route path="/" element={<Navigate to="/journal/mood" />} />
                 <Route path="/ApiSmokeTest" element={<ApiSmokeTest />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/home" element={<Home />} />
