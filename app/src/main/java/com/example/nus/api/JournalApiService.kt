@@ -16,9 +16,9 @@ interface JournalApiService {
     @POST("api/journal/submit")
     suspend fun submitJournalEntry(@Body journalEntryRequest: JournalEntryRequest): Response<ResponseBody>
     
-    @GET("api/journal/all")
+    @GET("api/journal/")
     suspend fun getAllJournalEntries(@Query("userId") userId: String): Response<List<JournalEntryResponse>>
-    
+
     @GET("api/journal/{entryId}")
     suspend fun getJournalEntryById(@Path("entryId") entryId: String): Response<JournalEntryResponse>
     

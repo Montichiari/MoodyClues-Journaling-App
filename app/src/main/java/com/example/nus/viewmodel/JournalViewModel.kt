@@ -20,11 +20,9 @@ class JournalViewModel : ViewModel() {
     val error = mutableStateOf<String?>(null)
 
     // --- List state ---
-    // Keep responses so we have stable IDs for navigation
     private val _responses = mutableStateListOf<JournalEntryResponse>()
     val responses: List<JournalEntryResponse> get() = _responses
 
-    // Keep your original domain list so existing UI code that expects JournalEntry still works
     private val _journalList = mutableStateListOf<JournalEntry>()
     val journalList: List<JournalEntry> get() = _journalList
 
@@ -33,7 +31,6 @@ class JournalViewModel : ViewModel() {
 
     /**
      * Load entries for a specific client (counsellor flow) from the backend.
-     * Replaces the previous hardcoded dummy entries.
      */
     fun loadForClient(clientId: String) {
         if (clientId.isBlank()) {
@@ -45,15 +42,21 @@ class JournalViewModel : ViewModel() {
 
         viewModelScope.launch {
             try {
+                // ---- DEBUG LINE (Step 4) ----
+                println("JournalVM: loading entries for clientId='$clientId'")
+
                 val res = ApiClient.journalApiService.getAllJournalEntries(clientId)
+
+                // More visibility on what the server responded with
+                println("JournalVM: GET /api/journal/all -> HTTP ${res.code()} ${res.message()}")
+
                 if (res.isSuccessful) {
                     val list = res.body().orEmpty()
+                    println("JournalVM: received ${list.size} entries")
 
-                    // store raw responses (for IDs)
                     _responses.clear()
                     _responses.addAll(list)
 
-                    // also expose your original domain objects for existing UI
                     _journalList.clear()
                     _journalList.addAll(list.map { it.toDomain() })
                 } else {
@@ -61,6 +64,7 @@ class JournalViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 error.value = "Network error: ${e.message}"
+                println("JournalVM: exception while loading list -> ${e.message}")
             } finally {
                 isLoading.value = false
             }
@@ -80,7 +84,12 @@ class JournalViewModel : ViewModel() {
 
         viewModelScope.launch {
             try {
+                // ---- DEBUG LINE (helpful too) ----
+                println("JournalVM: loading entry by id='$entryId'")
+
                 val res = ApiClient.journalApiService.getJournalEntryById(entryId)
+                println("JournalVM: GET /api/journal/{entryId} -> HTTP ${res.code()} ${res.message()}")
+
                 if (res.isSuccessful && res.body() != null) {
                     selectedEntry.value = res.body()!!.toDomain()
                 } else {
@@ -88,6 +97,7 @@ class JournalViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 error.value = "Network error: ${e.message}"
+                println("JournalVM: exception while loading detail -> ${e.message}")
             } finally {
                 isLoading.value = false
             }
@@ -100,7 +110,9 @@ class JournalViewModel : ViewModel() {
     fun archive(entryId: String, onDone: () -> Unit = {}) {
         viewModelScope.launch {
             try {
+                println("JournalVM: archiving entryId='$entryId'")
                 val res = ApiClient.journalApiService.archiveJournalEntry(entryId)
+                println("JournalVM: PUT /api/journal/{entryId}/archive -> HTTP ${res.code()} ${res.message()}")
                 if (res.isSuccessful) {
                     onDone()
                 } else {
@@ -108,14 +120,13 @@ class JournalViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 error.value = "Network error: ${e.message}"
+                println("JournalVM: exception while archiving -> ${e.message}")
             }
         }
     }
 
-    /**
-     * Add a new entry locally (kept for parity with your previous code; optional).
-     * This does NOT call the API.
-     */
+    // ----- Local helpers kept from your previous version -----
+
     fun addEntry(
         user: String,
         title: String,
@@ -132,22 +143,14 @@ class JournalViewModel : ViewModel() {
         )
     }
 
-    /**
-     * Look up a domain entry by title (kept for backward compatibility with your UI).
-     */
     fun getEntryByTitle(title: String): JournalEntry? =
         _journalList.find { it.entryTitle == title }
 
-    /**
-     * Helper to get the backend ID for a row if your UI still navigates using the title.
-     * Prefer passing the ID directly from the list item click if possible.
-     */
     fun getEntryIdByTitle(title: String): String? =
         _responses.find { it.entryTitle == title }?.id
 
     // ---------------- Helpers / Mappings ----------------
 
-    // Convert API response -> your domain JournalEntry (inline, no separate mapper file)
     private fun JournalEntryResponse.toDomain(): JournalEntry {
         return JournalEntry(
             user = this.userId,
@@ -155,9 +158,9 @@ class JournalViewModel : ViewModel() {
             entryText = this.entryText,
             emotions = this.emotions.map { label ->
                 Emotion(
-                    id = label.lowercase(),          // or keep server id if you add it later
+                    id = label.lowercase(),
                     emotionLabel = label,
-                    iconAddress = emotionIconFor(label) // stub; customize as needed
+                    iconAddress = emotionIconFor(label)
                 )
             },
             mood = this.mood,
@@ -172,14 +175,13 @@ class JournalViewModel : ViewModel() {
             "happy" -> "ic_emotion_happy"
             "sad"   -> "ic_emotion_sad"
             "angry" -> "ic_emotion_angry"
-            else    -> "" // no icon yet
+            else    -> ""
         }
     }
 
     private fun parseIsoDate(iso: String?): LocalDateTime {
         if (iso.isNullOrBlank()) return LocalDateTime.now()
         return try {
-            // Handles ISO-8601 like "2025-08-10T12:34:56Z" or with offsets
             OffsetDateTime.parse(iso).toLocalDateTime()
         } catch (_: DateTimeParseException) {
             LocalDateTime.now()
