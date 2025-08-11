@@ -4,7 +4,10 @@ import java.time.LocalDateTime;
 
 import org.hibernate.annotations.UuidGenerator;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
@@ -17,10 +20,16 @@ public class LinkRequest {
 	@UuidGenerator
 	private String id;
 	
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JsonIgnoreProperties({
+        "password", "clients", "linkRequests", "archived"
+    })	
 	private CounsellorUser counsellorUser;
 	
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JsonIgnoreProperties({
+        "password", "counsellors", "entries", "habitsEntries", "linkRequests", "archived"
+    })	
 	private JournalUser journalUser;
 	
 	private LocalDateTime requestedAt;
@@ -33,7 +42,7 @@ public class LinkRequest {
     }
     
     public LinkRequest() {
-    	
+    	this.requestedAt = LocalDateTime.now();
     }
 
     

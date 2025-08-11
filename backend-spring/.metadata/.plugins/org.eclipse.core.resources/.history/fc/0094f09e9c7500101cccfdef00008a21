@@ -1,0 +1,84 @@
+package com.moodyclues.serviceimpl;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
+import com.moodyclues.model.CounsellorUser;
+import com.moodyclues.model.JournalUser;
+import com.moodyclues.model.LinkRequest;
+import com.moodyclues.repository.CounsellorRepository;
+import com.moodyclues.repository.JournalUserRepository;
+import com.moodyclues.repository.LinkRequestRepository;
+import com.moodyclues.service.LinkRequestService;
+
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
+
+@Service
+@Transactional
+public class LinkRequestServiceImpl implements LinkRequestService {
+
+	@Autowired
+	LinkRequestRepository linkRepo;
+	
+	@Autowired
+	JournalUserRepository juserRepo;
+	
+	@Autowired
+	CounsellorRepository cRepo;
+	
+
+	@Override
+	public LinkRequest createNewRequest(String counsellorId, String userEmail) {
+        CounsellorUser counsellor = cRepo.findById(counsellorId)
+                .orElseThrow(() -> new EntityNotFoundException("Counsellor not found"));
+
+            JournalUser journal = juserRepo.findJournalUserByEmail(journalUserEmail)
+                .orElseThrow(() -> new EntityNotFoundException("Journal user not found"));
+
+            if (counsellor.getId().equals(journal.getId())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot link to self");
+            }
+            if (counsellor.getClients().contains(journal)) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "Already linked");
+            }
+            if (linkRepo.existsByCounsellor_IdAndJournalUser_IdAndStatus(
+                    counsellorId, journal.getId(), LinkRequestStatus.PENDING)) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "Pending request exists");
+            }
+
+            LinkRequest lr = new LinkRequest();
+            lr.setCounsellorUser(counsellor);
+            lr.setJournalUser(journal);
+            lr.setStatus(LinkRequestStatus.PENDING);
+            return linkRepo.save(lr);
+	}
+
+	@Override
+	public void requestDecision(String userId, String requestId, boolean approved) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	@Override
+	public List<LinkRequest> getAllLinkRequestsByCounsellorId(String id) {
+
+		List<LinkRequest> requests = linkRepo.findAllByCounsellorId(id);
+		
+		return requests;
+	}
+
+	@Override
+	public List<LinkRequest> getAllLinkRequestsByJournalUserId(String id) {
+		
+		List<LinkRequest> requests = linkRepo.findAllByJournalUserId(id);
+		
+		return requests;
+	}
+
+
+}

@@ -44,7 +44,6 @@ jobs:
             -Dflyway.user="${RDS_USERNAME}" \
             -Dflyway.password="${RDS_PASSWORD}" \
             -Dflyway.url="${RDS_JDBC_URL}"
-
       - name: Build JAR (skip tests)
         working-directory: ${{ env.APP_DIR }}
         run: ./mvnw -B -DskipTests clean package
@@ -62,25 +61,21 @@ jobs:
           docker build -t "$IMAGE:$SHORT" -t "$IMAGE:latest" .
           echo "IMAGE_TAG_SHORT=$IMAGE:$SHORT" >> $GITHUB_ENV
           echo "IMAGE_TAG_LATEST=$IMAGE:latest" >> $GITHUB_ENV
-
       - name: Push image
         run: |
           docker push "$IMAGE_TAG_SHORT"
           docker push "$IMAGE_TAG_LATEST"
-
       - name: Recreate PEM key
         run: |
           echo "${{ secrets.EC2_SSH_KEY }}" | base64 -d > key.pem
           chmod 600 key.pem
-
       - name: Quick port 22 check
         run: |
           echo "Probing port 22..."
           nc -vz -w 10 "$EC2_HOST" 22 || (echo "Port 22 not reachable"; exit 2)
-
       - name: Deploy on EC2 (pull & run)
         run: |
-          ssh -vvv -tt \
+          ssh -tt \
             -o StrictHostKeyChecking=no \
             -o ServerAliveInterval=30 \
             -o ServerAliveCountMax=10 \
@@ -89,24 +84,18 @@ jobs:
             -o ConnectionAttempts=3 \
             -i key.pem "$EC2_USER@$EC2_HOST" << EOF
           set -euo pipefail
-
-          # Heartbeat (escape \$ and \$(...) so they run remotely, not on the runner)
-          ( while true; do echo "[deploy][heartbeat] \$(date -u +\"%Y-%m-%dT%H:%M:%SZ\")"; sleep 25; done ) & HB=\$!; trap 'kill \$HB || true' EXIT
-
           echo "🧼 Stopping/removing existing container (if any)..."
           docker stop moodyclues-container || true
           docker rm moodyclues-container || true
-
           echo "🔐 Docker login..."
           echo "${REGISTRY_TOKEN}" | docker login -u "${REGISTRY_USER}" --password-stdin
-
           echo "🐳 Pulling image..."
           docker pull "${REGISTRY_USER}/${IMAGE_NAME}:latest"
-
           echo "🚀 Starting container..."
           docker run -d --name moodyclues-container -p 8080:8080 "${REGISTRY_USER}/${IMAGE_NAME}:latest"
-
           echo "🔎 Status:"
           sleep 3
           docker ps --filter "name=moodyclues-container" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+          exit 0
+          EOSSH
           EOF

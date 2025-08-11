@@ -1,7 +1,9 @@
 package com.moodyclues.repository;
 
 import java.util.List;
+import java.util.Optional;
 
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,8 +14,36 @@ public interface JournalEntryRepository extends JpaRepository<JournalEntry, Stri
 
 	@Query("SELECT j FROM JournalEntry j JOIN j.user u WHERE u.id = :userId AND j.archived = false")
 	public List<JournalEntry> getAllJournalEntriesByUserId(@Param("userId") String userId);
-	
+
 	@Query("SELECT j FROM JournalEntry j WHERE j.id = :entryId AND j.archived = false")
 	public JournalEntry getJournalEntryById(@Param("entryId") String entryId);
-	
+
+
+	@EntityGraph(attributePaths = {"emotions"})
+	@Query("""
+			    SELECT e
+			    FROM JournalEntry e
+			    WHERE e.user.id = :jid AND e.archived = false
+			    ORDER BY e.createdAt DESC
+			""")
+	public List<JournalEntry> findVisibleByUserId(@Param("jid") String journalUserId);
+
+	@EntityGraph(attributePaths = {"emotions"})
+	@Query("""
+			    SELECT e
+			    FROM JournalEntry e
+			    WHERE e.id = :eid AND e.user.id = :jid
+			""")
+	public Optional<JournalEntry> findByIdAndUserId(@Param("eid") String entryId, @Param("jid") String journalUserId);
+
+	@Query("""
+			SELECT e FROM JournalEntry e
+			WHERE e.user.id = :userId
+			  AND e.archived = false
+			  AND LOWER(e.entryTitle) LIKE LOWER(CONCAT('%', :q, '%'))
+			ORDER BY e.createdAt DESC
+			""")
+	public List<JournalEntry> searchByTitle(
+			@Param("userId") String userId,
+			@Param("q") String q);
 }

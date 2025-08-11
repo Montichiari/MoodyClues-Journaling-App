@@ -10,10 +10,14 @@ public class CounsellorLinkRequestDto {
 
 	@NotBlank
 	private String clientEmail;
-	
-	private LocalDateTime requestedAt;
-	
-	@NotBlank
-	private Status status;
+
+	public String getClientEmail() {
+		return clientEmail;
+	}
+
+	public void setClientEmail(String clientEmail) {
+		this.clientEmail = clientEmail;
+	}
+		
 	
 }

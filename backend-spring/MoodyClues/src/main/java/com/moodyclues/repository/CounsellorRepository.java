@@ -1,5 +1,6 @@
 package com.moodyclues.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,7 +14,27 @@ public interface CounsellorRepository extends JpaRepository<CounsellorUser, Stri
 
 	@Query("SELECT c FROM CounsellorUser c WHERE c.email = :email")
 	public Optional<CounsellorUser> findCounsellorByEmail(@Param("email") String email);
-	
+
 	@Query("SELECT c FROM CounsellorUser c WHERE c.id = :id")
 	public Optional<CounsellorUser> findCounsellorById(@Param("id") String id);
+
+
+	@Query("""
+			    SELECT j
+			    FROM CounsellorUser c
+			    JOIN c.clients j
+			    WHERE c.id = :cid
+			    ORDER BY j.firstName, j.lastName
+			""")
+	public List<JournalUser> findClients(@Param("cid") String counsellorId);
+
+	@Query("""
+			    SELECT (COUNT(j) > 0)
+			    FROM CounsellorUser c
+			    JOIN c.clients j
+			    WHERE c.id = :cid AND j.id = :jid
+			""")
+	public boolean isLinkedTo(@Param("cid") String counsellorId, @Param("jid") String journalUserId);
+
+
 }
