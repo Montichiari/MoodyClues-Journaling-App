@@ -6,8 +6,6 @@ import Reflections from "./pages/journal/Reflections";
 import JournalSaved from "./pages/journal/JournalSaved";
 import HabitsSaved from "./pages/journal/HabitsSaved";
 import Emotions from "./pages/journal/Emotions";
-import ReadList from "./pages/journal/ReadList";
-import ReadDetail from "./pages/journal/ReadDetail";
 
 const AppRoutes = () => {
     return (
@@ -22,8 +20,6 @@ const AppRoutes = () => {
                 <Route path="/journal/complete/journal" element={<JournalSaved />} />
                 <Route path="/journal/complete/habits" element={<HabitsSaved />} />
                 <Route path="/journal/emotions" element={<Emotions />} />
-                <Route path="/journal/read" element={<ReadList />} />
-                <Route path="/journal/read/:entryId" element={<ReadDetail />} />
             </Routes>
         </Router>
     );
