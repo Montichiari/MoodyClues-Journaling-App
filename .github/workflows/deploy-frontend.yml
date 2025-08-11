@@ -37,12 +37,18 @@ jobs:
       - name: Push image
         run: docker push $REGISTRY_USER/$IMAGE_NAME:latest
 
+      - name: Prepare SSH key (decode base64)
+        run: |
+          echo "${{ secrets.EC2_SSH_KEY }}" | base64 -d > key.pem
+          chmod 600 key.pem
+
       - name: Deploy on Frontend EC2
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ env.EC2_HOST }}
           username: ${{ env.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
+          key_path: key.pem
+          port: 22
           script_stop: true
           script: |
             set -euo pipefail
