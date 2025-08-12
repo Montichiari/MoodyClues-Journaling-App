@@ -18,7 +18,8 @@ const drawerWidth = 200;
 
 const navItems = [
     { label: 'Home', path: '/home' },
-    { label: 'Write', path: '/journal/mood' },
+    //{ label: 'Write', path: '/journal/mood' },
+    { label: 'Write', path: '/journal/entry' },
     { label: 'Read', path: '/read' },
     { label: 'Dashboards', path: '/dashboard' },
     { label: 'Invites', path: '/invites' },

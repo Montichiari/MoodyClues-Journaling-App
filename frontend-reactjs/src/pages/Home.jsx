@@ -1,6 +1,7 @@
 import React from "react";
 import Sidenav from "../components/Sidenav.jsx";
 import { Box } from "@mui/material";
+import { Link } from "react-router-dom";   // added
 
 
 const Home = () => {
@@ -27,17 +28,17 @@ const Home = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                 {/* Write Card */}
-                <div className="rounded-md overflow-hidden shadow hover:shadow-lg transition duration-300 cursor-pointer">
-                    <img
-                        src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                        alt="Write"
-                        className="w-full h-40 object-cover"
-                    />
-                    <div className="p-4">
-                        <h3 className="text-lg font-semibold">Write To Journal</h3>
-                        <p className="text-sm text-gray-500">Record today</p>
-                    </div>
-                </div>
+                <Link to="/journal/entry" className="rounded-md overflow-hidden shadow hover:shadow-lg transition duration-300 cursor-pointer block">
+                  <img
+                    src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                    alt="Write"
+                    className="w-full h-40 object-cover"
+                  />
+                  <div className="p-4">
+                    <h3 className="text-lg font-semibold">Write To Journal</h3>
+                    <p className="text-sm text-gray-500">Record today</p>
+                  </div>
+                </Link>
 
                 {/* Read Card */}
                 <div className="rounded-md overflow-hidden shadow hover:shadow-lg transition duration-300 cursor-pointer">
