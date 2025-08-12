@@ -1,5 +1,6 @@
 package com.moodyclues.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -9,6 +10,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.moodyclues.model.JournalEntry;
+import com.moodyclues.projection.EmotionCount;
+import com.moodyclues.projection.JournalDailyAgg;
 
 public interface JournalEntryRepository extends JpaRepository<JournalEntry, String> {
 
@@ -46,4 +49,48 @@ public interface JournalEntryRepository extends JpaRepository<JournalEntry, Stri
 	public List<JournalEntry> searchByTitle(
 			@Param("userId") String userId,
 			@Param("q") String q);
+
+
+	// FOR DASHBOARD
+
+	@Query(
+			value =
+			"SELECT DATE(e.created_at) AS day, " +
+					"       AVG(e.mood)        AS avgMood, " +
+					"       COUNT(*)           AS entries " +
+					"FROM journal_entries e " +
+					"WHERE e.user_id = :userId " +
+					"  AND e.created_at BETWEEN :start AND :end " +
+					"GROUP BY DATE(e.created_at) " +
+					"ORDER BY day",
+					nativeQuery = true
+			)
+	public List<JournalDailyAgg> findDailyAggBetween(
+			@Param("userId") String userId,
+			@Param("start")  LocalDateTime start,
+			@Param("end")    LocalDateTime end
+			);
+
+
+	@Query(
+			value =
+			"SELECT em.name AS emotion, COALESCE(c.cnt, 0) AS cnt " +
+					"FROM emotions em " +
+					"LEFT JOIN ( " +
+					"  SELECT ee.emotion_id, COUNT(*) AS cnt " +
+					"  FROM entry_emotions ee " +
+					"  JOIN journal_entries e ON ee.entry_id = e.id " +
+					"  WHERE e.user_id = :userId " +
+					"    AND e.created_at BETWEEN :start AND :end " +
+					"  GROUP BY ee.emotion_id " +
+					") c ON c.emotion_id = em.id " +
+					"ORDER BY em.name",
+					nativeQuery = true
+			)
+	public List<EmotionCount> countEmotionsBetween(
+			@Param("userId") String userId,
+			@Param("start")  LocalDateTime start,
+			@Param("end")    LocalDateTime end
+			);
+
 }

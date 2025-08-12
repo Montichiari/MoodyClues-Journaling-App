@@ -1,15 +1,15 @@
-import React from 'react'
+import React from "react";
 import Dashboard from "../components/Dashboard/Dashboard.jsx";
 import Sidenav from "../components/Sidenav.jsx";
 
 export const UserDashboard = () => {
     return (
-        <div className = "p-4 grid-cols-[220px,_1fr]">
-
+        <div className="min-h-screen bg-stone-50">
             <Sidenav />
-            <Dashboard />
-
+            <main className="p-4 md:ml-[200px]">
+                <Dashboard />
+            </main>
         </div>
-    )
-}
+    );
+};
 export default UserDashboard;

@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.moodyclues.model.HabitsEntry;
+import com.moodyclues.projection.HabitsDayFlat;
 
 public interface HabitsEntryRepository extends JpaRepository<HabitsEntry, String> {
 
@@ -31,5 +32,25 @@ public interface HabitsEntryRepository extends JpaRepository<HabitsEntry, String
 			    WHERE h.id = :eid AND h.user.id = :jid
 			""")
 	public Optional<HabitsEntry> findByIdAndUserId(@Param("eid") String entryId, @Param("jid") String journalUserId);
+
+	// FOR DASHBOARD
+
+	@Query(
+			value =
+			"SELECT DATE(h.created_at) AS day, " +
+					"       h.sleep            AS sleep, " +        // hours
+					"       h.water            AS water, " +        // litres
+					"       h.work_hours       AS workHours " +     // alias to match getWorkHours()
+					"FROM habits_entries h " +
+					"WHERE h.user_id = :userId " +
+					"  AND h.created_at BETWEEN :start AND :end " +
+					"ORDER BY day",
+					nativeQuery = true
+			)
+	public List<HabitsDayFlat> findDaysBetween(
+			@org.springframework.data.repository.query.Param("userId") String userId,
+			@org.springframework.data.repository.query.Param("start")  java.time.LocalDateTime start,
+			@org.springframework.data.repository.query.Param("end")    java.time.LocalDateTime end
+			);
 
 }

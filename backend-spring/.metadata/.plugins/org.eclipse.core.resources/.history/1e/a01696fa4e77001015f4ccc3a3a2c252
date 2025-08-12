@@ -1,0 +1,96 @@
+package com.moodyclues.repository;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import com.moodyclues.model.JournalEntry;
+import com.moodyclues.projection.EmotionCount;
+import com.moodyclues.projection.JournalDailyAgg;
+
+public interface JournalEntryRepository extends JpaRepository<JournalEntry, String> {
+
+	@Query("SELECT j FROM JournalEntry j JOIN j.user u WHERE u.id = :userId AND j.archived = false")
+	public List<JournalEntry> getAllJournalEntriesByUserId(@Param("userId") String userId);
+
+	@Query("SELECT j FROM JournalEntry j WHERE j.id = :entryId AND j.archived = false")
+	public JournalEntry getJournalEntryById(@Param("entryId") String entryId);
+
+
+	@EntityGraph(attributePaths = {"emotions"})
+	@Query("""
+			    SELECT e
+			    FROM JournalEntry e
+			    WHERE e.user.id = :jid AND e.archived = false
+			    ORDER BY e.createdAt DESC
+			""")
+	public List<JournalEntry> findVisibleByUserId(@Param("jid") String journalUserId);
+
+	@EntityGraph(attributePaths = {"emotions"})
+	@Query("""
+			    SELECT e
+			    FROM JournalEntry e
+			    WHERE e.id = :eid AND e.user.id = :jid
+			""")
+	public Optional<JournalEntry> findByIdAndUserId(@Param("eid") String entryId, @Param("jid") String journalUserId);
+
+	@Query("""
+			SELECT e FROM JournalEntry e
+			WHERE e.user.id = :userId
+			  AND e.archived = false
+			  AND LOWER(e.entryTitle) LIKE LOWER(CONCAT('%', :q, '%'))
+			ORDER BY e.createdAt DESC
+			""")
+	public List<JournalEntry> searchByTitle(
+			@Param("userId") String userId,
+			@Param("q") String q);
+
+
+	// FOR DASHBOARD
+
+	@Query(
+			value =
+			"SELECT DATE(e.created_at) AS day, " +
+					"       AVG(e.mood)        AS avgMood, " +
+					"       COUNT(*)           AS entries " +
+					"FROM journal_entries e " +
+					"WHERE e.user_id = :userId " +
+					"  AND e.created_at BETWEEN :start AND :end " +
+					"GROUP BY DATE(e.created_at) " +
+					"ORDER BY day",
+					nativeQuery = true
+			)
+	public List<JournalDailyAgg> findDailyAggBetween(
+			@org.springframework.data.repository.query.Param("userId") String userId,
+			@org.springframework.data.repository.query.Param("start")  LocalDateTime start,
+			@org.springframework.data.repository.query.Param("end")    LocalDateTime end
+			);
+
+
+	@Query(
+			value =
+			"SELECT em.name AS emotion, COALESCE(c.cnt, 0) AS cnt " +
+					"FROM emotions em " +
+					"LEFT JOIN ( " +
+					"  SELECT ee.emotion_id, COUNT(*) AS cnt " +
+					"  FROM entry_emotions ee " +
+					"  JOIN journal_entries e ON ee.entry_id = e.id " +
+					"  WHERE e.user_id = :userId " +
+					"    AND e.created_at BETWEEN :start AND :end " +
+					"  GROUP BY ee.emotion_id " +
+					") c ON c.emotion_id = em.id " +
+					"ORDER BY em.name",
+					nativeQuery = true
+			)
+	public List<EmotionCount> countEmotionsBetween(
+		    @Param("userId") String userId,
+		    @Param("start")  LocalDateTime start,
+		    @Param("end")    LocalDateTime end
+		);
+
+}
