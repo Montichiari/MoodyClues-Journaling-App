@@ -28,12 +28,21 @@ function formatOrdinalDate(d) {
 const fmtHours = (v) => (v == null || v === "") ? "—" : `${v} Hours`;
 const fmtLitres = (v) => (v == null || v === "") ? "—" : `${v} Litres`;
 
+// strict same-day match helpers (local timezone)
+const toLocalYMD = (d) => {
+  const dt = new Date(d);
+  return Number.isNaN(dt.getTime())
+    ? ""
+    : [dt.getFullYear(), dt.getMonth(), dt.getDate()].join("-");
+};
+const sameLocalDay = (a, b) => toLocalYMD(a) === toLocalYMD(b);
+
 export default function ReadDetails() {
   const { id } = useParams(); // /read/:id (entryId)
   const navigate = useNavigate();
 
   const [item, setItem] = useState(null);     // the journal entry
-  const [habits, setHabits] = useState(null); // matched habits
+  const [habits, setHabits] = useState(null); // matched habits (same local day)
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
 
@@ -47,7 +56,7 @@ export default function ReadDetails() {
     if (!loggedIn || !uid) navigate("/login", { replace: true });
   }, [navigate]);
 
-  // load journal + habits
+  // load journal + (strict) same-day habits
   useEffect(() => {
     const uid = localStorage.getItem("userId");
     if (!id || !uid) return;
@@ -70,44 +79,18 @@ export default function ReadDetails() {
         const entry = jr.data || null;
         setItem(entry);
 
-        // 2) Habits: try by-entry endpoint first
+        // 2) Habits (strict same-day): GET /api/habits/all/{userId}
         let matched = null;
-        try {
-          const hrByEntry = await axios.get(
-            `${API_BASE}/api/habits/${entryId}/${userId}`,
-            { withCredentials: true, signal: controller.signal }
-          );
-          // If your API returns a single object
-          if (hrByEntry?.data && !Array.isArray(hrByEntry.data)) {
-            matched = hrByEntry.data;
-          }
-          // If it returns an array, choose the closest by time
-          if (Array.isArray(hrByEntry?.data) && (entry?.createdAt || entry?.date)) {
-            const et = new Date(entry.createdAt || entry.date).getTime();
-            matched = hrByEntry.data
-              .map(h => ({ h, diff: Math.abs(new Date(h.createdAt).getTime() - et) }))
-              .sort((a, b) => a.diff - b.diff)[0]?.h ?? null;
-          }
-        } catch (e) {
-          // swallow and fall back (404 is expected if not implemented)
-        }
-
-        // 3) Fallback: fetch all habits for user and pick the closest by createdAt
-        if (!matched) {
+        if (entry?.createdAt || entry?.date) {
           const hrAll = await axios.get(
-            `${API_BASE}/api/habits/${userId}`,
+            `${API_BASE}/api/habits/all/${userId}`,
             { withCredentials: true, signal: controller.signal }
           );
           const list = Array.isArray(hrAll.data) ? hrAll.data : [];
-          if (list.length && (entry?.createdAt || entry?.date)) {
-            const et = new Date(entry.createdAt || entry.date).getTime();
-            matched = list
-              .map(h => ({ h, diff: Math.abs(new Date(h.createdAt).getTime() - et) }))
-              .sort((a, b) => a.diff - b.diff)[0]?.h ?? null;
-          }
+          matched = list.find(h => sameLocalDay(h.createdAt, entry.createdAt || entry.date)) || null;
         }
 
-        setHabits(matched || null);
+        setHabits(matched);
       } catch (e) {
         if (axios.isCancel?.(e)) return;
         if (e.response?.status === 404) {
@@ -137,6 +120,7 @@ export default function ReadDetails() {
     return [];
   }, [item]);
 
+  
   return (
     <Box sx={{ display: "flex" }}>
       <Sidenav />
@@ -151,31 +135,32 @@ export default function ReadDetails() {
             ← Back
           </button>
 
-          <h2 className="mt-2 text-lg font-medium text-gray-900">Your Journal</h2>
+          {/* Centered section heading */}
+          <h2 className="mt-2 text-lg font-medium text-gray-900 text-center">Your Journal</h2>
 
           {loading && <div className="mt-6 text-gray-500 text-sm">Loading…</div>}
           {!loading && err && <div className="mt-6 text-sm text-rose-600">{err}</div>}
 
           {!loading && !err && item && (
             <>
-              {/* Title */}
-              <h1 className="mt-4 text-3xl font-semibold text-gray-900">
+              {/* Title — centered */}
+              <h1 className="mt-4 text-3xl font-semibold text-gray-900 text-center">
                 {item.entryTitle || "(Untitled)"}
               </h1>
 
-              {/* Date */}
-              <div className="mt-2 text-sm text-gray-500">
+              {/* Date — centered */}
+              <div className="mt-2 text-sm text-gray-500 text-center">
                 {formatOrdinalDate(item.createdAt || item.date)}
               </div>
 
-              {/* Mood (line 1) */}
-              <div className="mt-8 text-gray-900">
+              {/* Mood (left aligned) */}
+              <div className="mt-8 text-gray-900 text-left">
                 <span className="font-medium">Mood:</span>{" "}
                 <span>{MOOD_LABELS[item.mood] || "—"}</span>
               </div>
 
-              {/* Sleep / Water / Work (line 2) */}
-              <div className="mt-2 flex flex-wrap gap-x-8 gap-y-2 text-gray-900">
+              {/* Sleep / Water / Work (left aligned) */}
+              <div className="mt-2 flex flex-wrap gap-x-8 gap-y-2 text-gray-900 text-left">
                 <div>
                   <span className="font-medium">Sleep:</span>{" "}
                   <span>{fmtHours(habits?.sleep ?? habits?.sleepHours)}</span>
@@ -190,10 +175,17 @@ export default function ReadDetails() {
                 </div>
               </div>
 
-              {/* Emotions (only when allowed and present) */}
+              {/* Optional: no habits message (left aligned) */}
+              {!habits && (
+                <div className="mt-2 text-sm text-gray-500 text-left">
+                  No habits logged for this day.
+                </div>
+              )}
+
+              {/* Emotions (left aligned, inline to the right of the label) */}
               {showEmotion && emotions.length > 0 && (
-                <div className="mt-6">
-                  <div className="font-medium text-gray-900 mb-2">You felt:</div>
+                <div className="mt-6 flex flex-wrap items-center gap-3 text-left">
+                  <div className="font-medium text-gray-900">You felt:</div>
                   <div className="flex flex-wrap gap-3">
                     {emotions.map((e) => (
                       <span
@@ -222,4 +214,6 @@ export default function ReadDetails() {
       </Box>
     </Box>
   );
+
+
 }

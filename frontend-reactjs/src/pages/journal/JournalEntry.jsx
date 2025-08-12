@@ -59,8 +59,8 @@ export default function JournalEntry() {
 
   // (Optional) Route guard
   useEffect(() => {
-    // const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
-    // if (!isLoggedIn) navigate("/login", { replace: true });
+    const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+    if (!isLoggedIn) navigate("/login", { replace: true });
   }, [navigate]);
 
   // "Today is 23rd July 2025."

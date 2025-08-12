@@ -13,6 +13,7 @@ import JournalSuccess from "./pages/journal/JournalSuccess.jsx";
 import HabitsSuccess from "./pages/journal/HabitsSuccess.jsx";
 import Read from "./pages/journal/Read.jsx";
 import ReadDetails from "./pages/journal/ReadDetails.jsx";
+import HabitsRecord from "./pages/journal/HabitsRecord.jsx";
 
 
 const AppRoutes = () => {
@@ -31,6 +32,7 @@ const AppRoutes = () => {
 
                 <Route path="/journal/habits" element={<Habits />} />
                 <Route path="/journal/habits/success" element={<HabitsSuccess />} />
+                <Route path="/journal/habits/records" element={<HabitsRecord />} />
 
                 <Route path="/read" element={<Read />} />
                 <Route path="/read/:id" element={<ReadDetails />} />

@@ -87,13 +87,24 @@ export default function Read() {
     });
   }, [entries, q]);
 
+  
   return (
     <Box sx={{ display: "flex" }}>
       <Sidenav />
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <Toolbar />
+
         <div className="max-w-3xl">
-          <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900">Your Journal</h1>
+          {/* Header with View Habits button */}
+          <div className="flex items-center justify-between">
+            <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900">Your Journal</h1>
+            <button
+              onClick={() => navigate("/journal/habits/records")}
+              className="px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 text-sm"
+            >
+              View Habits
+            </button>
+          </div>
 
           {/* Search */}
           <div className="mt-4">
@@ -173,4 +184,6 @@ export default function Read() {
       </Box>
     </Box>
   );
+
+
 }

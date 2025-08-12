@@ -1,10 +1,11 @@
 import React from "react";
 import Sidenav from "../components/Sidenav.jsx";
 import { Box } from "@mui/material";
-import { Link } from "react-router-dom";   // added
-
+import { Link, useNavigate } from "react-router-dom";   // updated import
 
 const Home = () => {
+    const navigate = useNavigate();
+
     const currentDate = new Date().toLocaleDateString("en-GB", {
         day: "numeric",
         month: "long",
@@ -41,7 +42,10 @@ const Home = () => {
                 </Link>
 
                 {/* Read Card */}
-                <div className="rounded-md overflow-hidden shadow hover:shadow-lg transition duration-300 cursor-pointer">
+                <div
+                    className="rounded-md overflow-hidden shadow hover:shadow-lg transition duration-300 cursor-pointer"
+                    onClick={() => navigate("/read")}
+                >
                     <img
                         src="https://images.unsplash.com/photo-1491309055486-24ae511c15c7?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                         alt="Read"
