@@ -41,6 +41,19 @@ public class JournalController {
 		
 	}
 	
+	@GetMapping("/all")
+	public ResponseEntity<?> getAllJournalEntries(HttpSession session) {
+		String userId = (String) session.getAttribute("id");
+		
+		try {
+			List<JournalEntry> jentries = entryService.getAllJournalEntriesByUserId(userId);
+			return new ResponseEntity<List<JournalEntry>>(jentries, HttpStatus.OK);
+		} catch (Exception e) {
+			
+		}
+		
+		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+	}
 	
 	@GetMapping("/all/{userId}")
 	public ResponseEntity<?> getAllJournalEntries(@PathVariable String userId) {
@@ -55,6 +68,7 @@ public class JournalController {
 		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 	}
 	
+	// Search function, only for web
 	@GetMapping("/entries")
 	public ResponseEntity<List<JournalEntry>> listEntriesSearch(@RequestParam String query, HttpSession session) {
 
@@ -70,6 +84,21 @@ public class JournalController {
 	}
 	
 	
+	@GetMapping("/{entryId}")
+	public ResponseEntity<?> getJournalEntryById(@PathVariable String entryId, HttpSession session) {
+		String userId = (String) session.getAttribute("id");
+		
+		try {
+	        var jentry = entryService.getJournalEntryById(entryId);
+	        if (jentry == null || jentry.getUser() == null || !userId.equals(jentry.getUser().getId())) {
+	            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+	        }
+	        return new ResponseEntity<>(jentry, HttpStatus.OK);
+	    } catch (Exception e) {
+	        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+	    }
+	}
+	
 	@GetMapping("/{entryId}/{userId}")
 	public ResponseEntity<?> getJournalEntryById(@PathVariable String entryId,
 	                                             @PathVariable String userId) {
@@ -84,6 +113,21 @@ public class JournalController {
 	    }
 	}
 	
+	@PutMapping("/{entryId}/archive")
+	public ResponseEntity<?> archiveJournalEntry(@PathVariable String entryId, HttpSession session) {
+		String userId = (String) session.getAttribute("id");
+		
+		try {
+	        JournalEntry j = entryService.getJournalEntryById(entryId);
+	        if (j == null || j.getUser() == null || !userId.equals(j.getUser().getId())) {
+	            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+	        }
+	        entryService.archiveJournalEntry(entryId);
+	        return new ResponseEntity<>("Entry successfully deleted.", HttpStatus.OK);
+	    } catch (Exception e) {
+	        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+	    }
+	}
 	
 	@PutMapping("/{entryId}/{userId}/archive")
 	public ResponseEntity<?> archiveJournalEntry(@PathVariable String entryId,
