@@ -14,7 +14,11 @@ export default function useDashboardData(rangeDays = 7) {
 
     useEffect(() => {
         setLoading(true);
-        axios.get("http://122.248.243.60:8080/api/dashboard/window", { params: { days: rangeDays } })
+        const userId = localStorage.getItem("userId");
+        axios.get("http://122.248.243.60:8080/api/dashboard/window", {
+            params: { days: rangeDays, userId },
+            withCredentials: false
+        })
             .then(res => {
                 const { window, series, summary } = res.data || {};
                 setWindowRange(window || {});
@@ -26,7 +30,6 @@ export default function useDashboardData(rangeDays = 7) {
             .finally(() => setLoading(false));
     }, [rangeDays]);
 
-    // Mood line series (unchanged)
     const moodSeries = useMemo(() => {
         if (!windowRange.from || !windowRange.to) return [];
         const start = new Date(windowRange.from + "T00:00:00");
