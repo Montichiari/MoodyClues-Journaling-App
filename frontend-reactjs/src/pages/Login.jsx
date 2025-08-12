@@ -4,72 +4,87 @@ import axios from "axios";
 import logo from "../assets/moodyclues-logo.png";
 
 export const Login = () => {
-
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [errMsg, setErrMsg] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        const emailTrim = email.trim();
+        const passTrim = password.trim();
+        if (!emailTrim || !passTrim) {
+            setErrMsg('Email and password are required.');
+            return;
+        }
+
+        setErrMsg('');
+        setLoading(true);
+
         try {
-            const response = await axios.post('http://122.248.243.60:8080/api/user/login', {
-                email: email,
-                password: password
-            });
+            const res = await axios.post(
+                'http://122.248.243.60:8080/api/user/login',
+                { email: emailTrim, password: passTrim },
+                { withCredentials: true, validateStatus: () => true }
+            );
 
-            localStorage.setItem("isLoggedIn", "true");
-            localStorage.setItem("userId", response.data.userId);
-            localStorage.setItem("showEmotion", response.data.showEmotion);
-
-            navigate("/home");
-
-        } catch (err) {
-            console.log(err);
+            if (res.status === 200 && res.data?.userId) {
+                localStorage.setItem("isLoggedIn", "true");
+                localStorage.setItem("userId", res.data.userId);
+                localStorage.setItem("showEmotion", String(res.data.showEmotion));
+                navigate("/home", { replace: true });
+            } else {
+                localStorage.removeItem("isLoggedIn");
+                localStorage.removeItem("userId");
+                localStorage.removeItem("showEmotion");
+                setErrMsg('Login failed. Check your email or password.');
+            }
+        } catch {
+            setErrMsg('Login failed. Please try again.');
+        } finally {
+            setLoading(false);
         }
     };
 
-    const handleCounsellorLogin = () => {
-        navigate("/counsellor/login");
-    };
+    const handleCounsellorLogin = () => navigate("/counsellor/login");
 
     return (
         <div className="min-h-screen flex items-center justify-center px-4 bg-white">
             <div className="w-full max-w-md p-6 rounded-xl shadow-lg space-y-6 border border-gray-100">
-
-                {/* Logo */}
                 <div className="flex justify-center">
                     <img src={logo} alt="MoodyClues" className="w-64 h-auto mx-auto my-4" />
                 </div>
 
-                {/* Heading */}
                 <h1 className="text-2xl font-semibold text-center text-gray-800">
                     Journal User Login
                 </h1>
 
-                {/* Counsellor Login Button */}
                 <div className="flex justify-center">
-                    <button
-                        onClick={handleCounsellorLogin}
-                        className="text-sm text-blue-600 hover:underline"
-                    >
+                    <button onClick={handleCounsellorLogin} className="text-sm text-blue-600 hover:underline">
                         Counsellor Login
                     </button>
                 </div>
 
-                {/* Form */}
+                {errMsg && (
+                    <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded p-2">
+                        {errMsg}
+                    </div>
+                )}
+
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
                         <label htmlFor="email" className="block mb-1 text-gray-700">Email</label>
                         <input
                             id="email"
                             type="text"
-                            name="email"
                             value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            onChange={(e) => { setEmail(e.target.value); if (errMsg) setErrMsg(''); }}
                             className="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
                             placeholder="Enter your email"
+                            autoComplete="username"
                         />
                     </div>
 
@@ -78,19 +93,20 @@ export const Login = () => {
                         <input
                             id="password"
                             type="password"
-                            name="password"
                             value={password}
-                            onChange={(e) => setPassword(e.target.value)}
+                            onChange={(e) => { setPassword(e.target.value); if (errMsg) setErrMsg(''); }}
                             className="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
                             placeholder="Enter your password"
+                            autoComplete="current-password"
                         />
                     </div>
 
                     <button
                         type="submit"
-                        className="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+                        disabled={loading || !email.trim() || !password.trim()}
+                        className="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition disabled:opacity-60"
                     >
-                        Login
+                        {loading ? 'Logging in…' : 'Login'}
                     </button>
                 </form>
             </div>

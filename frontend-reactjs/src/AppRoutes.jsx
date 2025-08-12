@@ -8,6 +8,7 @@ import UserDashboard from "./pages/UserDashboard.jsx";
 import CounsellorLogin from "./pages/CounsellorLogin.jsx";
 import Home from "./pages/Home.jsx";
 import ApiSmokeTest from "./pages/AppSmokeTest.jsx";
+import Logout from "./pages/Logout.jsx";
 
 const AppRoutes = () => {
     return (
@@ -15,7 +16,7 @@ const AppRoutes = () => {
             <Routes>
 
                 {/*Journal user routes*/}
-                <Route path="/" element={<Navigate to="/ApiSmokeTest" />} />
+                <Route path="/" element={<Navigate to="/journal/mood" />} />
                 <Route path="/ApiSmokeTest" element={<ApiSmokeTest />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/home" element={<Home />} />
@@ -23,6 +24,7 @@ const AppRoutes = () => {
                 <Route path="/journal/habits" element={<Habits />} />
                 <Route path="/journal/reflections" element={<Reflections />} />
                 <Route path="/dashboard" element={<UserDashboard />} />
+                <Route path="/logout" element={<Logout />} />
 
                 {/*Counsellor routes*/}
                 <Route path="/counsellor/login" element={<CounsellorLogin />} />

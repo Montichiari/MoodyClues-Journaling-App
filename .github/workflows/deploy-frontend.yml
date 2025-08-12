@@ -1,0 +1,64 @@
+name: Deploy Frontend (static) to EC2
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "frontend-reactjs/**"
+      - ".github/workflows/deploy-frontend.yml"
+
+concurrency:
+  group: deploy-frontend
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    env:
+      IMAGE_NAME: moodyclues-frontend
+      REGISTRY_USER: ${{ secrets.DOCKERHUB_USERNAME }}
+      REGISTRY_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+      EC2_HOST: ${{ secrets.EC2_FRONTHOST }}
+      EC2_USER: ubuntu
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Docker login
+        run: echo "$REGISTRY_TOKEN" | docker login -u "$REGISTRY_USER" --password-stdin
+
+      - name: Build image
+        working-directory: frontend-reactjs
+        run: docker build -t $REGISTRY_USER/$IMAGE_NAME:latest .
+
+      - name: Push image
+        run: docker push $REGISTRY_USER/$IMAGE_NAME:latest
+
+      - name: Prepare SSH key (decode base64)
+        run: |
+          echo "${{ secrets.EC2_SSH_KEY }}" | base64 -d > key.pem
+          chmod 600 key.pem
+
+      - name: Deploy on Frontend EC2
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ env.EC2_HOST }}
+          username: ${{ env.EC2_USER }}
+          key_path: key.pem
+          port: 22
+          script_stop: true
+          script: |
+            set -euo pipefail
+            docker login -u "${{ env.REGISTRY_USER }}" -p "${{ env.REGISTRY_TOKEN }}"
+            docker pull "${{ env.REGISTRY_USER }}"/"${{ env.IMAGE_NAME }}":latest
+
+            docker rm -f mc-frontend || true
+            docker run -d --restart unless-stopped \
+              --name mc-frontend \
+              -p 80:80 \
+              "${{ env.REGISTRY_USER }}"/"${{ env.IMAGE_NAME }}":latest
+
+            docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
