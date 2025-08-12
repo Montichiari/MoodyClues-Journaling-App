@@ -1,5 +1,0 @@
-package com.moodyclues.dto;
-
-public class HabitsEntryRequestDto {
-
-}
