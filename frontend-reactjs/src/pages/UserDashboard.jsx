@@ -4,7 +4,7 @@ import Sidenav from "../components/Sidenav.jsx";
 
 export const UserDashboard = () => {
     return (
-        <div className="min-h-screen bg-stone-50">
+        <div className="min-h-screen">
             <Sidenav />
             <main className="p-4 md:ml-[200px]">
                 <Dashboard />

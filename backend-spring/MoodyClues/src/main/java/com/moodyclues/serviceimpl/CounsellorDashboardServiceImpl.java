@@ -1,0 +1,81 @@
+package com.moodyclues.serviceimpl;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.moodyclues.model.JournalUser;
+import com.moodyclues.model.LinkRequest;
+import com.moodyclues.repository.JournalEntryRepository;
+import com.moodyclues.repository.LinkRequestRepository;
+import com.moodyclues.service.CounsellorDashboardService;
+
+@Service
+public class CounsellorDashboardServiceImpl implements CounsellorDashboardService {
+	  
+	@Autowired
+	JournalEntryRepository journalEntryRepo;
+	  
+	@Autowired
+	LinkRequestRepository linkRequestRepo;
+
+
+	@Override
+	public Map<String, Object> getCounsellorDashboardPayload(String counsellorId, Integer days, LocalDate from,
+			LocalDate to) {
+		
+	    ZoneId zone = ZoneId.of("Asia/Singapore");
+	    LocalDate today = (to != null) ? to : LocalDate.now(zone);
+	    LocalDate startDate = (from != null && to != null)
+	        ? from
+	        : today.minusDays((days == null ? 7 : Math.max(1, days)) - 1);
+
+	    LocalDateTime startTs = startDate.atStartOfDay();
+	    LocalDateTime endTs   = today.plusDays(1).atStartOfDay().minusNanos(1);
+
+	    List<JournalUser> clients = linkRequestRepo.findApprovedClients(
+	    		counsellorId, LinkRequest.Status.ACCEPTED);
+
+	    List<Map<String, Object>> clientsLite = clients.stream()
+	        .map(u -> {
+	          Map<String,Object> m = new LinkedHashMap<>();
+	          m.put("id", u.getId());
+	          m.put("firstName", u.getFirstName());
+	          return m;
+	        })
+	        .collect(Collectors.toList());
+
+	    Map<String, Object> seriesByClient = new LinkedHashMap<>();
+	    for (JournalUser u : clients) {
+	      var jd = journalEntryRepo.findDailyAggBetween(u.getId(), startTs, endTs);
+	      var ec = journalEntryRepo.countEmotionsBetween(u.getId(), startTs, endTs);
+
+	      Map<String, Object> perClient = new LinkedHashMap<>();
+	      perClient.put("journalDaily", jd);
+	      perClient.put("emotionCounts", ec);   
+	      seriesByClient.put(u.getId(), perClient);
+	    }
+
+	    Map<String,Object> window = new LinkedHashMap<>();
+	    window.put("from", startDate);
+	    window.put("to", today);
+
+	    Map<String,Object> payload = new LinkedHashMap<>();
+	    payload.put("window", window);
+	    payload.put("clients", clientsLite);
+	    payload.put("seriesByClient", seriesByClient);
+
+	    return payload;
+		
+	}
+
+	
+	
+}

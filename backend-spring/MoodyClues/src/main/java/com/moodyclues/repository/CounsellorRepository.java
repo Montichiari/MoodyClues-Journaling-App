@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 
 import com.moodyclues.model.CounsellorUser;
 import com.moodyclues.model.JournalUser;
+import com.moodyclues.model.LinkRequest.Status;
 
 public interface CounsellorRepository extends JpaRepository<CounsellorUser, String> {
 
@@ -27,6 +28,7 @@ public interface CounsellorRepository extends JpaRepository<CounsellorUser, Stri
 			    ORDER BY j.firstName, j.lastName
 			""")
 	public List<JournalUser> findClients(@Param("cid") String counsellorId);
+
 
 	@Query("""
 			    SELECT (COUNT(j) > 0)

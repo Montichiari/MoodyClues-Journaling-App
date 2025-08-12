@@ -72,9 +72,8 @@ public interface JournalEntryRepository extends JpaRepository<JournalEntry, Stri
 			);
 
 
-	@Query(
-			value =
-			"SELECT em.name AS emotion, COALESCE(c.cnt, 0) AS cnt " +
+	@Query(value =
+			"SELECT em.emotion_label AS emotion, COALESCE(c.cnt, 0) AS cnt " +
 					"FROM emotions em " +
 					"LEFT JOIN ( " +
 					"  SELECT ee.emotion_id, COUNT(*) AS cnt " +
@@ -84,9 +83,8 @@ public interface JournalEntryRepository extends JpaRepository<JournalEntry, Stri
 					"    AND e.created_at BETWEEN :start AND :end " +
 					"  GROUP BY ee.emotion_id " +
 					") c ON c.emotion_id = em.id " +
-					"ORDER BY em.name",
-					nativeQuery = true
-			)
+					"ORDER BY em.emotion_label",
+					nativeQuery = true)
 	public List<EmotionCount> countEmotionsBetween(
 			@Param("userId") String userId,
 			@Param("start")  LocalDateTime start,

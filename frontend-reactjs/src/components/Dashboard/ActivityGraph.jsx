@@ -4,6 +4,15 @@ import React from "react";
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 export const ActivityGraph = ({ loading, error, data }) => {
+
+    const MOOD_TICKS = {
+        1: "Very Bad",
+        2: "Bad",
+        3: "Neutral",
+        4: "Good",
+        5: "Very Good",
+    };
+
     return (
         <div className="col-span-12 lg:col-span-8 overflow-hidden rounded border border-stone-300">
             <div className="p-4">
@@ -20,7 +29,7 @@ export const ActivityGraph = ({ loading, error, data }) => {
                         <LineChart data={data}>
                             <CartesianGrid strokeDasharray="3 3" />
                             <XAxis dataKey="date" tick={{ fontSize: 12 }} />
-                            <YAxis domain={[1, 5]} ticks={[1,2,3,4,5]} tick={{ fontSize: 12 }} />
+                            <YAxis domain={[1, 5]} ticks={[1,2,3,4,5]} tickFormatter={(v) => MOOD_TICKS[v] ?? v} tick={{ fontSize: 12 }} width={80}/>
                             <Tooltip />
                             <Legend />
                             <Line type="monotone" dataKey="avgMood" name="Avg Mood" stroke="#8884d8" dot={false} isAnimationActive={false} />

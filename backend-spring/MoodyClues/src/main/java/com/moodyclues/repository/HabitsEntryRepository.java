@@ -1,5 +1,6 @@
 package com.moodyclues.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -48,9 +49,9 @@ public interface HabitsEntryRepository extends JpaRepository<HabitsEntry, String
 					nativeQuery = true
 			)
 	public List<HabitsDayFlat> findDaysBetween(
-			@org.springframework.data.repository.query.Param("userId") String userId,
-			@org.springframework.data.repository.query.Param("start")  java.time.LocalDateTime start,
-			@org.springframework.data.repository.query.Param("end")    java.time.LocalDateTime end
+			@Param("userId") String userId,
+			@Param("start")  LocalDateTime start,
+			@Param("end")    LocalDateTime end
 			);
 
 }

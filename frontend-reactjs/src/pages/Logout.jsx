@@ -1,32 +1,43 @@
+// Logout.jsx
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-import React from 'react'
+const API = 'http://122.248.243.60:8080';
 
 const Logout = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
+        let mounted = true;
 
         (async () => {
-            try {
-                await axios.get(`http://122.248.243.60:8080/api/user/logout`, {
-                    withCredentials: true,
-                    timeout: 8000
-                });
-            } catch (e) {
-                console.log(e);
-            } finally {
-                    navigate('/login', { replace: true });
-            }
+            // detect who is (was) logged in
+            const hadCounsellor = !!localStorage.getItem('counsellorId');
+            const hadUser = localStorage.getItem('isLoggedIn') === 'true' && !!localStorage.getItem('userId');
+
+            // try to end any server sessions (ignore errors)
+            await Promise.allSettled([
+                axios.get(`${API}/api/user/logout`, { withCredentials: true, timeout: 6000 }),
+                axios.get(`${API}/api/counsellor/logout`, { withCredentials: true, timeout: 6000 }),
+            ]);
+
+            // clear client state
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('userId');
+            localStorage.removeItem('showEmotion');
+            localStorage.removeItem('counsellorId');
+
+            if (!mounted) return;
+
+            const dest = hadCounsellor ? '/counsellor/login' : '/login';
+            navigate(dest, { replace: true });
         })();
 
+        return () => { mounted = false; };
     }, [navigate]);
 
+    return <div className="px-6 py-4">Logging out…</div>;
+};
 
-    return (
-        <div>Logout</div>
-    )
-}
-export default Logout
+export default Logout;

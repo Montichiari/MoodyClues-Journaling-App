@@ -33,12 +33,12 @@ export const CounsellorLogin = () => {
 
             if (res.status === 200 && res.data?.userId) {
                 localStorage.setItem("isLoggedIn", "true");
-                localStorage.setItem("userId", res.data.userId);
+                localStorage.setItem("counsellorId", res.data.userId);
                 localStorage.setItem("showEmotion", String(res.data.showEmotion));
-                navigate("/home", { replace: true });
+                navigate("/counsellor/home", { replace: true });
             } else {
                 localStorage.removeItem("isLoggedIn");
-                localStorage.removeItem("userId");
+                localStorage.removeItem("counsellorId");
                 localStorage.removeItem("showEmotion");
                 setErrMsg('Login failed. Check your email or password.');
             }

@@ -1,0 +1,11 @@
+package com.moodyclues.service;
+
+import java.time.LocalDate;
+import java.util.Map;
+
+public interface CounsellorDashboardService {
+
+	public Map<String,Object> getCounsellorDashboardPayload(String userId, Integer days, LocalDate from, LocalDate to);
+
+	
+}
