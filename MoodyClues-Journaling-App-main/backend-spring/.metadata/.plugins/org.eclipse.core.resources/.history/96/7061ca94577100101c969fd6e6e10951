@@ -1,0 +1,54 @@
+package com.moodyclues.serviceimpl;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.moodyclues.dto.LoginRequestDto;
+import com.moodyclues.model.CounsellorUser;
+import com.moodyclues.repository.CounsellorRepository;
+import com.moodyclues.service.CounsellorService;
+
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
+
+@Service
+@Transactional
+public class CounsellorServiceImpl implements CounsellorService {
+
+	@Autowired
+	CounsellorRepository cRepo;
+	
+	@Override
+	public CounsellorUser findCounsellorById(String id) {
+		CounsellorUser user = cRepo.findCounsellorById(id).orElseThrow(
+				() -> new EntityNotFoundException("Customer with email " + email + " not found"));
+		
+		
+		return user;
+	}
+
+	@Override
+	public CounsellorUser findCounsellorByEmail(String email) {
+		CounsellorUser user = cRepo.findCounsellorByEmail(email).orElseThrow(
+				() -> new EntityNotFoundException("Customer with email " + email + " not found"));
+		
+		return user;
+	}
+
+	@Override
+	public boolean loginAttempt(LoginRequestDto request) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean loginAttempt(String email, String passwordInput) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	
+	
+	
+	
+}

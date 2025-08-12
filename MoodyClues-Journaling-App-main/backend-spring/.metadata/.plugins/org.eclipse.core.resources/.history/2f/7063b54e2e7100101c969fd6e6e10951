@@ -1,0 +1,71 @@
+package com.moodyclues.model;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "journal_users")
+public class JournalUser extends User {
+
+	private boolean showEmotion;
+	
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)	
+	private List<JournalEntry> entries = new ArrayList<>();
+	
+	@ManyToMany(mappedBy = "clients", cascade = CascadeType.ALL)
+	private List<CounsellorUser> counsellors = new ArrayList<>();
+	
+	@OneToMany(mappedBy = "journalUser")
+	private List<LinkRequest> linkRequests;
+	
+	// EMPTY CONSTRUCTOR
+	public JournalUser() {
+		
+	}
+
+	
+	// GETTERS AND SETTERS BELOW
+	public List<JournalEntry> getEntries() {
+		return entries;
+	}
+
+
+	public boolean isShowEmotion() {
+		return showEmotion;
+	}
+
+
+	public void setShowEmotion(boolean showEmotion) {
+		this.showEmotion = showEmotion;
+	}
+
+
+	public void setEntries(List<JournalEntry> entries) {
+		this.entries = entries;
+	}
+
+
+	public List<CounsellorUser> getCounsellors() {
+		return counsellors;
+	}
+
+
+	public void setCounsellors(List<CounsellorUser> counsellors) {
+		this.counsellors = counsellors;
+	}
+
+	
+
+
+
+	
+
+	
+	
+}

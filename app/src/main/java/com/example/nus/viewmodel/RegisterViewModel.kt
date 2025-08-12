@@ -21,6 +21,12 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
     val registerError = mutableStateOf<String?>(null)
     val registerSuccess = mutableStateOf(false)
     
+    // 生成测试邮箱的辅助函数
+    fun generateTestEmail(): String {
+        val timestamp = System.currentTimeMillis()
+        return "test$timestamp@example.com"
+    }
+
     fun register(onSuccess: () -> Unit, onError: (String) -> Unit) {
         // 验证输入
         if (email.value.isBlank()) {
@@ -49,9 +55,10 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
             return
         }
         
-        // 密码长度验证
-        if (password.value.length < 6) {
-            onError("Password must be at least 6 characters long")
+        // 密码复杂度验证（与后端保持一致）
+        val passwordPattern = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@\$!%*?&])[A-Za-z\\d@\$!%*?&]{8,}$"
+        if (!password.value.matches(passwordPattern.toRegex())) {
+            onError("Password must be at least 8 characters long, include uppercase and lowercase letters, a number, and a special character (@\$!%*?&)")
             return
         }
         
@@ -66,12 +73,17 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
                     firstName = firstName.value.trim(),
                     lastName = lastName.value.trim()
                 )
-                
+
                 println("Attempting registration with email: ${registerRequest.email}")
+                println("Password being sent: ${registerRequest.password}")
+
                 val response = ApiClient.userApiService.register(registerRequest)
                 println("Registration response: Code=${response.code()}, Success=${response.isSuccessful}")
-                
+
                 if (response.isSuccessful) {
+                    val responseBody = response.body()?.string() ?: "Registration successful"
+                    println("Registration successful! Response: $responseBody")
+
                     // 注册成功后，将用户添加到本地数据库
                     userManager.addUser(
                         firstName = firstName.value.trim(),
@@ -82,9 +94,15 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
                     registerSuccess.value = true
                     onSuccess()
                 } else {
+                    // 详细处理错误响应
                     val errorBody = response.errorBody()?.string()
+                    println("Error response body: $errorBody")
+
                     val errorMessage = when (response.code()) {
-                        400 -> errorBody ?: "Invalid registration data"
+                        400 -> {
+                            // 400错误通常表示邮箱已存在或数据验证失败
+                            "Email already exists or invalid data. Please try a different email or check your password format (8+ chars, uppercase, lowercase, number, special char @\$!%*?&)"
+                        }
                         409 -> "Email already exists. Please use a different email"
                         500 -> "Server error. Please try again later"
                         else -> "Registration failed: ${response.code()} - ${response.message()}"
@@ -94,7 +112,17 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
                 }
             } catch (e: Exception) {
                 println("Registration exception: ${e.message}")
-                onError("Network error: ${e.message}")
+                println("Exception type: ${e.javaClass.simpleName}")
+                e.printStackTrace()
+
+                // 更好的错误处理
+                val errorMessage = when {
+                    e.message?.contains("timeout") == true -> "Connection timeout. Please check your internet connection"
+                    e.message?.contains("Unable to resolve host") == true -> "Cannot connect to server. Please check your internet connection"
+                    e.message?.contains("not found") == true -> "Server response format error. Registration may have succeeded - please try logging in"
+                    else -> "Network error: ${e.message}"
+                }
+                onError(errorMessage)
             } finally {
                 isLoading.value = false
             }

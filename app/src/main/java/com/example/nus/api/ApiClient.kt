@@ -16,7 +16,7 @@ object ApiClient {
     private const val BASE_URL = "http://122.248.243.60:8080/"
 
     // ML模型API的基础URL
-    private const val ML_MODEL_BASE_URL = "http://47.129.220.22:5000/"
+    private const val ML_MODEL_BASE_URL = "http://18.141.76.63:5000/"
 
     // 用户认证信息
     private var userCredentials: String? = null
@@ -54,9 +54,10 @@ object ApiClient {
     private val authInterceptor = Interceptor { chain ->
         val originalRequest = chain.request()
 
-        // 如果是登录请求，不添加认证头
+        // 如果是登录或注册请求，不添加认证头
         if (originalRequest.url.encodedPath.contains("/api/user/login") ||
-            originalRequest.url.encodedPath.contains("/api/user/register")) {
+            originalRequest.url.encodedPath.contains("/api/user/register") ||
+            originalRequest.url.encodedPath.contains("/api/counsellor/login")) {
             chain.proceed(originalRequest)
         } else {
             // 其他请求添加Basic Auth头
@@ -114,5 +115,6 @@ object ApiClient {
     val counsellorClientApiService: CounsellorClientApiService = retrofit.create(CounsellorClientApiService::class.java)
     val journalApiService: JournalApiService = retrofit.create(JournalApiService::class.java)
     val habitsApiService: HabitsApiService = retrofit.create(HabitsApiService::class.java)
+    val linkRequestApiService: LinkRequestApiService = retrofit.create(LinkRequestApiService::class.java)
     val mlModelApiService: MLModelApiService = mlModelRetrofit.create(MLModelApiService::class.java)
 }

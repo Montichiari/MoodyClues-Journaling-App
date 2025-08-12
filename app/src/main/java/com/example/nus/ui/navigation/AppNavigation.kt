@@ -40,6 +40,8 @@ import com.example.nus.ui.screens.ClientsScreen
 import com.example.nus.ui.screens.CounsellorHomeScreen
 import com.example.nus.ui.screens.FeelScreen
 import com.example.nus.ui.screens.HomeScreen
+import com.example.nus.ui.screens.InviteClientScreen
+import com.example.nus.ui.screens.InviteNotificationScreen
 import com.example.nus.ui.screens.LifestyleLoggedScreen
 import com.example.nus.ui.screens.LifestyleScreen
 import com.example.nus.ui.screens.LoginScreen
@@ -52,6 +54,7 @@ import com.example.nus.viewmodel.JournalViewModel
 import com.example.nus.viewmodel.LifestyleViewModel
 import com.example.nus.viewmodel.MoodViewModel
 import com.example.nus.viewmodel.UserSessionViewModel
+import com.example.nus.viewmodel.JournalDetailViewModel
 
 sealed class Screen(val route: String, val title: String) {
     object Login : Screen("login", "Login")
@@ -59,6 +62,8 @@ sealed class Screen(val route: String, val title: String) {
     object Home : Screen("home", "Home")
     object CounsellorHome : Screen("counsellor_home", "Counsellor Home")
     object Clients : Screen("clients", "Clients")
+    object InviteClient : Screen("invite_client", "Invite Client")
+    object InviteNotification : Screen("invite_notification", "Invitations")
     object Mood : Screen("mood", "Mood")
     object Lifestyle : Screen("lifestyle", "Lifestyle")
     object Feel : Screen("feel", "Feel")
@@ -90,6 +95,7 @@ fun AppNavigation() {
     val lifestyleViewModel: LifestyleViewModel = viewModel()
     val feelViewModel: FeelViewModel = viewModel()
     val journalViewModel: JournalViewModel = viewModel()
+    val journalDetailViewModel: JournalDetailViewModel = viewModel()
 
 
     // 获取当前导航状态
@@ -215,7 +221,11 @@ fun AppNavigation() {
                             launchSingleTop = true
                             restoreState = true
                         }
-                    }
+                    },
+                    onNavigateToInvitations = {
+                        navController.navigate(Screen.InviteNotification.route)
+                    },
+                    inviteCount = 0 // TODO: 实现实时邀请数量获取
                 )
             }
             composable(Screen.CounsellorHome.route) {
@@ -224,7 +234,7 @@ fun AppNavigation() {
                         navController.navigate(Screen.Clients.route)
                     },
                     onInviteClick = {
-                        // TODO: Navigate to invite screen
+                        navController.navigate(Screen.InviteClient.route)
                     },
                     onLogout = {
                         navController.navigate(Screen.Login.route) {
@@ -238,13 +248,28 @@ fun AppNavigation() {
                     counsellorId = userSessionViewModel.userId.value,
                     onBackClick = { navController.navigate(Screen.CounsellorHome.route) },
                     onInviteClick = {
-                        println("Invite Client clicked - 功能待实现")
-                        // TODO: 实现邀请客户功能
+                        navController.navigate(Screen.InviteClient.route)
                     },
                     onJournalClick = { client ->
                         // Navigate with this navController (do NOT create a new one inside ClientsScreen)
                         navController.navigate(Screen.JournalForClient.createRoute(client.clientId))
                     }
+                )
+            }
+            composable(Screen.InviteClient.route) {
+                InviteClientScreen(
+                    counsellorId = userSessionViewModel.userId.value,
+                    onBackClick = { navController.popBackStack() },
+                    onInviteSuccess = {
+                        // 邀请成功后返回到Clients页面
+                        navController.popBackStack()
+                    }
+                )
+            }
+            composable(Screen.InviteNotification.route) {
+                InviteNotificationScreen(
+                    journalUserId = userSessionViewModel.userId.value,
+                    onBackClick = { navController.popBackStack() }
                 )
             }
 
@@ -317,9 +342,13 @@ fun AppNavigation() {
                 arguments = listOf(navArgument("clientId") { type = NavType.StringType })
             ) { backStackEntry ->
                 val clientId = backStackEntry.arguments?.getString("clientId") ?: return@composable
-                LaunchedEffect(clientId) { journalViewModel.loadForClient(clientId) }
+                val counsellorId = userSessionViewModel.userId.value
+
+                LaunchedEffect(clientId, counsellorId) {
+                    journalViewModel.loadForClient(clientId, counsellorId)
+                }
                 com.example.nus.ui.screens.JournalScreen(
-                    journalList = journalViewModel.journalList,
+                    journalViewModel = journalViewModel,
                     navController = navController
                 )
             }
@@ -331,7 +360,18 @@ fun AppNavigation() {
                 val list = journalViewModel.journalList
 
                 if (index in list.indices) {
-                    JournalDetailScreen(entry = list[index])
+                    // 使用现有的数据设置到DetailViewModel中
+                    LaunchedEffect(index) {
+                        journalDetailViewModel.setJournalEntry(list[index])
+                    }
+
+                    JournalDetailScreen(
+                        viewModel = journalDetailViewModel,
+                        onRetry = {
+                            // 如果需要重试，可以重新设置数据
+                            journalDetailViewModel.setJournalEntry(list[index])
+                        }
+                    )
                 } else {
                     // Defensive: avoid crash if index is bad
                     Text(

@@ -16,7 +16,7 @@ object MLModelDebugger {
             try {
                 println("=== ML模型API调试开始 ===")
                 println("测试文本: $text")
-                println("API地址: http://47.129.220.22:5000/predict")
+                println("API地址: http://18.141.76.63:5000/predict")
                 
                 val request = MLModelRequest(text = text)
                 val response = ApiClient.mlModelApiService.predictEmotions(request)

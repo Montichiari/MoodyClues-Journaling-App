@@ -22,9 +22,12 @@ import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Notifications
+import com.example.nus.ui.components.NotificationIconWithBadge
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -38,13 +41,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.shape.CircleShape
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @Composable
 fun HomeScreen(
     onNavigateToMood: () -> Unit = {},
-    onNavigateToLifestyle: () -> Unit = {}
+    onNavigateToLifestyle: () -> Unit = {},
+    onNavigateToInvitations: () -> Unit = {},
+    inviteCount: Int = 0
 ) {
     val currentDate = LocalDate.now()
     val dateFormatter = DateTimeFormatter.ofPattern("dd MMMM yyyy")
@@ -56,7 +62,7 @@ fun HomeScreen(
             .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
-        // Header with date
+        // Header with date and notifications
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -68,19 +74,32 @@ fun HomeScreen(
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
             )
-            
-            Card(
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                ),
-                shape = RoundedCornerShape(20.dp)
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text(
-                    text = "Today is ${currentDate.format(dateFormatter)}",
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Medium
+                // 邀请通知按钮
+                NotificationIconWithBadge(
+                    icon = Icons.Default.Notifications,
+                    badgeCount = inviteCount,
+                    onClick = onNavigateToInvitations,
+                    contentDescription = "Invitations"
                 )
+
+                Card(
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface
+                    ),
+                    shape = RoundedCornerShape(20.dp)
+                ) {
+                    Text(
+                        text = "Today is ${currentDate.format(dateFormatter)}",
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
             }
         }
         

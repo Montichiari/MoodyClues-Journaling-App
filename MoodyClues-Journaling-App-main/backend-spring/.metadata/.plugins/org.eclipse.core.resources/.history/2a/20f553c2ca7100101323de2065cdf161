@@ -1,0 +1,9 @@
+package com.moodyclues.repository;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.moodyclues.model.LinkRequest;
+
+public interface LinkRepository extends JpaRepository<LinkRequest, String> {
+
+}

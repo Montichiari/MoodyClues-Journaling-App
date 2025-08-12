@@ -50,14 +50,17 @@ data class MoodEntry(
     companion object {
         // 从后端响应创建MoodEntry
         fun fromJournalEntryResponse(response: JournalEntryResponse): MoodEntry {
+            // 将EmotionResponse对象转换为字符串列表
+            val emotionLabels = response.emotions.map { it.emotionLabel }
+
             return MoodEntry(
                 id = response.id,
                 mood = MoodType.fromInt(response.mood),
                 timeOfDay = TimeOfDay.MORNING, // 默认值，后端没有这个字段
                 entryTitle = response.entryTitle,
                 entryText = response.entryText,
-                emotions = response.emotions,
-                userId = response.userId
+                emotions = emotionLabels,
+                userId = response.userId ?: "unknown" // 处理null userId
             )
         }
     }

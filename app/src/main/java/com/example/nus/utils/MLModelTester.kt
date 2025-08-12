@@ -14,7 +14,7 @@ object MLModelTester {
     ) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                println("Testing ML model connection to: http://47.129.220.22:5000/predict")
+                println("Testing ML model connection to: http://18.141.76.63:5000/predict")
                 
                 val testRequest = MLModelRequest(text = "I am feeling happy today")
                 val response = ApiClient.mlModelApiService.predictEmotions(testRequest)

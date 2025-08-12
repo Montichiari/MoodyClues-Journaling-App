@@ -14,7 +14,7 @@ interface UserApiService {
     suspend fun login(@Body loginRequest: LoginRequest): Response<LoginResponse>
 
     @POST("api/user/register")
-    suspend fun register(@Body registerRequest: RegisterRequest): Response<String>
+    suspend fun register(@Body registerRequest: RegisterRequest): Response<okhttp3.ResponseBody>
 
     @GET("api/user/logout")
     suspend fun logout(): Response<String>

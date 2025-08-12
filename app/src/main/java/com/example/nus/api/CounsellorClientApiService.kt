@@ -22,14 +22,24 @@ interface CounsellorClientApiService {
      */
     @GET("api/counsellor/clients/{journalUserId}/journal-entries")
     suspend fun listClientJournalEntries(@Path("journalUserId") journalUserId: String): Response<List<JournalEntryResponse>>
-    
+
+    /**
+     * 获取指定客户的所有日志条目 (Android版本)
+     * 对应后端: GET /api/counsellor/clients/{journalUserId}/journal-entries-android/{counsellorId}
+     */
+    @GET("api/counsellor/clients/{journalUserId}/journal-entries-android/{counsellorId}")
+    suspend fun listClientJournalEntriesAndroid(
+        @Path("journalUserId") journalUserId: String,
+        @Path("counsellorId") counsellorId: String
+    ): Response<List<JournalEntryResponse>>
+
     /**
      * 获取指定客户的所有习惯条目
      * 对应后端: GET /api/counsellor/clients/{journalUserId}/habits-entries
      */
     @GET("api/counsellor/clients/{journalUserId}/habits-entries")
     suspend fun listClientHabitsEntries(@Path("journalUserId") journalUserId: String): Response<List<HabitsEntryResponse>>
-    
+
     /**
      * 获取指定客户的特定日志条目
      * 对应后端: GET /api/counsellor/clients/{journalUserId}/journal-entries/{entryId}
@@ -38,6 +48,17 @@ interface CounsellorClientApiService {
     suspend fun getJournalEntry(
         @Path("journalUserId") journalUserId: String,
         @Path("entryId") entryId: String
+    ): Response<JournalEntryResponse>
+
+    /**
+     * 获取指定客户的特定日志条目 (Android版本)
+     * 对应后端: GET /api/counsellor/clients/{journalUserId}/journal-entries/{entryId}/{counsellorId}
+     */
+    @GET("api/counsellor/clients/{journalUserId}/journal-entries/{entryId}/{counsellorId}")
+    suspend fun getJournalEntryAndroid(
+        @Path("journalUserId") journalUserId: String,
+        @Path("entryId") entryId: String,
+        @Path("counsellorId") counsellorId: String
     ): Response<JournalEntryResponse>
     
     /**
