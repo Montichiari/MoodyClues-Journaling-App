@@ -31,7 +31,7 @@ public class HabitsController {
         return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
     }
     
-    @GetMapping("/all/{userId}")
+    @GetMapping("/all")
     public ResponseEntity<?> getAllHabitsEntries(HttpSession session) {
         String userId = (String) session.getAttribute("id");
     	
