@@ -11,8 +11,8 @@ export default function HabitsSuccess() {
 
   // Require login
   useEffect(() => {
-    //const ok = localStorage.getItem("isLoggedIn") === "true";
-    //if (!ok) navigate("/login", { replace: true });
+    const ok = localStorage.getItem("isLoggedIn") === "true";
+    if (!ok) navigate("/login", { replace: true });
   }, [navigate]);
 
   const todayLine = useMemo(() => {
