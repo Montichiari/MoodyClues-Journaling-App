@@ -22,7 +22,6 @@ const navItems = [
     { label: 'Clients', path: '/counsellor/clients' },
     { label: 'Link Requests', path: '/counsellor/requests' },
     { label: 'Dashboard', path: '/counsellor/dashboard' },
-    { label: 'Edit Profile', path: '/counsellor/profile' },
     { label: 'Logout', path: '/logout' }
 ];
 

@@ -23,7 +23,6 @@ const navItems = [
     { label: 'Read Journal', path: '/read' },
     { label: 'Dashboard', path: '/dashboard' },
     { label: 'Link Requests', path: '/invites' },
-    { label: 'Edit Profile', path: '/profile' },
     { label: 'Logout', path: '/logout' }
 ];
 
