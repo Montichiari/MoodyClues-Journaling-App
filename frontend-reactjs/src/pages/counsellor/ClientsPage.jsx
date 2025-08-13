@@ -101,22 +101,10 @@ const ClientsPage = () => {
                                             fontSize: '0.75rem',
                                             cursor: 'pointer',
                                             backgroundColor: '#fff',
+                                            marginLeft: 70,
                                         }}
                                     >
                                         Journal
-                                    </button>
-                                    <button
-                                        onClick={() => navigate(`/dashboard/${client.id}`)}
-                                        style={{
-                                            border: '1px solid #ccc',
-                                            borderRadius: 9999,
-                                            padding: '2px 10px',
-                                            fontSize: '0.75rem',
-                                            cursor: 'pointer',
-                                            backgroundColor: '#fff',
-                                        }}
-                                    >
-                                        Dashboard
                                     </button>
                                 </div>
                             </div>
