@@ -155,7 +155,7 @@ export default function JournalEntry() {
       sessionStorage.setItem("last_journal_emotions", JSON.stringify(mlEmotions));
 
 
-      navigate("/journal/success", {
+      navigate("/journal/entry/success", {
         replace: true,
         state: {
           message: successMsg,
@@ -207,7 +207,7 @@ export default function JournalEntry() {
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <Toolbar />
         <div className="max-w-3xl">
-          <h1 className="text-4xl font-extrabold tracking-tight text-gray-900">{todayLine}</h1>
+          <h1 className="text-4xl font-semibold mb-6">{todayLine}</h1>
           <p className="mt-4 text-gray-700">
             Write into your journal, and log how you feel right now.
           </p>

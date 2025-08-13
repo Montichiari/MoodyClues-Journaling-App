@@ -20,6 +20,8 @@ import HabitsSuccess from "./pages/journal/HabitsSuccess.jsx";
 import HabitsRecord from "./pages/journal/HabitsRecord.jsx";
 import Read from "./pages/journal/Read.jsx";
 import ReadDetails from "./pages/journal/ReadDetails.jsx";
+import JournalSuccess from "./pages/journal/JournalSuccess.jsx";
+import Invites from "./pages/Invites.jsx";
 
 const RequireUserAuth = () => {
     const location = useLocation();
@@ -66,14 +68,16 @@ const AppRoutes = () => {
                 <Route element={<RequireUserAuth />}>
                     <Route path="/home" element={<Home />} />
                     <Route path="/journal/entry" element={<JournalEntry />} />
+                    <Route path="/journal/entry/success" element={<JournalSuccess />} />
+
                     <Route path="/journal/habits" element={<Habits />} />
                     <Route path="/journal/habits/success" element={<HabitsSuccess />} />
                     <Route path="/journal/habits/records" element={<HabitsRecord />} />
 
                     <Route path="/journal/read" element={<Read />} />
-                    <Route path="/journal/read/:id" element={<ReadDetails />} />
+                    <Route path="/journal/read/:userId/:entryId" element={<ReadDetails />} />
 
-                    <Route path="/journal/invites" element={<ReadDetails />} />
+                    <Route path="/invites" element={<Invites />} />
 
                     <Route path="/dashboard" element={<UserDashboard />} />
                 </Route>
@@ -85,8 +89,8 @@ const AppRoutes = () => {
                     <Route path="/counsellor/invite" element={<CounsellorInviteClients />} />
                     <Route path="/counsellor/clients" element={<ClientsPage />} />
                     <Route path="/counsellor/requests" element={<PendingInvitesPage />} />
-                    <Route path="/counsellor/read/:userId" element={<ReadPage />} />
-                    <Route path="/counsellor/read/:userId/:entryId" element={<JournalDetailPage />} />
+                    <Route path="/counsellor/read/:userId" element={<Read />} />
+                    <Route path="/counsellor/read/:userId/:entryId" element={<ReadDetails />} />
 
                 </Route>
 

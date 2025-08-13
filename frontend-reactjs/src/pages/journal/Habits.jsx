@@ -254,7 +254,7 @@ export default function Habits() {
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <Toolbar />
         <div className="max-w-3xl">
-          <h1 className="text-4xl font-extrabold tracking-tight text-gray-900">{line}</h1>
+          <h1 className="text-4xl font-semibold mb-6 text-gray-900">{line}</h1>
           <p className="mt-4 text-gray-700">Log your lifestyle choices for the day.</p>
 
           {/* meta line */}
