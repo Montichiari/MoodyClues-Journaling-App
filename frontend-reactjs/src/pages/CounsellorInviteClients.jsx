@@ -54,7 +54,7 @@ const CounsellorInviteClients = () => {
             <SidenavC />
             <Box
                 component="main"
-                sx={{ flexGrow: 1, p: 2 }}
+                sx={{ flexGrow: 1, mr: `${drawerWidth}px`, p: 2 }}
                 className="px-16 py-10"
             >
 

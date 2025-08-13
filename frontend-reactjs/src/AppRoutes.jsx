@@ -13,6 +13,8 @@ import CounsellorInviteClients from "./pages/CounsellorInviteClients.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import ClientsPage from "./pages/counsellor/ClientsPage.jsx";
 import PendingInvitesPage from "./pages/counsellor/PendingInvitesPage.jsx";
+import ReadPage from "./pages/journal/ReadPage.jsx";
+import JournalDetailPage from "./pages/journal/JournalDetailPage.jsx";
 
 const RequireUserAuth = () => {
     const location = useLocation();
@@ -71,6 +73,9 @@ const AppRoutes = () => {
                     <Route path="/counsellor/invite" element={<CounsellorInviteClients />} />
                     <Route path="/counsellor/clients" element={<ClientsPage />} />
                     <Route path="/counsellor/requests" element={<PendingInvitesPage />} />
+                    <Route path="/counsellor/read/:userId" element={<ReadPage />} />
+                    <Route path="/counsellor/read/:userId/:entryId" element={<JournalDetailPage />} />
+
                 </Route>
 
                 <Route path="/logout" element={<Logout />} />

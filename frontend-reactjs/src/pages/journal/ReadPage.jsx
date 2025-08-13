@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { Box, TextField, Table, TableHead, TableRow, TableCell, TableBody, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import Sidenav from '../../components/Sidenav';
+import SidenavC from "../../components/SidenavC.jsx";
 
 const drawerWidth = 200;
 
@@ -71,7 +72,7 @@ const ReadPage = () => {
 
     // Handle title click to navigate to detailed page
     const handleTitleClick = (entry) => {
-        navigate(`/read/detail/${targetUserId}/${entry.id}`);
+        navigate(`/counsellor/read/${targetUserId}/${entry.id}`);
     };
 
     // Handle rendering the table rows for journal entries
@@ -93,7 +94,7 @@ const ReadPage = () => {
 
     return (
         <Box sx={{ display: 'flex' }}>
-            <Sidenav
+            <SidenavC
                 sx={{
                     width: drawerWidth,
                     flexShrink: 0,

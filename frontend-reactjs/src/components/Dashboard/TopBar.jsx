@@ -21,7 +21,7 @@ export const TopBar = ({ rangeDays, onChangeRange }) => {
     return (
         <div className="border-b px-5 pt-4 pb-3 border-stone-200 mb-4">
             <div className="flex items-center justify-between gap-3">
-                <div className="text-3xl font-extrabold tracking-tight">Today is {formatToday()}</div>
+                <div className="text-3xl font-semibold tracking-tight">Today is {formatToday()}</div>
 
                 <Button
                     variant="outlined"

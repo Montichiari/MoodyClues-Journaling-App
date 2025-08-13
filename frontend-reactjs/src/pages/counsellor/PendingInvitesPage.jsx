@@ -119,13 +119,13 @@ const PendingInvitesPage = () => {
             <SidenavC />
             <Box
                 component="main"
-                sx={{ flexGrow: 1, ml: `${drawerWidth}px`, p: 4, pt: 2, maxWidth: 800 }}
+                sx={{ flexGrow: 1, mr: `${drawerWidth}px`, p: 4, pt: 2, maxWidth: 800 }}
             >
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
                     <Box sx={{ flexGrow: 1, textAlign: 'center' }}>
-                        <h1 style={{ fontSize: '2.5rem', margin: 0 }}>Pending Invites</h1>
+                        <h1 className="text-3xl font-semibold mb-6">Pending Invites</h1>
                     </Box>
-                    <Button variant="contained" color="primary" onClick={() => navigate('/invites/sendinvites')}>
+                    <Button variant="contained" color="primary" onClick={() => navigate('/counsellor/invite')}>
                         Invite
                     </Button>
                 </Box>

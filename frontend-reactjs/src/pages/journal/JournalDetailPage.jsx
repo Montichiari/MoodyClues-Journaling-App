@@ -3,22 +3,23 @@ import { Box, Typography } from '@mui/material';
 import Sidenav from '../../components/Sidenav';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
+import SidenavC from "../../components/SidenavC.jsx";
 
 const drawerWidth = 200;
 
 const getMoodText = (mood) => {
     switch (mood) {
-        case 1: return 'Sad';
+        case 1: return 'Very Bad';
         case 2: return 'Bad';
         case 3: return 'Neutral';
         case 4: return 'Good';
-        case 5: return 'Great';
+        case 5: return 'Very Good';
         default: return 'Unknown';
     }
 };
 
 const JournalDetailPage = () => {
-    const { journalUserId, entryId } = useParams();
+    const { entryId, userId } = useParams();
     const [journalEntry, setJournalEntry] = useState(null);
     const [habitsEntry, setHabitsEntry] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -33,13 +34,13 @@ const JournalDetailPage = () => {
 
             try {
                 const journalRes = await axios.get(
-                    `${baseUrl}/api/journal/${entryId}/${journalUserId}`,
+                    `${baseUrl}/api/journal/${entryId}/${userId}`,
                     { withCredentials: true }
                 );
                 setJournalEntry(journalRes.data);
 
                 const habitsRes = await axios.get(
-                    `${baseUrl}/api/habits/all/${journalUserId}`,
+                    `${baseUrl}/api/habits/all/${userId}`,
                     { withCredentials: true }
                 );
                 const habitsList = habitsRes.data;
@@ -59,7 +60,7 @@ const JournalDetailPage = () => {
         }
 
         fetchData();
-    }, [journalUserId, entryId]);
+    }, [userId, entryId]);
 
     if (loading) {
         return <div>Loading...</div>;
@@ -75,7 +76,7 @@ const JournalDetailPage = () => {
 
     return (
         <Box sx={{ display: 'flex' }}>
-            <Sidenav />
+            <SidenavC />
             <Box
                 component="main"
                 sx={{

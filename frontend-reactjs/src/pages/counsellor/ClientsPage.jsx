@@ -9,7 +9,6 @@ const drawerWidth = 200;
 const ClientsPage = () => {
     const navigate = useNavigate();
 
-    // 👇 Resolve the logged-in ID from localStorage (counsellor first, fallback to user)
     const counsellorId =
         localStorage.getItem('counsellorId') ||
         localStorage.getItem('userId') ||
@@ -25,20 +24,18 @@ const ClientsPage = () => {
             try {
                 if (!counsellorId) {
                     setError('Please login first.');
-                    // send to the appropriate login; change if you prefer a different route
                     navigate('/counsellor/login', { replace: true });
                     return;
                 }
 
                 const res = await fetch(
                     `http://122.248.243.60:8080/api/linkrequest/counsellor/all-link-requests/${counsellorId}`,
-                    { credentials: 'include' } // ok to keep; backend ignores if not needed
+                    { credentials: 'include' }
                 );
                 if (!res.ok) throw new Error(`Failed to fetch clients: ${res.status}`);
 
                 const data = await res.json();
 
-                // test logs (keep/remove as you like)
                 console.log("Raw linkrequest data:", data);
                 data.forEach((r, index) => {
                     console.log(`Item ${index} journalUser:`, r.journalUser);
@@ -68,8 +65,8 @@ const ClientsPage = () => {
     return (
         <Box sx={{ display: 'flex' }}>
             <SidenavC />
-            <Box component="main" sx={{ flexGrow: 1, ml: `${drawerWidth}px`, p: 4 }}>
-                <h2 style={{ fontWeight: 600, marginBottom: '1rem' }}>Your Linked Clients</h2>
+            <Box component="main" sx={{ flexGrow: 1, mr: `${drawerWidth}px`, p: 4 }}>
+                <h2 className="text-3xl font-semibold mb-6" style={{ fontWeight: 600, marginBottom: '1rem' }}>Your Linked Clients</h2>
 
                 <input
                     type="text"
@@ -104,7 +101,7 @@ const ClientsPage = () => {
                                     <button
                                         onClick={() => {
                                             console.log("Navigating to /read/", client.id);
-                                            navigate(`/read/${client.id}`);
+                                            navigate(`/counsellor/read/${client.id}`);
                                         }}
                                         style={{
                                             border: '1px solid #ccc',
