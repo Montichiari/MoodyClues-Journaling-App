@@ -2,35 +2,47 @@ import React, { useState, useEffect } from "react";
 import { Box } from '@mui/material';
 import Sidenav from '../../components/Sidenav';
 import { useNavigate } from 'react-router-dom';
+import SidenavC from "../../components/SidenavC.jsx";
 
 const drawerWidth = 200;
 
 const ClientsPage = () => {
     const navigate = useNavigate();
+
+    // 👇 Resolve the logged-in ID from localStorage (counsellor first, fallback to user)
+    const counsellorId =
+        localStorage.getItem('counsellorId') ||
+        localStorage.getItem('userId') ||
+        null;
+
     const [searchTerm, setSearchTerm] = useState("");
     const [clients, setClients] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const counsellorId = localStorage.getItem('userId');
 
     useEffect(() => {
         const fetchClients = async () => {
             try {
-                if (!counsellorId) throw new Error('Please login first.');
+                if (!counsellorId) {
+                    setError('Please login first.');
+                    // send to the appropriate login; change if you prefer a different route
+                    navigate('/counsellor/login', { replace: true });
+                    return;
+                }
 
-                const res = await fetch(`http://122.248.243.60:8080/api/linkrequest/counsellor/all-link-requests/${counsellorId}`, {
-                    credentials: 'include'
-                });
+                const res = await fetch(
+                    `http://122.248.243.60:8080/api/linkrequest/counsellor/all-link-requests/${counsellorId}`,
+                    { credentials: 'include' } // ok to keep; backend ignores if not needed
+                );
                 if (!res.ok) throw new Error(`Failed to fetch clients: ${res.status}`);
 
                 const data = await res.json();
 
-                //test
+                // test logs (keep/remove as you like)
                 console.log("Raw linkrequest data:", data);
                 data.forEach((r, index) => {
                     console.log(`Item ${index} journalUser:`, r.journalUser);
                 });
-
 
                 if (!Array.isArray(data)) throw new Error('Invalid data format');
 
@@ -42,22 +54,23 @@ const ClientsPage = () => {
 
                 setClients(mapped);
             } catch (e) {
-                setError(e.message);
+                setError(e.message || 'Something went wrong');
             } finally {
                 setLoading(false);
             }
         };
 
         fetchClients();
-    }, [counsellorId]);
+    }, [counsellorId, navigate]);
 
     const filtered = clients.filter(c => c.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
     return (
         <Box sx={{ display: 'flex' }}>
-            <Sidenav />
+            <SidenavC />
             <Box component="main" sx={{ flexGrow: 1, ml: `${drawerWidth}px`, p: 4 }}>
                 <h2 style={{ fontWeight: 600, marginBottom: '1rem' }}>Your Linked Clients</h2>
+
                 <input
                     type="text"
                     placeholder="Search..."
@@ -65,6 +78,7 @@ const ClientsPage = () => {
                     value={searchTerm}
                     onChange={e => setSearchTerm(e.target.value)}
                 />
+
                 <div style={{ border: '1px solid #ddd', borderRadius: 6, overflow: 'hidden' }}>
                     <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr 200px', backgroundColor: '#f3f4f6', padding: 8, fontWeight: 600 }}>
                         <div>Date linked</div>
@@ -89,9 +103,7 @@ const ClientsPage = () => {
                                 <div style={{ display: 'flex', gap: 8 }}>
                                     <button
                                         onClick={() => {
-                                            //test
                                             console.log("Navigating to /read/", client.id);
-
                                             navigate(`/read/${client.id}`);
                                         }}
                                         style={{

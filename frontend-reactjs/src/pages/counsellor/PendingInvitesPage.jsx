@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {Box, Button, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper} from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import Sidenav from '../../components/Sidenav';
+import SidenavC from "../../components/SidenavC.jsx";
 
 const drawerWidth = 200;
 
@@ -62,7 +63,7 @@ const PendingInvitesPage = () => {
 
     return (
         <Box sx={{ display: 'flex' }}>
-            <Sidenav />
+            <SidenavC />
             <Box
                 component="main"
                 sx={{

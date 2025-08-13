@@ -11,6 +11,8 @@ import CounsellorDashboard from "./pages/CounsellorDashboard.jsx";
 import CounsellorHome from "./pages/CounsellorHome.jsx";
 import CounsellorInviteClients from "./pages/CounsellorInviteClients.jsx";
 import NotFound from "./pages/NotFound.jsx";
+import ClientsPage from "./pages/counsellor/ClientsPage.jsx";
+import PendingInvitesPage from "./pages/counsellor/PendingInvitesPage.jsx";
 
 const RequireUserAuth = () => {
     const location = useLocation();
@@ -60,7 +62,6 @@ const AppRoutes = () => {
                     <Route path="/journal/habits" element={<Habits />} />
                     <Route path="/journal/reflections" element={<Reflections />} />
                     <Route path="/dashboard" element={<UserDashboard />} />
-                    {/* REMOVE /logout from here */}
                 </Route>
 
                 {/* counsellor-protected */}
@@ -68,6 +69,8 @@ const AppRoutes = () => {
                     <Route path="/counsellor/home" element={<CounsellorHome />} />
                     <Route path="/counsellor/dashboard" element={<CounsellorDashboard />} />
                     <Route path="/counsellor/invite" element={<CounsellorInviteClients />} />
+                    <Route path="/counsellor/clients" element={<ClientsPage />} />
+                    <Route path="/counsellor/requests" element={<PendingInvitesPage />} />
                 </Route>
 
                 <Route path="/logout" element={<Logout />} />
