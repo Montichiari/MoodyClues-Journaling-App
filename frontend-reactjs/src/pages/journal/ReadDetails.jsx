@@ -15,7 +15,7 @@ const MOOD_LABELS = {
 };
 
 // units
-const fmtHours = (v) => (v == null || v === "") ? "—" : `${v} Hours`;
+const fmtHours  = (v) => (v == null || v === "") ? "—" : `${v} Hours`;
 const fmtLitres = (v) => (v == null || v === "") ? "—" : `${v} Litres`;
 
 export default function ReadDetails() {
@@ -31,16 +31,22 @@ export default function ReadDetails() {
 
   const API_BASE = import.meta?.env?.VITE_API_BASE_URL || "http://122.248.243.60:8080";
 
-  const loggedInUser = localStorage.getItem("isLoggedIn") === "true" && !!localStorage.getItem("userId");
+  const localUserId        = localStorage.getItem("userId");
+  const loggedInUser       = localStorage.getItem("isLoggedIn") === "true" && !!localUserId;
   const loggedInCounsellor = !!localStorage.getItem("counsellorId");
-  const localUserId = localStorage.getItem("userId");
-  const targetUserId = routeUserId || localUserId;
+  const targetUserId       = routeUserId || localUserId;
 
-  // Only the owner (journal user) can delete
-  const canDelete = !!localUserId && localUserId === targetUserId && !loading && !err && !!item;
+  // Owner-only delete
+  const canDelete =
+      !!localUserId &&
+      localUserId === targetUserId &&
+      !loading && !err && !!item;
 
-  // For journal-user UI choice (emotions pill visibility controlled by user's setting)
-  const showEmotion = localStorage.getItem("showEmotion") === "true";
+  // Emotions visibility:
+  // - Journal users: obey their showEmotion setting
+  // - Counsellors: always see emotions
+  const userShowEmotion  = localStorage.getItem("showEmotion") === "true";
+  const canShowEmotions  = loggedInCounsellor || userShowEmotion;
 
   // Route guard: allow EITHER a user or a counsellor
   useEffect(() => {
@@ -226,7 +232,7 @@ export default function ReadDetails() {
                   )}
 
                   {/* Emotions (left aligned) */}
-                  {showEmotion && emotions.length > 0 && (
+                  {canShowEmotions && emotions.length > 0 && (
                       <div className="mt-6 flex flex-wrap items-center gap-3 text-left">
                         <div className="font-medium text-gray-900">You felt:</div>
                         <div className="flex flex-wrap gap-3">
