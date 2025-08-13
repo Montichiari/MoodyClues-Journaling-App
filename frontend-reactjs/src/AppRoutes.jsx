@@ -14,6 +14,8 @@ import HabitsSuccess from "./pages/journal/HabitsSuccess.jsx";
 import Read from "./pages/journal/Read.jsx";
 import ReadDetails from "./pages/journal/ReadDetails.jsx";
 import HabitsRecord from "./pages/journal/HabitsRecord.jsx";
+import Invites from "./pages/Invites.jsx";
+
 
 
 const AppRoutes = () => {
@@ -37,6 +39,7 @@ const AppRoutes = () => {
                 <Route path="/read" element={<Read />} />
                 <Route path="/read/:id" element={<ReadDetails />} />
 
+                <Route path="/invites" element={<Invites />} />
                 
                 <Route path="/dashboard" element={<UserDashboard />} />
 

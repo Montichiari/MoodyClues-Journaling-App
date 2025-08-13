@@ -15,10 +15,7 @@ const MOOD_MAP = {
 
 const TITLE_MAX = 120;
 
-// ===== DEBUG FLAG (Preview + alerts only when true) =====
-const DEBUG =
-  import.meta.env.MODE === "development" ||
-  import.meta.env.VITE_SHOW_EMOTIONS === "true";
+
 
 function parseEmotions(data) {
   if (!Array.isArray(data)) return [];
@@ -51,8 +48,6 @@ export default function JournalEntry() {
   const [error, setError] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
-  // ===== DEBUG-ONLY EMOTIONS PREVIEW STATE =====
-  const [previewEmotions, setPreviewEmotions] = useState(null);
 
   const API_BASE = import.meta?.env?.VITE_API_BASE_URL || "http://122.248.243.60:8080";
   const ML_BASE  = import.meta?.env?.VITE_ML_BASE_URL  || "http://18.141.76.63:5000";
@@ -115,11 +110,6 @@ export default function JournalEntry() {
 
         mlEmotions = parseEmotions(mlRes.data?.top_emotions ?? []);
 
-        if (DEBUG) {
-          console.log("DEBUG (ML raw output):", mlRes.data);
-          console.log("DEBUG (Parsed emotions):", mlEmotions);
-          setPreviewEmotions(mlEmotions);
-        }
 
         // Optional: treat empty emotions as error
         // if (!mlEmotions.length) throw new Error("No emotions returned from ML model.");
@@ -161,10 +151,22 @@ export default function JournalEntry() {
         successMsg = submitRes.data.message;
       }
 
+      // Store emotions in sessionStorage for JournalSuccess fallback
+      sessionStorage.setItem("last_journal_emotions", JSON.stringify(mlEmotions));
+
+
       navigate("/journal/success", {
         replace: true,
-        state: { message: successMsg, next: "/home" },
+        state: {
+          message: successMsg,
+          next: "/home",
+          emotions: mlEmotions,   // ← pass the predicted emotions array
+        },
       });
+
+
+
+
     } catch (err) {
       if (DEBUG) {
         console.error("Journal submit error:", err.response ? err.response.data : err.message);
@@ -255,12 +257,6 @@ export default function JournalEntry() {
               <div className="mt-1 text-xs text-rose-600">{entryError}</div>
             </div>
 
-            {/* ===== DEBUG-ONLY EMOTIONS PREVIEW (hidden in prod) ===== */}
-            {DEBUG && previewEmotions && previewEmotions.length > 0 && (
-              <div className="text-sm text-gray-600">
-                Detected emotions: <span className="font-medium">{previewEmotions.join(", ")}</span>
-              </div>
-            )}
 
             {error && <div className="text-rose-600 text-sm">{error}</div>}
 
