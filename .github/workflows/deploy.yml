@@ -1,11 +1,11 @@
-name: Deploy to EC2 (build on runner, pull on EC2)
+name: Build & Deploy Backend
 
 on:
   push:
     branches: [ "main" ]
 
 concurrency:
-  group: deploy-backend
+  group: backend-deploy
   cancel-in-progress: true
 
 jobs:
@@ -14,88 +14,96 @@ jobs:
     timeout-minutes: 45
 
     env:
-      APP_DIR: backend-spring/MoodyClues
+      APP_DIR: backend-spring
       IMAGE_NAME: moodyclues-backend
-      REGISTRY_USER: ${{ secrets.DOCKERHUB_USERNAME }}
-      REGISTRY_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-      EC2_HOST: ${{ secrets.EC2_PUBLIC_IP }}
-      EC2_USER: ubuntu
-      RDS_USERNAME: ${{ secrets.RDS_USERNAME }}
-      RDS_PASSWORD: ${{ secrets.RDS_PASSWORD }}
-      RDS_JDBC_URL: jdbc:mysql://moodyclues-db-1.c52ysku4cuy5.ap-southeast-1.rds.amazonaws.com:3306/moodyclues_db?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=Asia/Singapore
+      DH_USER: ${{ secrets.DOCKERHUB_USERNAME }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Temurin JDK 21
+      - name: Set up Java (Temurin 17) with Maven cache
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '21'
+          java-version: "17"
           cache: maven
 
-      - name: Flyway migrate from runner (no SSH)
-        working-directory: ${{ env.APP_DIR }}
+      # --- Flyway migrate straight to RDS ---
+      - name: Run Flyway migrations on RDS
         run: |
-          chmod +x mvnw
-          ./mvnw -B -Dorg.slf4j.simpleLogger.log.org.flywaydb=debug \
-            flyway:migrate \
-            -Dflyway.user="${RDS_USERNAME}" \
-            -Dflyway.password="${RDS_PASSWORD}" \
-            -Dflyway.url="${RDS_JDBC_URL}"
+          MIGRATIONS_DIR="$GITHUB_WORKSPACE/backend-spring/src/main/resources/db/migration"
+          if [ ! -d "$MIGRATIONS_DIR" ]; then
+            echo "::error::Migrations directory not found at $MIGRATIONS_DIR"
+            exit 1
+          fi
+
+          docker run --rm \
+            -v "$MIGRATIONS_DIR":/flyway/sql \
+            flyway/flyway:10 \
+            -url="${{ secrets.RDS_JDBC_URL }}" \
+            -user="${{ secrets.RDS_USERNAME }}" \
+            -password="${{ secrets.RDS_PASSWORD }}" \
+            -baselineOnMigrate=true \
+            migrate
+
+      # --- Build JAR ---
       - name: Build JAR (skip tests)
         working-directory: ${{ env.APP_DIR }}
-        run: ./mvnw -B -DskipTests clean package
+        run: mvn -B -DskipTests package
 
-      - name: Docker login (Docker Hub)
-        run: echo "$REGISTRY_TOKEN" | docker login -u "$REGISTRY_USER" --password-stdin
+      # --- Build & push Docker image ---
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      - name: Build & tag image
-        working-directory: ${{ env.APP_DIR }}
-        env:
-          SHORT_SHA: ${{ github.sha }}
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build & Push image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend-spring
+          file: ./backend-spring/Dockerfile
+          push: true
+          tags: |
+            ${{ env.DH_USER }}/${{ env.IMAGE_NAME }}:latest
+            ${{ env.DH_USER }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+
+      # --- SSH into EC2 and deploy container ---
+      - name: Prepare SSH key
         run: |
-          SHORT="${SHORT_SHA:0:7}"
-          IMAGE="$REGISTRY_USER/${IMAGE_NAME}"
-          docker build -t "$IMAGE:$SHORT" -t "$IMAGE:latest" .
-          echo "IMAGE_TAG_SHORT=$IMAGE:$SHORT" >> $GITHUB_ENV
-          echo "IMAGE_TAG_LATEST=$IMAGE:latest" >> $GITHUB_ENV
-      - name: Push image
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_ec2
+          chmod 600 ~/.ssh/id_ec2
+          ssh-keyscan -H "${{ secrets.EC2_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Deploy on EC2
         run: |
-          docker push "$IMAGE_TAG_SHORT"
-          docker push "$IMAGE_TAG_LATEST"
-      - name: Recreate PEM key
-        run: |
-          echo "${{ secrets.EC2_SSH_KEY }}" | base64 -d > key.pem
-          chmod 600 key.pem
-      - name: Quick port 22 check
-        run: |
-          echo "Probing port 22..."
-          nc -vz -w 10 "$EC2_HOST" 22 || (echo "Port 22 not reachable"; exit 2)
-      - name: Deploy on EC2 (pull & run)
-        run: |
-          ssh -tt \
-            -o StrictHostKeyChecking=no \
-            -o ServerAliveInterval=30 \
-            -o ServerAliveCountMax=10 \
-            -o TCPKeepAlive=yes \
-            -o ConnectTimeout=45 \
-            -o ConnectionAttempts=3 \
-            -i key.pem "$EC2_USER@$EC2_HOST" << EOF
+          ssh -i ~/.ssh/id_ec2 -o StrictHostKeyChecking=yes "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}" bash -s << 'EOF'
           set -euo pipefail
-          echo "🧼 Stopping/removing existing container (if any)..."
-          docker stop moodyclues-container || true
-          docker rm moodyclues-container || true
-          echo "🔐 Docker login..."
-          echo "${REGISTRY_TOKEN}" | docker login -u "${REGISTRY_USER}" --password-stdin
-          echo "🐳 Pulling image..."
-          docker pull "${REGISTRY_USER}/${IMAGE_NAME}:latest"
-          echo "🚀 Starting container..."
-          docker run -d --name moodyclues-container -p 8080:8080 "${REGISTRY_USER}/${IMAGE_NAME}:latest"
-          echo "🔎 Status:"
-          sleep 3
-          docker ps --filter "name=moodyclues-container" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
-          exit 0
-          EOSSH
+
+          # Pull new image
+          docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" -p "${{ secrets.DOCKERHUB_TOKEN }}"
+          docker pull "${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
+
+          # Stop & remove old container if present
+          docker rm -f "${{ env.IMAGE_NAME }}" || true
+
+          # Run updated container
+          docker run -d \
+            --name "${{ env.IMAGE_NAME }}" \
+            --restart unless-stopped \
+            -p 8080:8080 \
+            -e SPRING_DATASOURCE_URL='${{ secrets.RDS_JDBC_URL }}' \
+            -e SPRING_DATASOURCE_USERNAME='${{ secrets.RDS_USERNAME }}' \
+            -e SPRING_DATASOURCE_PASSWORD='${{ secrets.RDS_PASSWORD }}' \
+            "${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
+
+          # Optional cleanup of dangling images
+          docker image prune -f || true
+
+          echo "Deployment complete."
           EOF
