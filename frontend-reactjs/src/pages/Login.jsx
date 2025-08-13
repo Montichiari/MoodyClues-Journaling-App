@@ -17,6 +17,8 @@ export const Login = () => {
             const response = await axios.post('http://122.248.243.60:8080/api/user/login', {
                 email: email,
                 password: password
+            }, {
+                withCredentials: true
             });
 
             localStorage.setItem("isLoggedIn", "true");

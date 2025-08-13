@@ -46,7 +46,7 @@ const Mood = () => {
                 </p>
                 <p className="mb-6 text-md">How do you feel?</p>
 
-                <div className="flex gap-2">
+                <div className="flex gap-2 " style={{ marginLeft: '150px' }}>
                     {moodOptions.map(({ label, value }) => (
                         <button
                             key={label}

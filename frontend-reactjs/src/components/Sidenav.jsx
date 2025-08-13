@@ -3,11 +3,12 @@ import { Link, useLocation } from 'react-router-dom';
 import logo from '../assets/moodyclues-logo.png';
 
 const drawerWidth = 200;
+const userId = localStorage.getItem("userId");
 
 const navItems = [
     { label: 'Home', path: '/' },
     { label: 'Write', path: '/journal/mood' },
-    { label: 'Read', path: '/read' },
+    { label: 'Read', path: `/read/${userId}` },
     { label: 'Dashboards', path: '/dashboards' },
     { label: 'Invites', path: '/invites' },
     { label: 'Edit Profile', path: '/profile' },

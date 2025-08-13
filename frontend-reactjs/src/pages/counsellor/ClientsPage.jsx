@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Box, Toolbar, TextField } from '@mui/material';
+import { Box } from '@mui/material';
 import Sidenav from '../../components/Sidenav';
-import { Divider } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
 const drawerWidth = 200;
@@ -12,143 +11,121 @@ const ClientsPage = () => {
     const [clients, setClients] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const counsellorId = localStorage.getItem('userId');
 
-    // 从API获取客户数据
     useEffect(() => {
         const fetchClients = async () => {
             try {
-                const response = await fetch('/api/counsellor/all-link-requests', {
+                if (!counsellorId) throw new Error('Please login first.');
+
+                const res = await fetch(`http://122.248.243.60:8080/api/linkrequest/counsellor/all-link-requests/${counsellorId}`, {
                     credentials: 'include'
                 });
+                if (!res.ok) throw new Error(`Failed to fetch clients: ${res.status}`);
 
-                if (!response.ok) {
-                    throw new Error('Failed to fetch clients');
-                }
+                const data = await res.json();
 
-                const data = await response.json();
-                setClients(data.map(request => ({
-                    id: request.journalUserId,
-                    dateLinked: new Date(request.createdAt).toLocaleDateString('en-GB'),
-                    name: request.journalUserName || request.journalUserEmail
-                })));
-            } catch (err) {
-                setError(err.message);
-                console.error('Error fetching clients:', err);
+                //test
+                console.log("Raw linkrequest data:", data);
+                data.forEach((r, index) => {
+                    console.log(`Item ${index} journalUser:`, r.journalUser);
+                });
+
+
+                if (!Array.isArray(data)) throw new Error('Invalid data format');
+
+                const mapped = data.map(r => ({
+                    id: r.journalUser.id,
+                    dateLinked: new Date(r.requestedAt).toLocaleDateString('en-GB'),
+                    name: `${r.journalUser.firstName} ${r.journalUser.lastName}`
+                }));
+
+                setClients(mapped);
+            } catch (e) {
+                setError(e.message);
             } finally {
                 setLoading(false);
             }
         };
 
         fetchClients();
-    }, []);
+    }, [counsellorId]);
 
-    // 过滤客户数据
-    const filteredClients = clients.filter(client =>
-        client.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
-    // 查看Journal
-    const handleViewJournal = (clientId) => {
-        navigate(`/journal/${clientId}`);
-    };
-
-    // 查看Dashboard
-    const handleViewDashboard = (clientId) => {
-        navigate(`/dashboard/${clientId}`);
-    };
+    const filtered = clients.filter(c => c.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
     return (
         <Box sx={{ display: 'flex' }}>
             <Sidenav />
-            <Box
-                component="main"
-                sx={{ flexGrow: 1, p: 3, ml: `${drawerWidth}px` }}
-            >
-                <Toolbar />
-                <h1 className="text-2xl font-bold mb-6">MoodyClues</h1>
-
-                <div className="space-y-8">
-                    {/* Quick Start 部分 */}
-                    <div>
-                        <h2 className="text-xl font-semibold mb-4">Your Linked Clients</h2>
-                        <div className="space-y-2 mb-6">
-                            <p className="font-semibold">Quick Start</p>
-                            <ul className="list-disc pl-5 space-y-1">
-                                <li>Home</li>
-                                <li>Clients</li>
-                                <li>Pending Invites</li>
-                            </ul>
-                        </div>
+            <Box component="main" sx={{ flexGrow: 1, ml: `${drawerWidth}px`, p: 4 }}>
+                <h2 style={{ fontWeight: 600, marginBottom: '1rem' }}>Your Linked Clients</h2>
+                <input
+                    type="text"
+                    placeholder="Search..."
+                    style={{ width: 250, padding: '6px 10px', fontSize: '0.875rem', borderRadius: 4, border: '1px solid #ccc', marginBottom: 16 }}
+                    value={searchTerm}
+                    onChange={e => setSearchTerm(e.target.value)}
+                />
+                <div style={{ border: '1px solid #ddd', borderRadius: 6, overflow: 'hidden' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr 200px', backgroundColor: '#f3f4f6', padding: 8, fontWeight: 600 }}>
+                        <div>Date linked</div>
+                        <div>Name</div>
+                        <div>Actions</div>
                     </div>
 
-                    {/* 搜索和客户列表 */}
-                    <div>
-                        <TextField
-                            label="Search..."
-                            variant="outlined"
-                            fullWidth
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            sx={{ mb: 3 }}
-                        />
+                    {loading ? (
+                        <div style={{ padding: 16, textAlign: 'center' }}>Loading clients...</div>
+                    ) : error ? (
+                        <div style={{ padding: 16, textAlign: 'center', color: 'red' }}>{error}</div>
+                    ) : filtered.length === 0 ? (
+                        <div style={{ padding: 16, textAlign: 'center' }}>{searchTerm ? 'No matching clients found' : 'No clients linked yet'}</div>
+                    ) : (
+                        filtered.map(client => (
+                            <div
+                                key={client.id}
+                                style={{ display: 'grid', gridTemplateColumns: '120px 1fr 200px', padding: 8, borderTop: '1px solid #eee', alignItems: 'center', fontSize: '0.875rem' }}
+                            >
+                                <div>{client.dateLinked}</div>
+                                <div>{client.name}</div>
+                                <div style={{ display: 'flex', gap: 8 }}>
+                                    <button
+                                        onClick={() => {
+                                            //test
+                                            console.log("Navigating to /read/", client.id);
 
-                        <div className="mb-4">
-                            <div className="flex font-semibold">
-                                <span className="w-1/4">Date linked</span>
-                                <span className="w-1/4">Name</span>
-                                <span className="w-1/2 text-right">Actions</span>
+                                            navigate(`/read/${client.id}`);
+                                        }}
+                                        style={{
+                                            border: '1px solid #ccc',
+                                            borderRadius: 9999,
+                                            padding: '2px 10px',
+                                            fontSize: '0.75rem',
+                                            cursor: 'pointer',
+                                            backgroundColor: '#fff',
+                                        }}
+                                    >
+                                        Journal
+                                    </button>
+                                    <button
+                                        onClick={() => navigate(`/dashboard/${client.id}`)}
+                                        style={{
+                                            border: '1px solid #ccc',
+                                            borderRadius: 9999,
+                                            padding: '2px 10px',
+                                            fontSize: '0.75rem',
+                                            cursor: 'pointer',
+                                            backgroundColor: '#fff',
+                                        }}
+                                    >
+                                        Dashboard
+                                    </button>
+                                </div>
                             </div>
-                            <Divider sx={{ my: 1 }} />
-
-                            {loading ? (
-                                <p className="py-4 text-center">Loading clients...</p>
-                            ) : error ? (
-                                <p className="py-4 text-center text-red-500">{error}</p>
-                            ) : filteredClients.length === 0 ? (
-                                <p className="py-4 text-center">
-                                    {searchTerm ? 'No matching clients found' : 'No clients linked yet'}
-                                </p>
-                            ) : (
-                                filteredClients.map(client => (
-                                    <div key={client.id} className="flex items-center py-2">
-                                        <span className="w-1/4">{client.dateLinked}</span>
-                                        <span className="w-1/4">{client.name}</span>
-                                        <div className="w-1/2 text-right space-x-2">
-                                            <button
-                                                className="text-blue-600 hover:underline"
-                                                onClick={() => handleViewJournal(client.id)}
-                                            >
-                                                Journal
-                                            </button>
-                                            <button
-                                                className="text-blue-600 hover:underline"
-                                                onClick={() => handleViewDashboard(client.id)}
-                                            >
-                                                Dashboard
-                                            </button>
-                                        </div>
-                                    </div>
-                                ))
-                            )}
-                        </div>
-                    </div>
-
-                    {/* 底部操作 */}
-                    <div className="flex justify-between items-center">
-                        <button className="text-blue-600 hover:underline">
-                            (w) Edit Profile
-                        </button>
-                        <button
-                            className="text-red-600 hover:underline font-semibold"
-                            onClick={() => navigate('/logout')}
-                        >
-                            Logout
-                        </button>
-                    </div>
+                        ))
+                    )}
                 </div>
             </Box>
         </Box>
     );
 };
 
-export default ;
+export default ClientsPage;
