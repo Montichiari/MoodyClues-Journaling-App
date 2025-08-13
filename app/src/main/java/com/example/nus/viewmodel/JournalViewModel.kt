@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nus.api.ApiClient
 import com.example.nus.model.JournalEntry
+import com.example.nus.model.Emotion
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
@@ -79,23 +80,61 @@ class JournalViewModel : ViewModel() {
     private fun loadTestData(clientId: String) {
         _journalList.clear()
         val now = LocalDateTime.now()
+
+        val testEmotions = listOf(
+            Emotion(id = "1", emotionLabel = "Happy", iconAddress = ""),
+            Emotion(id = "2", emotionLabel = "Excited", iconAddress = ""),
+            Emotion(id = "3", emotionLabel = "Grateful", iconAddress = "")
+        )
+
         _journalList.addAll(
             listOf(
                 JournalEntry(
                     user = clientId,
-                    entryTitle = "Those Goddamn Ducks…",
-                    entryText = "I can't stop worrying about the ducks.",
-                    date = now
+                    entryTitle = "ALICE D00 T3",
+                    entryText = "Evening recap (ALICE), D-0\n\nToday was a wonderful day filled with positive energy. I woke up feeling refreshed after a good night's sleep. Had a productive work session and made sure to stay hydrated throughout the day. The weather was perfect for a morning walk, which really helped set a positive tone for the rest of the day.\n\nI'm grateful for the small moments of joy and the progress I'm making on my personal goals.",
+                    emotions = testEmotions,
+                    mood = 5, // Neutral mood
+                    date = now,
+                    createdAt = now,
+                    lastSavedAt = now,
+                    // 习惯数据
+                    sleep = 8.0,
+                    water = 2.3,
+                    workHours = 7.0,
+                    // 多时段心情数据
+                    moodMorning = 0,
+                    moodAfternoon = 0,
+                    moodEvening = 0,
+                    // 情绪反馈
+                    emotionFeedback = true
                 ),
                 JournalEntry(
                     user = clientId,
-                    entryTitle = "Gabagool",
-                    entryText = "Had some amazing gabagool today.",
-                    date = now.minusDays(1)
+                    entryTitle = "Morning Reflection",
+                    entryText = "Had some amazing gabagool today. Feeling grateful for the simple pleasures in life.",
+                    emotions = listOf(
+                        Emotion(id = "4", emotionLabel = "Content", iconAddress = ""),
+                        Emotion(id = "5", emotionLabel = "Peaceful", iconAddress = "")
+                    ),
+                    mood = 7, // Good mood
+                    date = now.minusDays(1),
+                    createdAt = now.minusDays(1),
+                    lastSavedAt = now.minusDays(1),
+                    // 习惯数据
+                    sleep = 7.5,
+                    water = 1.8,
+                    workHours = 6.5,
+                    // 多时段心情数据
+                    moodMorning = 6,
+                    moodAfternoon = 7,
+                    moodEvening = 8,
+                    // 情绪反馈
+                    emotionFeedback = true
                 )
             )
         )
-        println("JournalViewModel: Loaded test data for client: $clientId")
+        println("JournalViewModel: Loaded test data with complete features for client: $clientId")
     }
 
     /**
@@ -147,6 +186,15 @@ class JournalViewModel : ViewModel() {
      * 清除错误状态
      */
     fun clearError() {
+        error.value = null
+    }
+
+    /**
+     * 公共方法：强制加载测试数据用于演示
+     */
+    fun loadTestDataForDemo() {
+        loadTestData("ALICE")
+        isLoading.value = false
         error.value = null
     }
 }

@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.sp
 import com.example.nus.model.FeelType
 import com.example.nus.viewmodel.FeelViewModel
 import com.example.nus.viewmodel.MoodViewModel
+import com.example.nus.viewmodel.UserSessionViewModel
 import androidx.compose.runtime.getValue
 import java.time.LocalDate
 
@@ -48,12 +49,16 @@ import java.time.LocalDate
 fun FeelScreen(
     viewModel: FeelViewModel,
     moodViewModel: MoodViewModel, // 添加MoodViewModel参数
+    userSessionViewModel: UserSessionViewModel, // 添加UserSessionViewModel参数
     onNavigateToHome: () -> Unit = {}
 ) {
     var selectedFeel by remember { mutableStateOf<FeelType?>(null) }
 
     // 获取ML模型预测的情感
     val predictedEmotions by moodViewModel.predictedEmotions
+
+    // 获取情绪显示设置
+    val showEmotion by userSessionViewModel.showEmotion
     
     Column(
         modifier = Modifier
@@ -114,17 +119,34 @@ fun FeelScreen(
                     )
                 }
                 
-                // "Today, it seems like you felt..." text
-                Text(
-                    text = "Today, it seems like you felt...",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
+                // "Today, it seems like you felt..." text - 只在显示情绪时显示
+                if (showEmotion) {
+                    Text(
+                        text = "Today, it seems like you felt...",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+                } else {
+                    // 当情绪被隐藏时显示替代文本
+                    Text(
+                        text = "Emotion tracking is currently disabled.",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+                    Text(
+                        text = "You can enable it in Settings on the Home screen.",
+                        fontSize = 14.sp,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                        modifier = Modifier.padding(bottom = 24.dp)
+                    )
+                }
 
-                // 显示ML模型预测的情感
-                if (predictedEmotions.isNotEmpty()) {
+                // 显示ML模型预测的情感 - 只在显示情绪时显示
+                if (showEmotion && predictedEmotions.isNotEmpty()) {
                     Text(
                         text = "AI detected emotions:",
                         fontSize = 14.sp,
@@ -159,35 +181,37 @@ fun FeelScreen(
                     }
                 }
                 
-                // Feel selection buttons
-                val feelTypes = if (predictedEmotions.isNotEmpty()) {
-                    mapPredictedEmotionsToFeelTypes(predictedEmotions)
-                } else {
-                    listOf(FeelType.HAPPY, FeelType.EXCITED) // 默认选项
-                }
+                // Feel selection buttons - 只在显示情绪时显示
+                if (showEmotion) {
+                    val feelTypes = if (predictedEmotions.isNotEmpty()) {
+                        mapPredictedEmotionsToFeelTypes(predictedEmotions)
+                    } else {
+                        listOf(FeelType.HAPPY, FeelType.EXCITED) // 默认选项
+                    }
 
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 32.dp),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    feelTypes.forEach { feelType ->
-                        FeelOption(
-                            feelType = feelType,
-                            label = feelType.name.lowercase().replaceFirstChar { it.uppercase() },
-                            emoji = getEmojiForFeelType(feelType),
-                            isSelected = selectedFeel == feelType,
-                            onSelect = {
-                                selectedFeel = feelType
-                                viewModel.addFeelEntry(feelType)
-                            }
-                        )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 32.dp),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        feelTypes.forEach { feelType ->
+                            FeelOption(
+                                feelType = feelType,
+                                label = feelType.name.lowercase().replaceFirstChar { it.uppercase() },
+                                emoji = getEmojiForFeelType(feelType),
+                                isSelected = selectedFeel == feelType,
+                                onSelect = {
+                                    selectedFeel = feelType
+                                    viewModel.addFeelEntry(feelType)
+                                }
+                            )
+                        }
                     }
                 }
                 
-                // Quote section
-                if (selectedFeel != null) {
+                // Quote section - 只在显示情绪且选择了情绪时显示
+                if (showEmotion && selectedFeel != null) {
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()

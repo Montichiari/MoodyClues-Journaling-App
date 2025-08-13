@@ -26,7 +26,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -90,7 +93,15 @@ fun AppNavigation() {
     )
 
     // ViewModels
-    val userSessionViewModel: UserSessionViewModel = viewModel()
+    val context = LocalContext.current
+    val userSessionViewModel: UserSessionViewModel = viewModel(
+        factory = object : ViewModelProvider.Factory {
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                @Suppress("UNCHECKED_CAST")
+                return UserSessionViewModel(context.applicationContext as android.app.Application) as T
+            }
+        }
+    )
     val moodViewModel: MoodViewModel = viewModel()
     val lifestyleViewModel: LifestyleViewModel = viewModel()
     val feelViewModel: FeelViewModel = viewModel()
@@ -204,6 +215,7 @@ fun AppNavigation() {
             }
             composable(Screen.Home.route) {
                 HomeScreen(
+                    userSessionViewModel = userSessionViewModel,
                     onNavigateToMood = {
                         navController.navigate(Screen.Mood.route) {
                             popUpTo(navController.graph.findStartDestination().id) {
@@ -297,6 +309,7 @@ fun AppNavigation() {
                 FeelScreen(
                     viewModel = feelViewModel,
                     moodViewModel = moodViewModel, // 传递MoodViewModel
+                    userSessionViewModel = userSessionViewModel, // 传递UserSessionViewModel
                     onNavigateToHome = {
                         navController.navigate(Screen.Home.route) {
                             popUpTo(navController.graph.findStartDestination().id) {
@@ -325,11 +338,26 @@ fun AppNavigation() {
             }
             // --- Journal list ---
             composable(Screen.Journal.route) {
-                // If you want to auto-load from API per user, call journalViewModel.load(userSessionViewModel.userId.value ?: "") here
-                // LaunchedEffect(Unit) { journalViewModel.load(userSessionViewModel.userId.value ?: "") }
+                // 强制加载测试数据以展示完整功能
+                LaunchedEffect(Unit) {
+                    journalViewModel.loadTestDataForDemo()
+                    // 同时加载用户的真实lifestyle数据
+                    val currentUserId = userSessionViewModel.userId.value
+                    if (currentUserId.isNotEmpty()) {
+                        lifestyleViewModel.setUserId(currentUserId)
+                        lifestyleViewModel.loadAllHabitsEntries(
+                            onSuccess = {
+                                println("Successfully loaded lifestyle entries for Journal page")
+                            },
+                            onError = { error ->
+                                println("Failed to load lifestyle entries: $error")
+                            }
+                        )
+                    }
+                }
 
                 com.example.nus.ui.screens.JournalScreen(
-                    journalList = journalViewModel.journalList,
+                    journalViewModel = journalViewModel,
                     navController = navController
                 )
             }
@@ -367,6 +395,7 @@ fun AppNavigation() {
 
                     JournalDetailScreen(
                         viewModel = journalDetailViewModel,
+                        lifestyleViewModel = lifestyleViewModel,
                         onRetry = {
                             // 如果需要重试，可以重新设置数据
                             journalDetailViewModel.setJournalEntry(list[index])
