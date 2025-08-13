@@ -15,6 +15,11 @@ import ClientsPage from "./pages/counsellor/ClientsPage.jsx";
 import PendingInvitesPage from "./pages/counsellor/PendingInvitesPage.jsx";
 import ReadPage from "./pages/journal/ReadPage.jsx";
 import JournalDetailPage from "./pages/journal/JournalDetailPage.jsx";
+import JournalEntry from "./pages/journal/JournalEntry.jsx";
+import HabitsSuccess from "./pages/journal/HabitsSuccess.jsx";
+import HabitsRecord from "./pages/journal/HabitsRecord.jsx";
+import Read from "./pages/journal/Read.jsx";
+import ReadDetails from "./pages/journal/ReadDetails.jsx";
 
 const RequireUserAuth = () => {
     const location = useLocation();
@@ -60,9 +65,16 @@ const AppRoutes = () => {
                 {/* user-protected */}
                 <Route element={<RequireUserAuth />}>
                     <Route path="/home" element={<Home />} />
-                    <Route path="/journal/mood" element={<Mood />} />
+                    <Route path="/journal/entry" element={<JournalEntry />} />
                     <Route path="/journal/habits" element={<Habits />} />
-                    <Route path="/journal/reflections" element={<Reflections />} />
+                    <Route path="/journal/habits/success" element={<HabitsSuccess />} />
+                    <Route path="/journal/habits/records" element={<HabitsRecord />} />
+
+                    <Route path="/journal/read" element={<Read />} />
+                    <Route path="/journal/read/:id" element={<ReadDetails />} />
+
+                    <Route path="/journal/invites" element={<ReadDetails />} />
+
                     <Route path="/dashboard" element={<UserDashboard />} />
                 </Route>
 
