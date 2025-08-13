@@ -31,7 +31,7 @@ const Habits = () => {
         };
 
         sessionStorage.setItem("journal_habits", JSON.stringify(habitsData));
-        navigate("/journal/reflections");
+        navigate("/journal/complete/habits");
     };
 
     return (
@@ -72,7 +72,7 @@ const Habits = () => {
                                 type="number"
                                 step="0.1"
                                 min="0"
-                                max="10"
+                                  max="10"
                                 value={water}
                                 onChange={(e) => setWater(Number(e.target.value))}
                                 className="w-full border px-3 py-2 rounded"

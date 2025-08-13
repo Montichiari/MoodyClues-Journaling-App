@@ -40,6 +40,7 @@ const Reflections = () => {
 
                 <div className="space-y-6 max-w-xl">
           <textarea
+              style={{ marginLeft: '100px' }}
               placeholder="Start with a title to remember this day."
               value={title}
               onChange={(e) => setTitle(e.target.value)}
@@ -47,6 +48,7 @@ const Reflections = () => {
               rows={2}
           />
                     <textarea
+                        style={{ marginLeft: '100px' }}
                         placeholder="Today, I..."
                         value={body}
                         onChange={(e) => setBody(e.target.value)}
