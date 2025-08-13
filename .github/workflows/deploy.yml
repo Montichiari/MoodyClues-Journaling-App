@@ -1,4 +1,4 @@
-name: Build & Deploy Backend!
+name: Build & Deploy Backend
 
 on:
   push:
@@ -14,7 +14,7 @@ jobs:
     timeout-minutes: 45
 
     env:
-      APP_DIR: backend-spring
+      APP_DIR: backend-spring/MoodyClues
       IMAGE_NAME: moodyclues-backend
       DH_USER: ${{ secrets.DOCKERHUB_USERNAME }}
 
@@ -29,17 +29,32 @@ jobs:
           java-version: "17"
           cache: maven
 
+      # --- Find Flyway migrations directory robustly ---
+      - name: Locate Flyway migrations dir
+        id: find_migrations
+        run: |
+          set -euo pipefail
+          CANDIDATES=(
+            "$GITHUB_WORKSPACE/${{ env.APP_DIR }}/src/main/resources/db/migration"
+            "$GITHUB_WORKSPACE/backend-spring/src/main/resources/db/migration"
+            "$GITHUB_WORKSPACE/src/main/resources/db/migration"
+            "$GITHUB_WORKSPACE/${{ env.APP_DIR }}/src/main/resources/flyway"
+          )
+          for d in "${CANDIDATES[@]}"; do
+            if [ -d "$d" ] && compgen -G "$d/*.sql" > /dev/null; then
+              echo "dir=$d" >> "$GITHUB_OUTPUT"
+              echo "Found migrations at: $d"
+              exit 0
+            fi
+          done
+          echo "::error::Could not find migrations folder. Checked: ${CANDIDATES[*]}"
+          exit 1
+
       # --- Flyway migrate straight to RDS ---
       - name: Run Flyway migrations on RDS
         run: |
-          MIGRATIONS_DIR="$GITHUB_WORKSPACE/backend-spring/src/main/resources/db/migration"
-          if [ ! -d "$MIGRATIONS_DIR" ]; then
-            echo "::error::Migrations directory not found at $MIGRATIONS_DIR"
-            exit 1
-          fi
-
           docker run --rm \
-            -v "$MIGRATIONS_DIR":/flyway/sql \
+            -v "${{ steps.find_migrations.outputs.dir }}":/flyway/sql \
             flyway/flyway:10 \
             -url="${{ secrets.RDS_JDBC_URL }}" \
             -user="${{ secrets.RDS_USERNAME }}" \
@@ -65,8 +80,8 @@ jobs:
       - name: Build & Push image
         uses: docker/build-push-action@v5
         with:
-          context: ./backend-spring
-          file: ./backend-spring/Dockerfile
+          context: ./${{ env.APP_DIR }}
+          file: ./${{ env.APP_DIR }}/Dockerfile
           push: true
           tags: |
             ${{ env.DH_USER }}/${{ env.IMAGE_NAME }}:latest
@@ -85,14 +100,11 @@ jobs:
           ssh -i ~/.ssh/id_ec2 -o StrictHostKeyChecking=yes "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}" bash -s << 'EOF'
           set -euo pipefail
 
-          # Pull new image
           docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" -p "${{ secrets.DOCKERHUB_TOKEN }}"
           docker pull "${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
 
-          # Stop & remove old container if present
           docker rm -f "${{ env.IMAGE_NAME }}" || true
 
-          # Run updated container
           docker run -d \
             --name "${{ env.IMAGE_NAME }}" \
             --restart unless-stopped \
@@ -102,8 +114,6 @@ jobs:
             -e SPRING_DATASOURCE_PASSWORD='${{ secrets.RDS_PASSWORD }}' \
             "${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
 
-          # Optional cleanup of dangling images
           docker image prune -f || true
-
           echo "Deployment complete."
           EOF
