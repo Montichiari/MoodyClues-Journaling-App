@@ -89,15 +89,35 @@ jobs:
 
       # --- SSH into EC2 and deploy container ---
       - name: Prepare SSH key
+        shell: bash
         run: |
+          set -euxo pipefail
+
           mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_ec2
+          # Write the key exactly as stored in the secret
+          printf "%s" "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_ec2
+          # Normalize CRLF if the secret was pasted from Windows
+          sed -i 's/\r$//' ~/.ssh/id_ec2
           chmod 600 ~/.ssh/id_ec2
-          ssh-keyscan -H "${{ secrets.EC2_HOST }}" >> ~/.ssh/known_hosts
+
+          # Pre-populate known_hosts for both host and public IP (don't fail if keyscan can't reach)
+          : > ~/.ssh/known_hosts
+          for H in "${{ secrets.EC2_HOST }}" "${{ secrets.EC2_PUBLIC_IP }}"; do
+            if [ -n "$H" ]; then
+              ssh-keyscan -H -T 10 "$H" >> ~/.ssh/known_hosts 2>/dev/null || true
+            fi
+          done
 
       - name: Deploy on EC2
+        shell: bash
         run: |
-          ssh -i ~/.ssh/id_ec2 -o StrictHostKeyChecking=yes "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}" bash -s << 'EOF'
+          set -euxo pipefail
+
+          ssh -i ~/.ssh/id_ec2 \
+              -o BatchMode=yes \
+              -o ConnectTimeout=15 \
+              -o StrictHostKeyChecking=accept-new \
+              "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}" << 'EOF'
           set -euo pipefail
 
           docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" -p "${{ secrets.DOCKERHUB_TOKEN }}"
@@ -111,7 +131,7 @@ jobs:
             -p 8080:8080 \
             -e SPRING_DATASOURCE_URL='${{ secrets.RDS_JDBC_URL }}' \
             -e SPRING_DATASOURCE_USERNAME='${{ secrets.RDS_USERNAME }}' \
-            -e SPRING_DATASOURCE_PASSWORD='${{ secrets.RDS_PASSWORD }}' \
+            -e SPRING_DATASOURCE_PASSWORDs='${{ secrets.RDS_PASSWORD }}' \
             "${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
 
           docker image prune -f || true
