@@ -112,21 +112,9 @@ public class UserController {
 	@PutMapping("/toggle-emotion/{userId}")
 	public ResponseEntity<?> toggleEmotionAndroid(@PathVariable String userId) {
 		
-		JournalUser user = juserService.findJournalUserById(userId);
+		String outcome = juserService.toggleEmotion(userId);
 		
-		if (user.isShowEmotion()) {
-			user.setShowEmotion(false);
-			return new ResponseEntity<>("Emotions set to hidden", HttpStatus.OK);
-
-		}
-		
-		if (!(user.isShowEmotion())) {
-			user.setShowEmotion(true);
-			return new ResponseEntity<>("Emotions set to shown", HttpStatus.OK);
-
-		}
-		
-		return new ResponseEntity<>("Something went wrong", HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<>(outcome, HttpStatus.OK);
 	}
 	
 }

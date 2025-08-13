@@ -17,6 +17,8 @@ public interface JournalUserService {
 	public void registerUser(RegisterRequestDto request);
 
 	// public User updateUser(int userId, UpdateUserRequest request);
+	
+	public String toggleEmotion(String userId);
 
 	// For Users to delete account
 	public void deleteUser(String email, String passwordInput);

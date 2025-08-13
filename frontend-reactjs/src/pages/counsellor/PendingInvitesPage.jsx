@@ -1,10 +1,57 @@
 import React, { useState, useEffect } from 'react';
-import {Box, Button, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper} from '@mui/material';
+import {
+    Box, Button, TextField, Table, TableBody, TableCell,
+    TableContainer, TableHead, TableRow, Paper
+} from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import Sidenav from '../../components/Sidenav';
 import SidenavC from "../../components/SidenavC.jsx";
 
 const drawerWidth = 200;
+const API_BASE = 'http://122.248.243.60:8080';
+const TZ_SG = 'Asia/Singapore';
+
+
+function normalizeUtcIso(value) {
+    if (value == null) return null;
+
+    if (value instanceof Date) return value.toISOString();
+    if (typeof value === 'number') return new Date(value).toISOString();
+
+    const s = String(value).trim();
+
+    if (/[zZ]|[+\-]\d{2}:?\d{2}$/.test(s)) return s;
+
+    if (/^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}(?::\d{2}(?:\.\d{1,9})?)?$/.test(s)) {
+        const iso = s.includes('T') ? s : s.replace(' ', 'T');
+        return iso + 'Z';
+    }
+
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+        return s + 'T00:00:00Z';
+    }
+
+    return s;
+}
+
+function parseAsUtcDate(value) {
+    const iso = normalizeUtcIso(value);
+    if (!iso) return null;
+    const d = new Date(iso);
+    return Number.isNaN(d.getTime()) ? null : d;
+}
+
+function formatSG(value) {
+    const d = parseAsUtcDate(value);
+    if (!d) return '—';
+    return new Intl.DateTimeFormat('en-SG', {
+        timeZone: TZ_SG,
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    }).format(d);
+}
 
 const PendingInvitesPage = () => {
     const navigate = useNavigate();
@@ -13,8 +60,9 @@ const PendingInvitesPage = () => {
     const [filteredInvites, setFilteredInvites] = useState([]);
     const [loading, setLoading] = useState(false);
 
-
-    const counsellorId = localStorage.getItem('counsellorId');
+    const counsellorId = localStorage.getItem('counsellorId')
+        || localStorage.getItem('userId') // fallback if your team reused the key
+        || null;
 
     const fetchInvites = async () => {
         if (!counsellorId) {
@@ -25,15 +73,21 @@ const PendingInvitesPage = () => {
         }
         setLoading(true);
         try {
-            //test
-            const baseUrl = 'http://122.248.243.60:8080';
-
-            const url = `${baseUrl}/api/linkrequest/counsellor/all-link-requests/${counsellorId}`;
+            const url = `${API_BASE}/api/linkrequest/counsellor/all-link-requests/${counsellorId}`;
             const res = await fetch(url, { credentials: 'include' });
             if (!res.ok) throw new Error('Failed to fetch invites');
+
             const data = await res.json();
-            setInvites(data);
-            setFilteredInvites(data);
+            // Optional: map to add a preformatted SG string (saves work during render)
+            const withDisplay = Array.isArray(data)
+                ? data.map(inv => ({
+                    ...inv,
+                    requestedAtDisplay: formatSG(inv.requestedAt),
+                }))
+                : [];
+
+            setInvites(withDisplay);
+            setFilteredInvites(withDisplay);
         } catch (error) {
             console.error(error);
             setInvites([]);
@@ -47,7 +101,6 @@ const PendingInvitesPage = () => {
         fetchInvites();
     }, []);
 
-    // 监听输入，实时过滤
     const handleSearchChange = (e) => {
         const val = e.target.value;
         setSearchTerm(val);
@@ -66,23 +119,13 @@ const PendingInvitesPage = () => {
             <SidenavC />
             <Box
                 component="main"
-                sx={{
-                    flexGrow: 1,
-                    ml: `${drawerWidth}px`,
-                    p: 4,
-                    pt: 2,
-                    maxWidth: 800,
-                }}
+                sx={{ flexGrow: 1, ml: `${drawerWidth}px`, p: 4, pt: 2, maxWidth: 800 }}
             >
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
                     <Box sx={{ flexGrow: 1, textAlign: 'center' }}>
                         <h1 style={{ fontSize: '2.5rem', margin: 0 }}>Pending Invites</h1>
                     </Box>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={() => navigate('/invites/sendinvites')}
-                    >
+                    <Button variant="contained" color="primary" onClick={() => navigate('/invites/sendinvites')}>
                         Invite
                     </Button>
                 </Box>
@@ -92,7 +135,7 @@ const PendingInvitesPage = () => {
                     variant="outlined"
                     size="small"
                     value={searchTerm}
-                    onChange={handleSearchChange}  // 输入时实时过滤
+                    onChange={handleSearchChange}
                     sx={{ mb: 3, width: 300, ml: -10 }}
                 />
 
@@ -116,7 +159,8 @@ const PendingInvitesPage = () => {
                                 ) : (
                                     filteredInvites.map((invite) => (
                                         <TableRow key={invite.id}>
-                                            <TableCell>{new Date(invite.requestedAt).toLocaleString()}</TableCell>
+                                            {/* ✅ timezone-correct rendering */}
+                                            <TableCell>{invite.requestedAtDisplay || formatSG(invite.requestedAt)}</TableCell>
                                             <TableCell>{invite.journalUser?.email || '—'}</TableCell>
                                             <TableCell>{invite.status}</TableCell>
                                         </TableRow>

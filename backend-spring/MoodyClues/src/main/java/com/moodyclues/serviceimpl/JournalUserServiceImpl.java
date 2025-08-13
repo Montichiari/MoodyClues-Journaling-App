@@ -2,6 +2,7 @@ package com.moodyclues.serviceimpl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -111,6 +112,29 @@ public class JournalUserServiceImpl implements JournalUserService {
 		newUser.setLastName(request.getLastName());
 		
 		userRepo.save(newUser);
+		
+	}
+
+	@Override
+	public String toggleEmotion(String userId) {
+
+		JournalUser user = this.findJournalUserById(userId);
+		
+		if (user.isShowEmotion()) {
+			user.setShowEmotion(false);
+			userRepo.save(user);
+			return "Emotions set to hidden.";
+
+		}
+		
+		if (!(user.isShowEmotion())) {
+			user.setShowEmotion(true);
+			userRepo.save(user);
+			return "Emotions set to shown.";
+
+		}
+		
+		return "Something went wrong.";
 		
 	}
 
