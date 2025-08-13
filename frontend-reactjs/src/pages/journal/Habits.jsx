@@ -3,6 +3,12 @@ import Sidenav from "../../components/Sidenav";
 import { useState, useMemo, useEffect } from "react";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import axios from "axios";
+import {
+  formatLocalDateTimeSG,
+  formatLocalDateSG,
+  sameDaySG,
+  ymdSG,
+} from "../../utils/datetime";
 
 const DEBUG = import.meta.env.MODE === "development";
 const API_BASE = import.meta?.env?.VITE_API_BASE_URL || "http://122.248.243.60:8080";
@@ -18,22 +24,6 @@ function todayLine() {
   return `Today is ${day}${ord} ${month} ${d.getFullYear()}.`;
 }
 
-const toLocalYMD = (d) => {
-  const dt = new Date(d);
-  return Number.isNaN(dt.getTime()) ? "" : [dt.getFullYear(), dt.getMonth(), dt.getDate()].join("-");
-};
-const isSameLocalDay = (a, b) => toLocalYMD(a) === toLocalYMD(b);
-const fmtDT = (d) => {
-  const dt = new Date(d);
-  if (Number.isNaN(dt.getTime())) return "—";
-  const hh = String(dt.getHours()).padStart(2, "0");
-  const mm = String(dt.getMinutes()).padStart(2, "0");
-  const day = dt.getDate();
-  const mon = dt.toLocaleString("en-GB", { month: "short" });
-  const yr  = dt.getFullYear();
-  return `${day} ${mon} ${yr}, ${hh}:${mm}`;
-};
-
 export default function Habits() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -43,6 +33,7 @@ export default function Habits() {
   const [water, setWater] = useState(0);
   const [work,  setWork]  = useState(0); // backend expects workHours
   const [saving, setSaving] = useState(false);
+  const [archiving, setArchiving] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [createdAt, setCreatedAt] = useState(null);
@@ -53,7 +44,11 @@ export default function Habits() {
   const userId = localStorage.getItem("userId");
 
   // Optional incoming id to edit a specific record (from HabitsRecord page)
-  const incomingId = location.state?.habitId || search.get("id") || null;
+  const incomingId =
+    location.state?.entryId ??
+    location.state?.habitId ??
+    search.get("id") ??
+    null;
 
   // Route guard (keep your current behavior)
   useEffect(() => {
@@ -88,11 +83,13 @@ export default function Habits() {
           { withCredentials: true, signal: controller.signal }
         );
         const rows = Array.isArray(listRes.data) ? listRes.data : [];
-        rows.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-        const today = rows.find(r => isSameLocalDay(r.createdAt, new Date()));
 
-        if (today) hydrate(today);
-        else {
+        // 🔹 pick today's record (SG-aware)
+        const today = rows.find(r => sameDaySG(r.createdAt, new Date()));
+
+        if (today) {
+          hydrate(today);
+        } else {
           // create mode (empty)
           setHabitId(null);
           setCreatedAt(null);
@@ -111,13 +108,16 @@ export default function Habits() {
     })();
 
     function hydrate(h) {
-      setHabitId(h.id || null);
+      // prefer entryId if your backend uses that name; fall back to id
+      setHabitId(h.entryId ?? h.id ?? null);
+
       setCreatedAt(h.createdAt || null);
       setLastSavedAt(h.lastSavedAt || null);
       setSleep(typeof h.sleep === "number" ? h.sleep : parseFloat(h.sleep ?? 0) || 0);
       setWater(typeof h.water === "number" ? h.water : parseFloat(h.water ?? 0) || 0);
       setWork(typeof h.workHours === "number" ? h.workHours : parseFloat(h.workHours ?? 0) || 0);
     }
+
 
     return () => controller.abort();
   }, [API_BASE, incomingId, userId]);
@@ -132,7 +132,7 @@ export default function Habits() {
     // keep for later pages if you want
     sessionStorage.setItem("journal_habits", JSON.stringify({ sleep, water, work }));
 
-    // simple validation in your existing ranges
+    // simple validation
     const vSleep = parseFloat(sleep);
     const vWater = parseFloat(water);
     const vWork  = parseFloat(work);
@@ -168,6 +168,10 @@ export default function Habits() {
           signal: controller.signal,
         });
 
+        // 🔹 Notify banner + save marker
+        localStorage.setItem("habits_last_saved_ymd", new Date().toISOString());
+        window.dispatchEvent(new Event("habits:updated"));
+
         navigate("/journal/habits/success", {
           replace: true,
           state: { message: "Habits updated.", next: "/habits/records" },
@@ -182,6 +186,10 @@ export default function Habits() {
           timeout: 10000,
           signal: controller.signal,
         });
+
+        // 🔹 Notify banner + save marker
+        localStorage.setItem("habits_last_saved_ymd", new Date().toISOString());
+        window.dispatchEvent(new Event("habits:updated"));
 
         navigate("/journal/habits/success", {
           replace: true,
@@ -203,6 +211,43 @@ export default function Habits() {
     }
   };
 
+  // NEW: archive/delete current record (edit mode only)
+  const handleArchive = async () => {
+    if (!habitId) return; // only in edit mode
+    const uid = localStorage.getItem("userId");
+    if (!uid) return navigate("/login", { replace: true });
+    if (!window.confirm("Move this habits record to archive?")) return;
+
+    try {
+      setArchiving(true);
+      const url = `${API_BASE}/api/habits/${encodeURIComponent(habitId)}/${encodeURIComponent(uid)}/archive`;
+      if (DEBUG) console.log("DEBUG ARCHIVE →", url);
+      await axios.put(url, null, {
+        withCredentials: true,
+        timeout: 10000,
+      });
+
+      // If we archived today's record, clear the banner marker and notify
+      if (createdAt && sameDaySG(createdAt, new Date())) {
+        localStorage.removeItem("habits_last_saved_ymd");
+        window.dispatchEvent(new Event("habits:updated"));
+      }
+
+      navigate("/journal/habits/records", {
+        replace: true,
+        state: { flash: "Habits archived." },
+      });
+    } catch (e) {
+      if (e.response?.status === 401 || e.response?.status === 403) {
+        navigate("/login", { replace: true });
+        return;
+      }
+      alert(e.response?.data?.message || "Failed to archive habits. Please try again.");
+    } finally {
+      setArchiving(false);
+    }
+  };
+
   return (
     <Box sx={{ display: "flex" }}>
       <Sidenav />
@@ -215,8 +260,8 @@ export default function Habits() {
           {/* meta line */}
           {(createdAt || lastSavedAt) && (
             <div className="mt-2 text-sm text-gray-500">
-              {createdAt && <>Created: {fmtDT(createdAt)}</>}
-              {lastSavedAt && <span className="ml-3">Last saved: {fmtDT(lastSavedAt)}</span>}
+              {createdAt && <>Created: {formatLocalDateTimeSG(createdAt)}</>}
+              {lastSavedAt && <span className="ml-3">Last saved: {formatLocalDateSG(lastSavedAt)}</span>}
             </div>
           )}
 
@@ -272,7 +317,23 @@ export default function Habits() {
 
           {error && <div className="mt-3 text-sm text-rose-600">{error}</div>}
 
-          <div className="flex justify-end pt-8">
+          {/* Footer actions */}
+          <div className="flex items-center justify-end gap-3 pt-8">
+            {mode === "edit" && (
+              <button
+                onClick={handleArchive}
+                disabled={archiving || loading}
+                className={`px-4 py-2 rounded-lg border text-sm ${
+                  archiving
+                    ? "border-gray-300 text-gray-400 cursor-not-allowed"
+                    : "border-rose-300 text-rose-700 hover:bg-rose-50"
+                }`}
+                title="Move to archive"
+              >
+                {archiving ? "Archiving…" : "Delete"}
+              </button>
+            )}
+
             <button
               onClick={handleSubmit}
               disabled={saving || loading}

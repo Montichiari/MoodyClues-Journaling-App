@@ -55,7 +55,7 @@ export default function JournalEntry() {
   const [previewEmotions, setPreviewEmotions] = useState(null);
 
   const API_BASE = import.meta?.env?.VITE_API_BASE_URL || "http://122.248.243.60:8080";
-  const ML_BASE  = import.meta?.env?.VITE_ML_BASE_URL  || "http://<ML_SERVER_IP>:5000";
+  const ML_BASE  = import.meta?.env?.VITE_ML_BASE_URL  || "http://18.141.76.63:5000";
 
   // (Optional) Route guard
   useEffect(() => {
@@ -163,7 +163,7 @@ export default function JournalEntry() {
 
       navigate("/journal/success", {
         replace: true,
-        state: { message: successMsg, next: "/journal/habits" },
+        state: { message: successMsg, next: "/home" },
       });
     } catch (err) {
       if (DEBUG) {

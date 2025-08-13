@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import Sidenav from "../../components/Sidenav.jsx";
 import { Box, Toolbar } from "@mui/material";
 import axios from "axios";
+import { formatOrdinalDateSG, sameDaySG } from "../../utils/datetime";
 
 const MOOD_LABELS = {
   1: "Very Bad",
@@ -12,30 +13,9 @@ const MOOD_LABELS = {
   5: "Very Good",
 };
 
-function formatOrdinalDate(d) {
-  const dt = new Date(d);
-  if (Number.isNaN(dt.getTime())) return "—";
-  const day = dt.getDate();
-  const ord =
-    day % 10 === 1 && day !== 11 ? "st" :
-    day % 10 === 2 && day !== 12 ? "nd" :
-    day % 10 === 3 && day !== 13 ? "rd" : "th";
-  const month = dt.toLocaleString("en-GB", { month: "long" });
-  return `${day}${ord} ${month} ${dt.getFullYear()}`;
-}
-
 // units
 const fmtHours = (v) => (v == null || v === "") ? "—" : `${v} Hours`;
 const fmtLitres = (v) => (v == null || v === "") ? "—" : `${v} Litres`;
-
-// strict same-day match helpers (local timezone)
-const toLocalYMD = (d) => {
-  const dt = new Date(d);
-  return Number.isNaN(dt.getTime())
-    ? ""
-    : [dt.getFullYear(), dt.getMonth(), dt.getDate()].join("-");
-};
-const sameLocalDay = (a, b) => toLocalYMD(a) === toLocalYMD(b);
 
 export default function ReadDetails() {
   const { id } = useParams(); // /read/:id (entryId)
@@ -45,6 +25,7 @@ export default function ReadDetails() {
   const [habits, setHabits] = useState(null); // matched habits (same local day)
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
+  const [archiving, setArchiving] = useState(false);
 
   const API_BASE = import.meta?.env?.VITE_API_BASE_URL || "http://122.248.243.60:8080";
   const showEmotion = localStorage.getItem("showEmotion") === "true";
@@ -87,7 +68,8 @@ export default function ReadDetails() {
             { withCredentials: true, signal: controller.signal }
           );
           const list = Array.isArray(hrAll.data) ? hrAll.data : [];
-          matched = list.find(h => sameLocalDay(h.createdAt, entry.createdAt || entry.date)) || null;
+          const entryTs = entry.createdAt || entry.date;
+          matched = list.find(h => sameDaySG(h.createdAt, entryTs)) || null;
         }
 
         setHabits(matched);
@@ -109,6 +91,31 @@ export default function ReadDetails() {
     return () => controller.abort();
   }, [API_BASE, id, navigate]);
 
+  // Archive (delete) this journal and go back to list
+  async function handleArchiveJournal() {
+    const uid = localStorage.getItem("userId");
+    if (!uid || !id) return navigate("/login", { replace: true });
+    if (!window.confirm("Delete this journal entry?")) return;
+
+    try {
+      setArchiving(true);
+      await axios.put(
+        `${API_BASE}/api/journal/${encodeURIComponent(id)}/${encodeURIComponent(uid)}/archive`,
+        null,
+        { withCredentials: true, timeout: 10000 }
+      );
+      navigate("/read", { replace: true, state: { flash: "Entry moved to archive." } });
+    } catch (e) {
+      if (e.response?.status === 401 || e.response?.status === 403) {
+        navigate("/login", { replace: true });
+        return;
+      }
+      alert(e.response?.data?.message || "Failed to archive entry. Please try again.");
+    } finally {
+      setArchiving(false);
+    }
+  }
+
   // normalize emotions (["happy", ...] or [{emotionLabel: "happy"}])
   const emotions = useMemo(() => {
     if (!item?.emotions) return [];
@@ -120,7 +127,6 @@ export default function ReadDetails() {
     return [];
   }, [item]);
 
-  
   return (
     <Box sx={{ display: "flex" }}>
       <Sidenav />
@@ -128,12 +134,30 @@ export default function ReadDetails() {
         <Toolbar />
 
         <div className="max-w-3xl">
-          <button
-            onClick={() => navigate(-1)}
-            className="text-sm text-gray-600 hover:underline"
-          >
-            ← Back
-          </button>
+          {/* Top row: Back (left) + Delete (right) */}
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => navigate(-1)}
+              className="text-sm text-gray-600 hover:underline"
+            >
+              ← Back
+            </button>
+
+            {!loading && !err && item && (
+              <button
+                onClick={handleArchiveJournal}
+                disabled={archiving}
+                className={`text-sm px-3 py-1.5 rounded-md border ${
+                  archiving
+                    ? "border-gray-300 text-gray-400 cursor-not-allowed"
+                    : "border-rose-300 text-rose-700 hover:bg-rose-50"
+                }`}
+                title="Move to archive"
+              >
+                {archiving ? "Archiving…" : "Delete"}
+              </button>
+            )}
+          </div>
 
           {/* Centered section heading */}
           <h2 className="mt-2 text-lg font-medium text-gray-900 text-center">Your Journal</h2>
@@ -150,7 +174,7 @@ export default function ReadDetails() {
 
               {/* Date — centered */}
               <div className="mt-2 text-sm text-gray-500 text-center">
-                {formatOrdinalDate(item.createdAt || item.date)}
+                {formatOrdinalDateSG(item.createdAt || item.date)}
               </div>
 
               {/* Mood (left aligned) */}
@@ -214,6 +238,4 @@ export default function ReadDetails() {
       </Box>
     </Box>
   );
-
-
 }

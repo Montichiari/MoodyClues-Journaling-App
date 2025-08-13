@@ -2,6 +2,8 @@ import React from "react";
 import Sidenav from "../components/Sidenav.jsx";
 import { Box } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";   // updated import
+import HabitsReminderBanner from "../components/HabitsReminderBanner.jsx"
+
 
 const Home = () => {
     const navigate = useNavigate();
@@ -25,6 +27,7 @@ const Home = () => {
             <div className="mb-6">
                 <h1 className="text-3xl font-semibold">Welcome back</h1>
                 <p className="text-gray-500">Get started</p>
+                <HabitsReminderBanner />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">

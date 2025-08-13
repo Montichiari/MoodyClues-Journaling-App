@@ -3,18 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Sidenav from "../../components/Sidenav.jsx";
 import { Box, Toolbar } from "@mui/material";
 import axios from "axios";
-
-// e.g. "8 Aug 2025, 14:15"
-function formatDT(d) {
-  const dt = new Date(d);
-  if (Number.isNaN(dt.getTime())) return "—";
-  const day = dt.getDate();
-  const mon = dt.toLocaleString("en-GB", { month: "short" });
-  const yr  = dt.getFullYear();
-  const hh  = String(dt.getHours()).padStart(2, "0");
-  const mm  = String(dt.getMinutes()).padStart(2, "0");
-  return `${day} ${mon} ${yr}, ${hh}:${mm}`;
-}
+import { formatLocalDateTimeSG } from "../../utils/datetime";
 
 export default function Read() {
   const navigate = useNavigate();
@@ -24,6 +13,31 @@ export default function Read() {
   const [q, setQ] = useState("");
 
   const API_BASE = import.meta?.env?.VITE_API_BASE_URL || "http://122.248.243.60:8080";
+
+  // ---- SG-aware ms extractor (handles naive strings as UTC + 8h) ----
+  function toMsSG(input) {
+    if (!input) return -Infinity;
+    const s = String(input).trim().replace(" ", "T");
+    const hasTZ = /[zZ]|[+\-]\d{2}:?\d{2}$/.test(s);
+    let d;
+
+    if (hasTZ) {
+      d = new Date(s);
+    } else {
+      const m = s.match(
+        /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,3}))?)?$/
+      );
+      if (m) {
+        const [_, y, mo, dd, hh, mi, ss = "0", ms = "0"] = m;
+        const utc = Date.UTC(+y, +mo - 1, +dd, +hh, +mi, +ss, +`${ms}`.padEnd(3, "0"));
+        d = new Date(utc + 8 * 60 * 60 * 1000); // shift to SG
+      } else {
+        // fallback: let JS parse, then you still see local time; may be off for exotic strings
+        d = new Date(s);
+      }
+    }
+    return Number.isNaN(d?.getTime()) ? -Infinity : d.getTime();
+  }
 
   // route guard
   useEffect(() => {
@@ -46,7 +60,6 @@ export default function Read() {
         setLoading(true);
         setErr("");
 
-        // /api/journal/all/{userId}
         const res = await axios.get(`${API_BASE}/api/journal/all/${uid}`, {
           withCredentials: true,
           signal: controller.signal,
@@ -70,24 +83,20 @@ export default function Read() {
     return () => controller.abort();
   }, [API_BASE, navigate]);
 
-  // search + chronological sort (newest first)
+  // search + chronological sort (newest first), SG-aware
   const view = useMemo(() => {
     const s = q.trim().toLowerCase();
     const filtered = s
       ? entries.filter(e => (e.entryTitle || e.title || "").toLowerCase().includes(s))
       : entries;
 
-    // sort by createdAt/date DESC
     return [...filtered].sort((a, b) => {
-      const ta = new Date(a.createdAt || a.date).getTime();
-      const tb = new Date(b.createdAt || b.date).getTime();
-      const A = Number.isNaN(ta) ? -Infinity : ta;
-      const B = Number.isNaN(tb) ? -Infinity : tb;
-      return B - A;
+      const ta = toMsSG(a.createdAt || a.date);
+      const tb = toMsSG(b.createdAt || b.date);
+      return tb - ta;
     });
   }, [entries, q]);
 
-  
   return (
     <Box sx={{ display: "flex" }}>
       <Sidenav />
@@ -161,7 +170,7 @@ export default function Read() {
                       }}
                     >
                       <td className="py-4 px-2 text-gray-500 text-left">
-                        {formatDT(e.createdAt || e.date)}
+                        {formatLocalDateTimeSG(e.createdAt || e.date)}
                       </td>
                       <td className="py-4 px-2 text-gray-900 text-left">
                         {e.entryTitle || e.title || "(Untitled)"}
@@ -184,6 +193,4 @@ export default function Read() {
       </Box>
     </Box>
   );
-
-
 }

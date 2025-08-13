@@ -8,7 +8,7 @@ export default function JournalSuccess() {
   const { state } = useLocation();
 
   const message  = state?.message || "Journal entry submitted successfully.";
-  const next     = state?.next || "/journal/habits";
+  const next     = state?.next || "/home";
   const emotions = Array.isArray(state?.emotions) ? state.emotions : [];
 
   // show/hide flag set at login: localStorage.setItem("showEmotion", response.data.showEmotion)
@@ -56,10 +56,10 @@ export default function JournalSuccess() {
 
           <div className="flex justify-end pt-6">
             <button
-              onClick={() => navigate(next)}
+              onClick={() => navigate(next, { replace: true })}
               className="px-5 py-2.5 rounded-lg text-white bg-black hover:bg-gray-900 transition"
             >
-              Save & Continue
+              Go Home
             </button>
           </div>
         </div>
