@@ -1,4 +1,3 @@
-
 name: Deploy to EC2 (build on runner, pull on EC2)
 
 on:
@@ -36,15 +35,33 @@ jobs:
           java-version: '21'
           cache: maven
 
-      - name: Flyway migrate from runner (no SSH)
+      # Auto-repair if migrate fails due to a previous failed version (e.g., V7)
+      - name: Flyway migrate (auto-repair on validation failure)
         working-directory: ${{ env.APP_DIR }}
         run: |
+          set -euo pipefail
           chmod +x mvnw
-          ./mvnw -B -Dorg.slf4j.simpleLogger.log.org.flywaydb=debug \
-            flyway:migrate \
-            -Dflyway.user="${RDS_USERNAME}" \
-            -Dflyway.password="${RDS_PASSWORD}" \
-            -Dflyway.url="${RDS_JDBC_URL}"
+          # First attempt: migrate
+          if ./mvnw -B -Dorg.slf4j.simpleLogger.log.org.flywaydb=debug \
+              -Dflyway.user="${RDS_USERNAME}" \
+              -Dflyway.password="${RDS_PASSWORD}" \
+              -Dflyway.url="${RDS_JDBC_URL}" \
+              flyway:migrate; then
+            echo "Flyway migrate succeeded."
+          else
+            echo "Flyway migrate failed. Running repair, then retrying migrate..."
+            ./mvnw -B \
+              -Dflyway.user="${RDS_USERNAME}" \
+              -Dflyway.password="${RDS_PASSWORD}" \
+              -Dflyway.url="${RDS_JDBC_URL}" \
+              flyway:repair
+            ./mvnw -B \
+              -Dflyway.user="${RDS_USERNAME}" \
+              -Dflyway.password="${RDS_PASSWORD}" \
+              -Dflyway.url="${RDS_JDBC_URL}" \
+              flyway:migrate
+          fi
+
       - name: Build JAR (skip tests)
         working-directory: ${{ env.APP_DIR }}
         run: ./mvnw -B -DskipTests clean package
@@ -57,25 +74,34 @@ jobs:
         env:
           SHORT_SHA: ${{ github.sha }}
         run: |
+          set -euo pipefail
           SHORT="${SHORT_SHA:0:7}"
           IMAGE="$REGISTRY_USER/${IMAGE_NAME}"
           docker build -t "$IMAGE:$SHORT" -t "$IMAGE:latest" .
           echo "IMAGE_TAG_SHORT=$IMAGE:$SHORT" >> $GITHUB_ENV
           echo "IMAGE_TAG_LATEST=$IMAGE:latest" >> $GITHUB_ENV
+
       - name: Push image
         run: |
+          set -euo pipefail
           docker push "$IMAGE_TAG_SHORT"
           docker push "$IMAGE_TAG_LATEST"
+
       - name: Recreate PEM key
         run: |
+          set -euo pipefail
           echo "${{ secrets.EC2_SSH_KEY }}" | base64 -d > key.pem
           chmod 600 key.pem
+
       - name: Quick port 22 check
         run: |
+          set -euo pipefail
           echo "Probing port 22..."
           nc -vz -w 10 "$EC2_HOST" 22 || (echo "Port 22 not reachable"; exit 2)
+
       - name: Deploy on EC2 (pull & run)
         run: |
+          set -euo pipefail
           ssh -tt \
             -o StrictHostKeyChecking=no \
             -o ServerAliveInterval=30 \
@@ -88,15 +114,17 @@ jobs:
           echo "🧼 Stopping/removing existing container (if any)..."
           docker stop moodyclues-container || true
           docker rm moodyclues-container || true
+
           echo "🔐 Docker login..."
           echo "${REGISTRY_TOKEN}" | docker login -u "${REGISTRY_USER}" --password-stdin
+
           echo "🐳 Pulling image..."
           docker pull "${REGISTRY_USER}/${IMAGE_NAME}:latest"
+
           echo "🚀 Starting container..."
           docker run -d --name moodyclues-container -p 8080:8080 "${REGISTRY_USER}/${IMAGE_NAME}:latest"
+
           echo "🔎 Status:"
           sleep 3
           docker ps --filter "name=moodyclues-container" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
-          exit 0
-          EOSSH
           EOF
