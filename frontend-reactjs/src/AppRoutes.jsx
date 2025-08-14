@@ -22,6 +22,8 @@ import Read from "./pages/journal/Read.jsx";
 import ReadDetails from "./pages/journal/ReadDetails.jsx";
 import JournalSuccess from "./pages/journal/JournalSuccess.jsx";
 import Invites from "./pages/Invites.jsx";
+import Register from "./pages/Register.jsx";
+import CounsellorRegistration from "./pages/CounsellorRegistration.jsx";
 
 const RequireUserAuth = () => {
     const location = useLocation();
@@ -62,6 +64,9 @@ const AppRoutes = () => {
                 <Route element={<RedirectIfAuthed />}>
                     <Route path="/login" element={<Login />} />
                     <Route path="/counsellor/login" element={<CounsellorLogin />} />
+                    <Route path="/register" element={<Register />} />
+                    <Route path="/counsellor/register" element={<CounsellorRegistration />} />
+
                 </Route>
 
                 {/* user-protected */}

@@ -50,6 +50,7 @@ export const CounsellorLogin = () => {
     };
 
     const handleJournalLogin = () => navigate("/login");
+    const handleRegister = () => navigate("/counsellor/register");
 
     return (
         <div className="min-h-screen flex items-center justify-center px-4 bg-white">
@@ -108,6 +109,17 @@ export const CounsellorLogin = () => {
                     >
                         {loading ? 'Logging in…' : 'Login'}
                     </button>
+
+                    <p className="text-sm text-center text-gray-600">
+                        Don’t have a counsellor account?{" "}
+                        <button
+                            type="button"
+                            onClick={handleRegister}
+                            className="text-blue-600 hover:underline"
+                        >
+                            Create one
+                        </button>
+                    </p>
                 </form>
             </div>
         </div>
