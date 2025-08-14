@@ -42,7 +42,6 @@ class JournalUserServiceImplTest {
         MockitoAnnotations.openMocks(this);
     }
 
-    // === findJournalUserByEmail ===
     @Test
     void testFindJournalUserByEmail_success() {
         String email = "test@example.com";
@@ -63,7 +62,6 @@ class JournalUserServiceImplTest {
             journalUserService.findJournalUserByEmail("missing@example.com"));
     }
 
-    // === loginAttempt ===
     @Test
     void testLoginAttempt_success() {
         String email = "user@example.com";
@@ -98,7 +96,6 @@ class JournalUserServiceImplTest {
         assertFalse(result);
     }
 
-    // === registerUser ===
     @Test
     void testRegisterUser_success() {
         RegisterRequestDto dto = new RegisterRequestDto();
@@ -132,7 +129,6 @@ class JournalUserServiceImplTest {
         assertThrows(ResponseStatusException.class, () -> journalUserService.registerUser(dto));
     }
 
-    // === deleteUser (by email) ===
     @Test
     void testDeleteUserByEmail() {
         String email = "user@example.com";
@@ -145,7 +141,6 @@ class JournalUserServiceImplTest {
         assertTrue(user.isArchived());
     }
 
-    // === deleteUser (by id) ===
     @Test
     void testDeleteUserById() {
         String id = "some-id";
