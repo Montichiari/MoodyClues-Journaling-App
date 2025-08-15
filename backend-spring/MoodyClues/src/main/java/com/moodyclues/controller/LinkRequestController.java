@@ -69,7 +69,7 @@ public class LinkRequestController {
 	@GetMapping("/counsellor/all-link-requests-accepted/{counsellorId}")
 	public ResponseEntity<?> allLinkRequestsAccepted(@PathVariable String counsellorId) {
 		
-		List<LinkRequest> linkRequests = linkService.getAllLinkRequestsByCounsellorId(counsellorId);
+		List<LinkRequest> linkRequests = linkService.getAllLinkRequestsByCounsellorIdAccepted(counsellorId);
 		
 		return new ResponseEntity<>(linkRequests, HttpStatus.OK);
 
