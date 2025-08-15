@@ -12,10 +12,11 @@
     <fullyQualifiedTypeName name="jakarta.validation.constraints.NotBlank"/>
     <fullyQualifiedTypeName name="jakarta.validation.constraints.Email"/>
     <fullyQualifiedTypeName name="jakarta.validation.constraints.Pattern"/>
-    <fullyQualifiedTypeName name="com.moodyclues.model.LinkRequest.Status"/>
     <fullyQualifiedTypeName name="org.springframework.http.HttpStatus"/>
     <fullyQualifiedTypeName name="java.util.Optional"/>
     <fullyQualifiedTypeName name="jakarta.servlet.http.HttpSession"/>
     <fullyQualifiedTypeName name="java.util.List"/>
     <fullyQualifiedTypeName name="java.util.Map"/>
+    <fullyQualifiedTypeName name="com.moodyclues.model.LinkRequest"/>
+    <fullyQualifiedTypeName name="com.moodyclues.model.LinkRequest.Status"/>
 </qualifiedTypeNameHistroy>

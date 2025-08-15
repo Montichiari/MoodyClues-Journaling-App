@@ -115,6 +115,7 @@ public class LinkRequestServiceImpl implements LinkRequestService {
 	@Override
 	public List<LinkRequest> getAllLinkRequestsByCounsellorIdAccepted(String id) {
 	
+		
 		List<LinkRequest> requests = linkRepo.findAllAcceptedByCounsellorId(id);
 		
 		return requests;
