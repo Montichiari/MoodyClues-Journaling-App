@@ -65,6 +65,18 @@ public class LinkRequestController {
 		
 	}
 	
+	// This is for Counsellors to see only JournalUsers who have accepted their request.
+	@GetMapping("/counsellor/all-link-requests-accepted/{counsellorId}")
+	public ResponseEntity<?> allLinkRequestsAccepted(@PathVariable String counsellorId) {
+		
+		List<LinkRequest> linkRequests = linkService.getAllLinkRequestsByCounsellorId(counsellorId);
+		
+		return new ResponseEntity<>(linkRequests, HttpStatus.OK);
+
+	}
+	
+	
+	
     // This is for JournalUsers to see all requests.
     @GetMapping("/journal/all-link-requests")
     public ResponseEntity<?> allForJournal(HttpSession session) {

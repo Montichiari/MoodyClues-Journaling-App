@@ -96,6 +96,8 @@ public class LinkRequestServiceImpl implements LinkRequestService {
 		return requests;
 	}
 	
+		
+	
     @Override
     @Transactional
     public List<LinkRequest> listIncoming(String journalUserId) {
@@ -109,6 +111,14 @@ public class LinkRequestServiceImpl implements LinkRequestService {
         return linkRepo.findOutgoing(
             counsellorId, Status.PENDING);
     }
+
+	@Override
+	public List<LinkRequest> getAllLinkRequestsByCounsellorIdAccepted(String id) {
+		
+		List<LinkRequest> requests = linkRepo.findAllByCounsellorIdAccepted(id);
+		
+		return requests;
+	}
 
 
 }

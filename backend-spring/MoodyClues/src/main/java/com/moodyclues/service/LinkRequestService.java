@@ -13,6 +13,8 @@ public interface LinkRequestService {
 	
 	public List<LinkRequest> getAllLinkRequestsByCounsellorId(String id);
 	
+	public List<LinkRequest> getAllLinkRequestsByCounsellorIdAccepted(String id);
+	
 	public List<LinkRequest> getAllLinkRequestsByJournalUserId(String id);
 	
 	public List<LinkRequest> listIncoming(String journalUserId);

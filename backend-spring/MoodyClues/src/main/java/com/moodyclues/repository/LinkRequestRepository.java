@@ -106,4 +106,16 @@ public interface LinkRequestRepository extends JpaRepository<LinkRequest, String
 			@Param("counsellorId") String counsellorId,
 			@Param("status") LinkRequest.Status status
 			);
+	
+
+
+	@Query("""
+			SELECT l
+			FROM LinkRequest l
+			JOIN FETCH l.counsellorUser cu
+			JOIN FETCH l.journalUser ju
+			WHERE cu.id = :id
+			AND l.status = "ACCEPTED"
+			""")
+	public List<LinkRequest> findAllByCounsellorIdAccepted(@Param("id") String id);
 }
