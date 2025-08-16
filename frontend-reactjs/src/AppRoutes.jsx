@@ -1,8 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, Outlet, useLocation } from "react-router-dom";
 import Login from "./pages/Login";
 import Habits from "./pages/journal/Habits";
-import Mood from "./pages/journal/Mood";
-import Reflections from "./pages/journal/Reflections";
 import UserDashboard from "./pages/UserDashboard.jsx";
 import CounsellorLogin from "./pages/CounsellorLogin.jsx";
 import Home from "./pages/Home.jsx";
@@ -13,8 +11,6 @@ import CounsellorInviteClients from "./pages/CounsellorInviteClients.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import ClientsPage from "./pages/counsellor/ClientsPage.jsx";
 import PendingInvitesPage from "./pages/counsellor/PendingInvitesPage.jsx";
-import ReadPage from "./pages/journal/ReadPage.jsx";
-import JournalDetailPage from "./pages/journal/JournalDetailPage.jsx";
 import JournalEntry from "./pages/journal/JournalEntry.jsx";
 import HabitsSuccess from "./pages/journal/HabitsSuccess.jsx";
 import HabitsRecord from "./pages/journal/HabitsRecord.jsx";

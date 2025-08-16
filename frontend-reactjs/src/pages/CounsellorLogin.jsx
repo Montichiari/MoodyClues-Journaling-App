@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import axios from "axios";
 import logo from "../assets/moodyclues-logo.png";
 
+const API_BASE = import.meta?.env?.VITE_API_BASE_URL || "http://122.248.243.60:8080";
+
 export const CounsellorLogin = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -26,7 +28,7 @@ export const CounsellorLogin = () => {
 
         try {
             const res = await axios.post(
-                'http://122.248.243.60:8080/api/counsellor/login',
+                `${API_BASE}/api/counsellor/login`,
                 { email: emailTrim, password: passTrim },
                 { withCredentials: true, validateStatus: () => true }
             );

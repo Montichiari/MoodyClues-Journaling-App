@@ -4,6 +4,8 @@ import Sidenav from '../../components/Sidenav';
 import { useNavigate } from 'react-router-dom';
 import SidenavC from "../../components/SidenavC.jsx";
 
+const API_BASE = import.meta?.env?.VITE_API_BASE_URL || "http://122.248.243.60:8080";
+
 const drawerWidth = 200;
 
 const ClientsPage = () => {
@@ -29,7 +31,7 @@ const ClientsPage = () => {
                 }
 
                 const res = await fetch(
-                    `http://122.248.243.60:8080/api/linkrequest/counsellor/all-link-requests-accepted/${counsellorId}`,
+                    `${API_BASE}/api/linkrequest/counsellor/all-link-requests-accepted/${counsellorId}`,
                     { credentials: 'include' }
                 );
                 if (!res.ok) throw new Error(`Failed to fetch clients: ${res.status}`);

@@ -3,6 +3,8 @@ import { Box } from '@mui/material';
 import Sidenav from '../../components/Sidenav';
 import axios from 'axios';
 
+const API_BASE = import.meta?.env?.VITE_API_BASE_URL || "http://122.248.243.60:8080";
+
 const drawerWidth = 200;
 
 const InvitePage = () => {
@@ -21,7 +23,7 @@ const InvitePage = () => {
 
         try {
             const response = await axios.post(
-                'http://122.248.243.60:8080/api/linkrequest',
+                `${API_BASE}/api/linkrequest`,
                 { clientEmail: email },
                 { withCredentials: true }
             );

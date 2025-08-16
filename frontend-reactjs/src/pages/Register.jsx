@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import logo from "../assets/moodyclues-logo.png";
 
+const API_BASE = import.meta?.env?.VITE_API_BASE_URL || "http://122.248.243.60:8080";
+
 const PASSWORD_REGEX =
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
@@ -46,7 +48,7 @@ export const Register = () => {
 
         try {
             const res = await axios.post(
-                "http://122.248.243.60:8080/api/user/register",
+                `${API_BASE}/api/user/register`,
                 {
                     email: emailTrim,
                     password: passTrim,
