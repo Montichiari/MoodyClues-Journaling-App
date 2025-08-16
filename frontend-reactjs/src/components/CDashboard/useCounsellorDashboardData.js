@@ -9,6 +9,8 @@ const toUtcDate = (ymd) => { const [y,m,d]=ymd.split("-").map(Number); return ne
 const ymdUTC = (date) => date.toISOString().slice(0,10);
 const addUtcDays = (date, n) => new Date(date.getTime() + n * 86400000);
 
+const API_BASE = import.meta?.env?.VITE_API_BASE_URL || "http://122.248.243.60:8080";
+
 export default function useCounsellorDashboardData(rangeDays = 7) {
     const [loading, setLoading] = useState(true);
     const [error, setError]     = useState(null);
@@ -29,7 +31,7 @@ export default function useCounsellorDashboardData(rangeDays = 7) {
         setLoading(true);
 
         const counsellorId = localStorage.getItem("counsellorId");
-        axios.get("http://122.248.243.60:8080/api/counsellor/dashboard/window", {
+        axios.get(`${API_BASE}/api/counsellor/dashboard/window`, {
             params: { days: rangeDays, counsellorId },
             withCredentials: false
         })

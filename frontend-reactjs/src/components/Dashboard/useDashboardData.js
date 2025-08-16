@@ -12,6 +12,8 @@ const toUtcDate = (ymd) => {
 const ymdUTC = (date) => date.toISOString().slice(0, 10);
 const addUtcDays = (date, n) => new Date(date.getTime() + n * 86400000);
 
+const API_BASE = import.meta?.env?.VITE_API_BASE_URL || "http://122.248.243.60:8080";
+
 // Fill every day in [from..to] inclusive, no timezone drift
 function fillDaysUTC(fromYmd, toYmd, raw, mapRow) {
     const byDay = new Map((raw || []).map(r => [r.day, r])); // r.day is "YYYY-MM-DD"
@@ -41,7 +43,7 @@ export default function useDashboardData(rangeDays = 7) {
         setLoading(true);
         const userId = localStorage.getItem("userId");
 
-        axios.get("http://122.248.243.60:8080/api/dashboard/window", {
+        axios.get(`${API_BASE}/api/dashboard/window`, {
             params: { days: rangeDays, userId },
             withCredentials: false
         })
