@@ -25,7 +25,7 @@ const PendingInvitesPage = () => {
         setLoading(true);
         try {
             //test
-            const baseUrl = 'http://122.248.243.60:8080';
+            const baseUrl = 'http://localhost:8080';
 
             const url = `${baseUrl}/api/linkrequest/counsellor/all-link-requests/${counsellorId}`;
             const res = await fetch(url, { credentials: 'include' });

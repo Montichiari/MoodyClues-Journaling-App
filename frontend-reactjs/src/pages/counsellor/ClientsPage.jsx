@@ -18,7 +18,7 @@ const ClientsPage = () => {
             try {
                 if (!counsellorId) throw new Error('Please login first.');
 
-                const res = await fetch(`http://122.248.243.60:8080/api/linkrequest/counsellor/all-link-requests/${counsellorId}`, {
+                const res = await fetch(`http://localhost:8080/api/linkrequest/counsellor/all-link-requests/${counsellorId}`, {
                     credentials: 'include'
                 });
                 if (!res.ok) throw new Error(`Failed to fetch clients: ${res.status}`);

@@ -37,7 +37,7 @@ const ReadPage = () => {
             setError(null);
             try {
                 //test
-                const baseUrl = "http://122.248.243.60:8080";
+                const baseUrl = "http://localhost:8080";
 
                 const url = `${baseUrl}/api/journal/all/${targetUserId}`;
                 const res = await fetch(url, { credentials: 'include' });

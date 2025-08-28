@@ -29,7 +29,7 @@ const JournalDetailPage = () => {
             setLoading(true);
             setError(null);
 
-            const baseUrl = 'http://122.248.243.60:8080';
+            const baseUrl = 'http://localhost:8080';
 
             try {
                 const journalRes = await axios.get(

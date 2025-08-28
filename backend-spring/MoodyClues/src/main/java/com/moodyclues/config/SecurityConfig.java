@@ -17,14 +17,14 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @Configuration
 public class SecurityConfig {
 
-	  @Bean
-	  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-	    http
-	      .cors(Customizer.withDefaults())
-	      .csrf(csrf -> csrf.disable())
-	      .authorizeHttpRequests(auth -> auth
-	        .requestMatchers("/api/user/login", "/api/user/register",
-	                         "/api/counsellor/login", "/api/counsellor/register").permitAll()
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		http
+				.cors(Customizer.withDefaults())
+				.csrf(csrf -> csrf.disable())
+				.authorizeHttpRequests(auth -> auth
+								.requestMatchers("/api/user/login", "/api/user/register",
+										"/api/counsellor/login", "/api/counsellor/register").permitAll()
 
 
 //	        .requestMatchers(HttpMethod.POST, "/api/journal/submit").permitAll()
@@ -37,19 +37,19 @@ public class SecurityConfig {
 //	        .requestMatchers(HttpMethod.PUT, "/api/journal/entries/*/archive").permitAll()
 //
 //	        .requestMatchers(HttpMethod.GET, "/api/habits/all/*").permitAll()
-//	        .requestMatchers(HttpMethod.GET, "/api/habits/*/*").permitAll()
+//	        .requestMatchers(HttpMethod.GET, "/api/habits//").permitAll()
 //
 //	        .requestMatchers(HttpMethod.POST, "/api/habits/submit").permitAll()
-//	        .requestMatchers(HttpMethod.PUT, "/api/habits/*/*/edit").permitAll()
-//	        .requestMatchers(HttpMethod.PUT, "/api/habits/*/*/archive").permitAll()
+//	        .requestMatchers(HttpMethod.PUT, "/api/habits///edit").permitAll()
+//	        .requestMatchers(HttpMethod.PUT, "/api/habits///archive").permitAll()
 
-	        .requestMatchers("/api/journal/**", "/api/habits/**").permitAll()
-	        .anyRequest().permitAll()
-	      )
-	      .httpBasic(b -> b.disable())
-	      .formLogin(f -> f.disable());
+								.requestMatchers("/api/journal/*", "/api/habits/*").permitAll()
+								.anyRequest().permitAll()
+				)
+				.httpBasic(b -> b.disable())
+				.formLogin(f -> f.disable());
 
-	    return http.build();
+		return http.build();
 	}
 
 	@Bean
@@ -60,7 +60,7 @@ public class SecurityConfig {
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration config = new CorsConfiguration();
-		config.setAllowedOrigins(Arrays.asList("http://localhost:5174", "http://localhost:5173"));
+		config.setAllowedOriginPatterns(Arrays.asList("http://localhost:5178"));
 		config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 		config.setAllowedHeaders(Arrays.asList("*"));
 		config.setAllowCredentials(true);
