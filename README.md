@@ -6,7 +6,7 @@ A mental wellness journaling app where users track daily habits and reflect on t
 
 View video demonstration [here](https://youtu.be/iGxzENFD-_c).
 
-Java Spring Boot React MySQL Python Flask Docker AWS EC2 RDS
+Java · Spring Boot · React · MySQL · Python · Flask · Docker · AWS EC2 · AWS RDS
 
 ## Features
 - Journal entries with automatic emotion tagging via a sentiment analysis model (2 emotions per entry)
