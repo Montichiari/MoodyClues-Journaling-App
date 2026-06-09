@@ -70,6 +70,11 @@ Designed and implemented entirely by [Dion Yao](https://github.com/Montichiari),
 - AWS EC2
 - AWS RDS
 
+## CI/CD Pipeline
+
+<img width="960" height="540" alt="SA60 - Group 3 - Final Presentation Slides (Software Quality ^M Product Inspection)" src="https://github.com/user-attachments/assets/5aabb1c5-0375-4596-91b8-a9cd826d0e11" />
+
+
 ## Running locally
 Prerequisites: To be consolidated
 
@@ -80,7 +85,7 @@ Coming soon
 ## Contributors
 | Name | Role |
 |------|------|
-| [Dion Yao](https://github.com/Montichiari) | - Backend & Database: Architecture planning, Spring Boot, ERD, MySQL schema, REST API, API testing & documentation, Docker, AWS EC2 + RDS deployment) <br> - Web Frontend: Login, Register, Home, Journal User + Counsellor Dashboard pages, AWS EC2 deployment <br> - Web figma screens (All)
+| [Dion Yao](https://github.com/Montichiari) | - Backend & Database: Architecture planning, Spring Boot, ERD, MySQL schema, REST API, API testing & documentation, Docker, AWS EC2 + RDS deployment) <br> - Web Frontend: Login, Register, Home, Journal User + Counsellor Dashboard pages, AWS EC2 deployment <br> - DevOps: Built Github Actions CI/CD pipeline for backend and frontend <br> - Web figma screens (All)
 | [Hiroyo](https://github.com/chanhiro07) | - Machine learning model for sentiment analysis (Python) <br> - ML model deployment and CI/CD pipeline implementation (FlaskAPI, AWS EC2 + S3, GitHub Actions) <br> - Web Frontend (Journal User pages)
 | [Ma Li](https://github.com/PIKACHU-mali) | - Android journal users’ screens (Login, Register, Home, Notification, Emotion setting, invitation <br> - Android API calls (All)
 | [Thina](https://github.com/tinasqk) | - Android Counsellor functionality
