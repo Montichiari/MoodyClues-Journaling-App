@@ -49,7 +49,6 @@ Designed and implemented entirely by [Dion Yao](https://github.com/Montichiari),
 - Spring Data JPA (Hibernate)
 - MySQL
 - Flyway
-- Spring Security
 
 ### Frontend
 - ReactJS
