@@ -101,6 +101,18 @@ That's it.
    - Backend API → http://localhost:8080
    - Sentiment service → http://localhost:5000
 
+### Test accounts
+**To login:**<br>
+Journal User Account:
+- Email: alice.johnson@email.com
+- Password: password
+
+Counsellor User Account:
+- Email: dr.sarah.connor@clinic.com
+- Password: password
+
+**You can also register a new account, however the coded regex validation requires the password be ≥8 characters, include upper and lower case, a number, and a special character.**
+
 ### Stopping the app
 ```bash
 # Stop all services
