@@ -1,9 +1,0 @@
-package com.moodyclues.projection;
-
-public interface HabitsDayFlat {
-
-	LocalDate getDay();
-    Double getSleepHours();
-    Double getWaterLitres();
-    Double getWorkHours();
-}
