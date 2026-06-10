@@ -75,11 +75,39 @@ Designed and implemented entirely by [Dion Yao](https://github.com/Montichiari),
 <img width="960" height="540" alt="SA60 - Group 3 - Final Presentation Slides (Software Quality ^M Product Inspection)" src="https://github.com/user-attachments/assets/5aabb1c5-0375-4596-91b8-a9cd826d0e11" />
 
 
-## Running locally
-Prerequisites: To be consolidated
+## Running Locally
 
+### Prerequisites
+- [Docker](https://www.docker.com/products/docker-desktop) and Docker Compose
+
+That's it.
+
+### Steps
+
+1. Clone the repository
+```bash
+   git clone https://github.com/Montichiari/MoodyClues-Journaling-App.git
+   cd MoodyClues-Journaling-App
 ```
-Coming soon
+
+2. Start all services
+```bash
+   docker-compose up --build
+```
+   This will build and start MySQL, the Spring Boot backend, the sentiment analysis microservice, and the React frontend. MySQL takes the longest to initialise — wait until all services are ready before opening the app.
+
+3. Open the app
+   - Frontend → http://localhost
+   - Backend API → http://localhost:8080
+   - Sentiment service → http://localhost:5000
+
+### Stopping the app
+```bash
+# Stop all services
+docker-compose down
+
+# Stop and clear the database (fresh start)
+docker-compose down -v
 ```
 
 ## Contributors
