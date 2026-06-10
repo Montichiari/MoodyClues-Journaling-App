@@ -27,7 +27,7 @@ services:
 
   backend:
     build:
-      context: ./backend-spring./MoodyClues
+      context: ./backend-spring/MoodyClues
     container_name: moodyclues-backend
     ports:
       - "8080:8080"
