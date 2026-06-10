@@ -31,7 +31,7 @@ The app is split across four services:
 - **Backend API** - Spring Boot REST API, handles auth, journal entries, habits, and the counsellor-user link model. Backed by MySQL. Built entirely by [Dion Yao](https://github.com/Montichiari).
 - **Web Frontend** - React SPA consuming the backend API. Co-built by [Dion Yao](https://github.com/Montichiari), [Hiroyo](https://github.com/chanhiro07), [Sheng Yi](https://github.com/enjoyyourdailylife).
 - **Sentiment analysis ML service** - Python Flask microservice that receives journal entry text and returns two classified emotions. Deployed independently and called by the backend via REST. Built entirely by [Hiroyo](https://github.com/chanhiro07).
-- **Android Mobile Application** - Built in Android Studio in Kotlin by [Ma Li](https://github.com/PIKACHU-mali) with [Thina](https://github.com/tinasqk).
+- **Android Mobile Application** - Android application consuming backend API. Built in Android Studio in Kotlin by [Ma Li](https://github.com/PIKACHU-mali) with [Thina](https://github.com/tinasqk).
 
 All three services are containerised with **Docker** and were deployed on *separate* **AWS EC2** servers, with MySQL database on **AWS RDS** (servers are no longer live as of 1 September 2025).
 
