@@ -18,6 +18,9 @@ export default function useCounsellorDashboardData(rangeDays = 7) {
     const [selectedClientId, setSelectedClientId] = useState(null);
     const [seriesByClient, setSeriesByClient] = useState({});       // id -> { journalDaily, emotionCounts }
 
+    const API_BASE = import.meta?.env?.VITE_API_BASE_URL || "http://122.248.243.60:8080";
+
+
 
     const colorFor = (id) => {
         const idx = clients.findIndex(c => c.id === id);
@@ -29,7 +32,7 @@ export default function useCounsellorDashboardData(rangeDays = 7) {
         setLoading(true);
 
         const counsellorId = localStorage.getItem("counsellorId");
-        axios.get("http://122.248.243.60:8080/api/counsellor/dashboard/window", {
+        axios.get(`${API_BASE}/api/counsellor/dashboard/window`, {
             params: { days: rangeDays, counsellorId },
             withCredentials: false
         })

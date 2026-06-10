@@ -9,6 +9,8 @@ export const Login = () => {
     const [errMsg, setErrMsg] = useState('');
     const [loading, setLoading] = useState(false);
 
+    const API_BASE = import.meta?.env?.VITE_API_BASE_URL || "http://122.248.243.60:8080";
+
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
@@ -26,7 +28,7 @@ export const Login = () => {
 
         try {
             const res = await axios.post(
-                'http://122.248.243.60:8080/api/user/login',
+                `${API_BASE}/api/user/login`,
                 { email: emailTrim, password: passTrim },
                 { withCredentials: true, validateStatus: () => true }
             );

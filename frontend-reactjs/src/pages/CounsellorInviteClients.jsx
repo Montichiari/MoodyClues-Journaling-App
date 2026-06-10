@@ -4,7 +4,8 @@ import axios from 'axios';
 import SidenavC from "../components/SidenavC.jsx";
 
 const drawerWidth = 200;
-const API_BASE = 'http://122.248.243.60:8080';
+const API_BASE = import.meta?.env?.VITE_API_BASE_URL || "http://122.248.243.60:8080";
+
 
 const CounsellorInviteClients = () => {
     const [email, setEmail] = useState('');

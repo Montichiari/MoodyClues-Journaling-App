@@ -19,6 +19,9 @@ const ClientsPage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
+    const API_BASE = import.meta?.env?.VITE_API_BASE_URL || "http://122.248.243.60:8080";
+
+
     useEffect(() => {
         const fetchClients = async () => {
             try {
@@ -29,7 +32,7 @@ const ClientsPage = () => {
                 }
 
                 const res = await fetch(
-                    `http://122.248.243.60:8080/api/linkrequest/counsellor/all-link-requests-accepted/${counsellorId}`,
+                    `${API_BASE}/api/linkrequest/counsellor/all-link-requests-accepted/${counsellorId}`,
                     { credentials: 'include' }
                 );
                 if (!res.ok) throw new Error(`Failed to fetch clients: ${res.status}`);

@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-const API = 'http://122.248.243.60:8080';
+const API = import.meta?.env?.VITE_API_BASE_URL || "http://122.248.243.60:8080";
 
 const Logout = () => {
     const navigate = useNavigate();

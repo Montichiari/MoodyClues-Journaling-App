@@ -36,12 +36,15 @@ export default function useDashboardData(rangeDays = 7) {
     const [summary, setSummary] = useState({});
     const [emotionCounts, setEmotionCounts] = useState([]);
 
+    const API_BASE = import.meta?.env?.VITE_API_BASE_URL || "http://122.248.243.60:8080";
+
+
     useEffect(() => {
         let cancelled = false;
         setLoading(true);
         const userId = localStorage.getItem("userId");
 
-        axios.get("http://122.248.243.60:8080/api/dashboard/window", {
+        axios.get(`${API_BASE}/api/dashboard/window`, {
             params: { days: rangeDays, userId },
             withCredentials: false
         })

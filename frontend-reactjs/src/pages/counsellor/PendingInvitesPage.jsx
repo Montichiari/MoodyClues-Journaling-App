@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import SidenavC from "../../components/SidenavC.jsx";
 
 const drawerWidth = 200;
-const API_BASE = 'http://122.248.243.60:8080';
+const API_BASE = import.meta?.env?.VITE_API_BASE_URL || "http://122.248.243.60:8080";
 const TZ_SG = 'Asia/Singapore';
 
 

@@ -17,6 +17,9 @@ export const CounsellorRegistration = () => {
 
     const navigate = useNavigate();
 
+    const API_BASE = import.meta?.env?.VITE_API_BASE_URL || "http://122.248.243.60:8080";
+
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -46,7 +49,7 @@ export const CounsellorRegistration = () => {
 
         try {
             const res = await axios.post(
-                "http://122.248.243.60:8080/api/counsellor/register",
+                `${API_BASE}/api/counsellor/register`,
                 {
                     email: emailTrim,
                     password: passTrim,
