@@ -27,7 +27,7 @@ services:
 
   backend:
     build:
-      context: ./backend-spring
+      context: ./backend-spring./MoodyClues
     container_name: moodyclues-backend
     ports:
       - "8080:8080"
@@ -39,8 +39,6 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
-      sentiment:
-        condition: service_started
 
   frontend:
     build:
@@ -50,6 +48,7 @@ services:
       - "80:80"
     depends_on:
       - backend
+      - sentiment
 
 volumes:
   mysql_data:
