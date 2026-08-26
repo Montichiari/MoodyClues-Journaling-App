@@ -124,15 +124,17 @@ docker-compose down -v
 ## Contributors
 | Name | Role |
 |------|------|
-| [Dion Yao](https://github.com/Montichiari) | - Backend & Database: Architecture planning, Spring Boot, ERD, MySQL schema, REST API, API testing & documentation, Docker, AWS EC2 + RDS deployment) <br> - Web Frontend: Login, Register, Home, Journal User + Counsellor Dashboard pages, AWS EC2 deployment <br> - DevOps: Built Github Actions CI/CD pipeline for backend and frontend <br> - Web figma screens (All)
-| [Hiroyo](https://github.com/chanhiro07) | - Machine learning model for sentiment analysis (Python) <br> - ML model deployment and CI/CD pipeline implementation (FlaskAPI, AWS EC2 + S3, GitHub Actions) <br> - Web Frontend (Journal User pages)
-| [Ma Li](https://github.com/PIKACHU-mali) | - Android journal users’ screens (Login, Register, Home, Notification, Emotion setting, invitation <br> - Android API calls (All)
-| [Thina](https://github.com/tinasqk) | - Android Counsellor functionality
-| [Sheng Yi](https://github.com/enjoyyourdailylife) | - Web Frontend (Counsellor pages)
+| [Dion Yao](https://github.com/Montichiari) | **Backend & Database**: <br> - Planned entire application architecture <br> - Coded entire Java Spring Boot backend <br> - Created architecture diagram, ERD diagram, MySQL schema, API testing & documentation <br> - Docker, AWS EC2 and RDS deployment <br> **Web Frontend**: <br> - Login, Register, Home, Journal User + Counsellor Dashboard pages <br> - AWS EC2 deployment <br> **DevOps**: <br> - Created Github repository (including this entire readme) <br> - Built Github Actions CI/CD pipeline for backend and frontend <br> - Assisted teammates with merging branches <br> **UI/UX**: <br> - Created Figma mockup screens (All) <br> **Project Owner/Manager**: Came up with the concept and all user stories and features for the application <br> - Created and planned entire project planning sheet for group to keep track of progress
+| [Hiroyo](https://github.com/chanhiro07) | **ML Service**: <br> - Trained machine learning model for sentiment analysis (Python) <br> - Created Python Flask microservice <br> **ML DevOps**: <br> - ML model deployment and CI/CD pipeline implementation (FlaskAPI, AWS EC2 + S3, GitHub Actions) <br> **Web Frontend**: <br> - Journal User pages
+| [Ma Li](https://github.com/PIKACHU-mali) | **Android Studio**: <br> - Journal users’ screens (Login, Register, Home, Notification, Emotion setting, Invitation) <br> - Android API calls (All)
+| [Thina](https://github.com/tinasqk) | **Android Studio**: <br> - Counsellor functionality
+| [Sheng Yi](https://github.com/enjoyyourdailylife) | **Web Frontend**: <br> - Counsellor pages
 
 ## Development Process
 
 Built using an Agile framework over 4 weeks, as a five person team.
+
+<img width="1837" height="745" alt="project status report" src="https://github.com/user-attachments/assets/ce623124-9b46-4e9a-89f6-de153b35d101" />
 
 **As overall project lead, I was responsible for:**
 - Sprint planning and task breakdown
