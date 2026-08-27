@@ -79,20 +79,16 @@ Designed and implemented entirely by [Dion Yao](https://github.com/Montichiari),
 <br>
 <img width="45%" height="45%" alt="Screenshot 2025-08-08 222917" src="https://github.com/user-attachments/assets/c1c0e8c7-d9ff-4ddf-93a9-104025014fea" /> <img width="45%" height="45%" alt="Screenshot 2025-08-10 144943" src="https://github.com/user-attachments/assets/adac17d2-2cd9-47bc-bf9d-c29da1d9833e" />
 
-**Unit Testing**
-<br>
+### Unit Testing
 Service-layer logic was tested using **JUnit**, covering core business logic in key services. **JaCoCo** was used to track and visualize test coverage across the codebase.
 
-**API Testing**
-<br>
-Backend API endpoints were manually tested using **Postman** to verify request/response behavior across all major routes. Path variables, query parameters, and request inputs were documented via screenshots for each endpoint to keep a record of test cases covered.
+### API Testing
+Backend API endpoints were manually tested using **Postman** to verify request/response behavior across all major routes. Path variables, query parameters, and request inputs were documented via screenshots for each endpoint to keep a record of test cases covered. Full API documentation is available [here](SA60%20Group%203%20-%20API%20Documentation%20%26%20Testing.pdf).
 
-**Manual End-to-End Testing**
-<br>
+### Manual End-to-End Testing
 Full user flows (e.g. account creation, journal entry submission, sentiment analysis charts) were manually tested by using the application as an end user would, across the major features of the app.
 
-**Future Improvements**
-<br>
+### Future Improvements
 With more time, this would be extended to automated E2E testing (e.g. Selenium or Playwright) and load/performance testing of the API layer, to catch regressions and bottlenecks without relying on manual verification.
 
 ## Running Locally
