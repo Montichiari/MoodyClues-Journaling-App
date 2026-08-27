@@ -16,6 +16,23 @@ Java · Spring Boot · React · MySQL · Python · Flask · Docker · AWS EC2 ·
 - Counsellors can send link requests; journal users accept or decline
 - Linked counsellors get read-only access to a user's entries and dashboard
 
+---
+
+<img width="75%" height="75%" alt="Counsellor send request" src="https://github.com/user-attachments/assets/2c17cfa3-d006-431d-802a-bce3b80edb39" />
+
+---
+
+<img width="75%" height="75%" alt="Journal user view link requests" src="https://github.com/user-attachments/assets/9baa3f05-df74-4a17-b08a-41b8922cdbeb" />
+
+---
+
+<img width="75%" height="75%" alt="Journal user decision" src="https://github.com/user-attachments/assets/5ffed4e8-ca90-4a6e-84b5-9824d264dca5" />
+
+---
+
+
+
+
 ## UI Design
 
 Screens were designed by [Dion Yao](https://github.com/Montichiari) in Figma prior to development.
