@@ -73,6 +73,27 @@ Designed and implemented entirely by [Dion Yao](https://github.com/Montichiari),
 
 <img width="960" height="540" alt="SA60 - Group 3 - Final Presentation Slides (Software Quality ^M Product Inspection)" src="https://github.com/user-attachments/assets/5aabb1c5-0375-4596-91b8-a9cd826d0e11" />
 
+## Testing
+
+<img width="75%" height="75%" alt="image" src="https://github.com/user-attachments/assets/df5e9457-b3e5-48c3-a3cf-01e3a6a85d65" />
+<br>
+<img width="45%" height="45%" alt="Screenshot 2025-08-08 222917" src="https://github.com/user-attachments/assets/c1c0e8c7-d9ff-4ddf-93a9-104025014fea" /> <img width="45%" height="45%" alt="Screenshot 2025-08-10 144943" src="https://github.com/user-attachments/assets/adac17d2-2cd9-47bc-bf9d-c29da1d9833e" />
+
+**Unit Testing**
+<br>
+Service-layer logic was tested using **JUnit**, covering core business logic in key services. **JaCoCo** was used to track and visualize test coverage across the codebase.
+
+**API Testing**
+<br>
+Backend API endpoints were manually tested using **Postman** to verify request/response behavior across all major routes. Path variables, query parameters, and request inputs were documented via screenshots for each endpoint to keep a record of test cases covered.
+
+**Manual End-to-End Testing**
+<br>
+Full user flows (e.g. account creation, journal entry submission, sentiment analysis charts) were manually tested by using the application as an end user would, across the major features of the app.
+
+**Future Improvements**
+<br>
+With more time, this would be extended to automated E2E testing (e.g. Selenium or Playwright) and load/performance testing of the API layer, to catch regressions and bottlenecks without relying on manual verification.
 
 ## Running Locally
 
